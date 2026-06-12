@@ -12,7 +12,6 @@ import {
 
 type ShopGroup = ReturnType<typeof groupShopItems>[number];
 type SplitCount = 1 | 2 | 3;
-type CategorySelection = "all" | ShopCategory;
 
 function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
   if (splitCount === 1) {
@@ -67,14 +66,20 @@ async function waitForImages(node: HTMLElement) {
         return Promise.resolve();
       }
 
+      const timeout = new Promise<void>((resolve) => {
+        window.setTimeout(resolve, 12000);
+      });
+
       if (typeof image.decode === "function") {
-        return image.decode().catch(() => undefined);
+        return Promise.race([image.decode().catch(() => undefined), timeout]);
       }
 
-      return new Promise<void>((resolve) => {
+      const imageEvent = new Promise<void>((resolve) => {
         image.addEventListener("load", () => resolve(), { once: true });
         image.addEventListener("error", () => resolve(), { once: true });
       });
+
+      return Promise.race([imageEvent, timeout]);
     })
   );
 }
@@ -101,7 +106,8 @@ export function ShopGenerator() {
   const [isScreenshotMode, setIsScreenshotMode] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadMessage, setDownloadMessage] = useState("");
-  const [categorySelection, setCategorySelection] = useState<CategorySelection>("all");
+  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>([...SHOP_CATEGORIES]);
+  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
@@ -154,9 +160,10 @@ export function ShopGenerator() {
 
   const filteredItems = useMemo(() => {
     const normalizedName = nameFilter.trim().toLowerCase();
+    const selectedCategorySet = new Set(selectedCategories);
 
     return (shop?.items ?? []).filter((item) => {
-      const matchesCategory = categorySelection === "all" || categorySelection === item.category;
+      const matchesCategory = selectedCategorySet.has(item.category);
       const matchesName =
         !normalizedName ||
         item.name.toLowerCase().includes(normalizedName) ||
@@ -166,14 +173,18 @@ export function ShopGenerator() {
 
       return matchesCategory && matchesName && matchesRarity && matchesSeason;
     });
-  }, [categorySelection, nameFilter, rarityFilter, seasonFilter, shop]);
+  }, [nameFilter, rarityFilter, seasonFilter, selectedCategories, shop]);
 
   const groups = useMemo(() => groupShopItems(filteredItems), [filteredItems]);
   const splitPages = useMemo(() => splitGroups(groups, splitCount), [groups, splitCount]);
   const totalShopCount = shop?.items.length ?? 0;
   const filteredCount = filteredItems.length;
   const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
-  const categorySummary = categorySelection === "all" ? "All categories" : categoryLabels[categorySelection];
+  const visibleCategorySummary = groups.map((group) => group.label).join(", ");
+  const categorySummary =
+    selectedCategories.length === SHOP_CATEGORIES.length
+      ? "All categories"
+      : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
   const activeFilterLabel = [
     categorySummary,
     nameFilter.trim() ? `Name: ${nameFilter.trim()}` : "",
@@ -183,8 +194,27 @@ export function ShopGenerator() {
     .filter(Boolean)
     .join(" / ");
 
+  function toggleCategory(category: ShopCategory) {
+    setSelectedCategories((current) => {
+      if (current.includes(category)) {
+        const next = current.filter((selectedCategory) => selectedCategory !== category);
+        return next.length > 0 ? next : current;
+      }
+
+      return [...current, category];
+    });
+  }
+
+  function selectAllCategories() {
+    setSelectedCategories([...SHOP_CATEGORIES]);
+  }
+
+  function clearCategorySelection() {
+    setSelectedCategories(["skins"]);
+  }
+
   function resetFilters() {
-    setCategorySelection("all");
+    selectAllCategories();
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
@@ -282,21 +312,71 @@ export function ShopGenerator() {
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid min-w-[210px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Screenshot category
+                  Screenshot categories
                 </span>
-                <select
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
-                  data-testid="category-select"
-                  onChange={(event) => setCategorySelection(event.target.value as CategorySelection)}
-                  value={categorySelection}
-                >
-                  <option value="all">All categories ({totalShopCount})</option>
-                  {SHOP_CATEGORIES.map((category) => (
-                    <option key={category} value={category}>
-                      {categoryLabels[category]} only ({categoryCounts.get(category) ?? 0})
-                    </option>
-                  ))}
-                </select>
+                <div className="relative">
+                  <button
+                    className="flex h-11 w-full items-center justify-between gap-3 rounded-md border border-white/10 bg-slate-950 px-3 text-left text-sm font-bold text-white outline-none ring-cyan-300/30 transition hover:bg-white/[0.06] focus:ring-4"
+                    data-testid="category-select"
+                    onClick={() => setIsCategoryMenuOpen((isOpen) => !isOpen)}
+                    type="button"
+                  >
+                    <span className="truncate">
+                      {selectedCategories.length === SHOP_CATEGORIES.length
+                        ? `All categories (${totalShopCount})`
+                        : `${selectedCategories.length} selected`}
+                    </span>
+                    <span aria-hidden="true" className="text-cyan-200">
+                      v
+                    </span>
+                  </button>
+
+                  {isCategoryMenuOpen ? (
+                    <div className="absolute left-0 right-0 z-30 mt-2 max-h-96 overflow-auto rounded-lg border border-white/10 bg-slate-950 p-2 shadow-2xl shadow-black/50">
+                      <div className="mb-2 grid grid-cols-2 gap-2">
+                        <button
+                          className="h-9 rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950"
+                          onClick={selectAllCategories}
+                          type="button"
+                        >
+                          Select all
+                        </button>
+                        <button
+                          className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-black text-slate-200"
+                          onClick={clearCategorySelection}
+                          type="button"
+                        >
+                          Skins only
+                        </button>
+                      </div>
+
+                      <div className="grid gap-1">
+                        {SHOP_CATEGORIES.map((category) => {
+                          const isSelected = selectedCategories.includes(category);
+
+                          return (
+                            <label
+                              className="flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-md px-2 text-sm font-bold text-slate-100 hover:bg-white/[0.06]"
+                              key={category}
+                            >
+                              <span className="flex items-center gap-3">
+                                <input
+                                  checked={isSelected}
+                                  className="h-4 w-4 accent-cyan-300"
+                                  data-testid={`category-check-${category}`}
+                                  onChange={() => toggleCategory(category)}
+                                  type="checkbox"
+                                />
+                                <span>{categoryLabels[category]}</span>
+                              </span>
+                              <span className="text-xs text-slate-400">{categoryCounts.get(category) ?? 0}</span>
+                            </label>
+                          );
+                        })}
+                      </div>
+                    </div>
+                  ) : null}
+                </div>
               </label>
 
               <label className="grid min-w-[220px] flex-[1.4] gap-2">
