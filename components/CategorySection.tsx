@@ -23,11 +23,11 @@ const categoryAccent: Record<ShopCategory, string> = {
 
 export function CategorySection({ category, label, items, birrPerVbuck }: CategorySectionProps) {
   return (
-    <section className="break-inside-avoid rounded-xl border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-black/20 sm:p-4">
+    <section className="break-inside-avoid rounded-lg border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-black/20">
       <div className="mb-3 flex items-center justify-between gap-3">
         <div className="min-w-0">
           <p
-            className={`bg-gradient-to-r ${categoryAccent[category]} bg-clip-text text-lg font-black uppercase tracking-normal text-transparent`}
+            className={`bg-gradient-to-r ${categoryAccent[category]} bg-clip-text text-base font-black uppercase tracking-normal text-transparent`}
           >
             {label}
           </p>
@@ -37,7 +37,7 @@ export function CategorySection({ category, label, items, birrPerVbuck }: Catego
         </span>
       </div>
 
-      <div className="grid grid-cols-3 gap-3 lg:grid-cols-4">
+      <div className="grid grid-cols-5 gap-2">
         {items.map((item) => (
           <ShopCard birrPerVbuck={birrPerVbuck} item={item} key={item.id} />
         ))}
