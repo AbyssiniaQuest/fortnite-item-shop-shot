@@ -1,0 +1,2598 @@
+{
+  "source": "https://fortnite-api.com/v2/shop",
+  "updatedAt": "2026-06-12T00:00:00Z",
+  "cacheSeconds": 0,
+  "generatedAt": "2026-06-12T18:55:39.658Z",
+  "items": [
+    {
+      "id": "v2:/13f0c17561f52721f71a325cf3cc24491ac4fdc189b26200cd765168fe5875cd",
+      "name": "The Emptiness Machine",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/9a95b07e32db4fc7.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/9771a0d59dbfbf763d23339ea040aaa405d3ec0add0f0509c39a73e787f992be",
+      "name": "Holo-pack",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_279_cyberrunner/icon.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 9.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/684e8448333aa0a3edb00aea424fc6cdba4d09262eff27bbbf9664161d1fb091",
+      "name": "Frets of Chaos",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/7d4c0e0912bb6094/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/59df7b52318d14dafeed9dab995d78dd8782a43f1bcf65214e79ac7b4f8c8aa9",
+      "name": "A Thousand Miles",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/fbf1d5dfae364862.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6975427f68818370605362ea22f5a712c846318aa94130002f4f1022adc10ed0",
+      "name": "Gangnam Style",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/d74499515df37724.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/86799615f7bfe323320def772e04f73103432e140513a621fdfb474e49c62bc9",
+      "name": "Aerial Threat",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/41d828ecd250c655/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/865b58f098f00ca02141cafc1148534578f7615a27f2eda3ba19e6da8559d0f8",
+      "name": "Melt",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/254989db6ec42921.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/49fa8955b52a3854bff0550ed8c216f0c35ed50a84bd7e4191cd103696064fab",
+      "name": "Can't Stop The Feeling!",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/6b77d0e5184348c8.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/03a4188f4f511758ee971dfaffe7ed9e01922e2f3857c6be14e15575c57752e6",
+      "name": "Sledge",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/3d601b3992fe729c/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/e8ac3aa408416a2e79a7a8c88ca8c919a715d45a3428c756e4e6059a3b0ea4d5",
+      "name": "All I Do Is Win",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b6299811284bf862.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d0016f5d58f1302595dc1d7038f4fa5e9bb088ffb01e9cbeab523149d99451d3",
+      "name": "Rockstar",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/04a094918afe52c3.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8ab2563fa65a60d31f68435f054063bf6b666632da3c342f3e509bba77d0c9e6",
+      "name": "Eh Crown",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c437d5811de65700/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/8357dff4bd9876a994f26ea8f653e06b5006d1047596fd5b92bf80f7b8fa7828",
+      "name": "Cuddle Bow",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_023_pinkbear/icon.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 1, Season 3.",
+      "price": 200,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/d4e9f47834307e227fe292bf7887085982f7ed0a7a724619b85e265c0a8cc26a",
+      "name": "abcdefu",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/ef685e81f15802e7.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8d402c6ad2a4f8cd51f3833f7b43460a4ba1d95ed1d90d2523dd1036dd38dda1",
+      "name": "PLAYERS",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/aaa7042e1502370d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b349fa0e30a454cbe0082b9a541cc92151d8e1b7d1c36924c66394f021bba67b",
+      "name": "LISA Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/8cb360e0e00c7652/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 2500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/ff21ac825ae0e9a398d22669bf7c459fe8fe51738a341b19d755d5c1953f4586",
+      "name": "Skeletor",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/ab59aeefbfd4a083/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1800,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/eb247bbad1a09c46ae8fe8af5b89383e4ff141f29662d5112d2b90f74e6923af",
+      "name": "Bad Luck Claws",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1ab7edfc92a92364/renderimage_0.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/3f276ab76c8e47142f73c60be2b51bdff9c03781758ec71dee724745e9ade837",
+      "name": "Less Than",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/6f72cb9e6eb4bea2.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3431992ae31349ae910f505cdd515d8b650c9451b2f45fcbe781c9348ada3c9a",
+      "name": "Your Love (9pm)",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/e718e9d68a0845e2.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/7af019528574fec9b37f5271ed8d19e25fbc51c15638836bf69a06d8becfe1a4",
+      "name": "Stupid Love",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f76c09a112ed8928.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/ae8f94224b2a50dffe1e797109063783d43cb96b752ab2e1c0306f97d9a0c422",
+      "name": "Elite Cleat",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1e5deb9d7216784f/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 500,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/f2e1e75e456f38473026875356cfad5cc89d3bf3a62567f19604f588ce5f9ff1",
+      "name": "Hey Now!",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c75de5dc13096ec5/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 7.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/7d4888a9f51acf259e32c35dd7969a03251c420187ad545aa02add18f7832b18",
+      "name": "Feel Good Inc",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/394d7211243e301c.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/364a147f029c2cf53c364520459e22831fe4d35cee8b56e23289a4a73c618c56",
+      "name": "Holiday",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/8dafcce4df7e99c7.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3a0021d10b02ca5931f584432160addd81263e131e4416a7ad624532ab1c0b0c",
+      "name": "All About That Bass",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/9a55962ec4df2c04/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 6, Season 4.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/53bdabbd07c392096e37e4fc1de248fcffb5b84b3b92a84d7d85016c19e9de6f",
+      "name": "Bahhh",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/776ecabec3cc1775/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/6bac710ca1dc8f613ddcdb90ea25a0ff7bf036241d37bc810f65a4f20baec3f5",
+      "name": "Steamed",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/21839cd88d61e1f2/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 200,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/aa1c06939c2c57b742914396f677e55bfa9606bef7f8f040db8be172e79d67ce",
+      "name": "Say It Ain't So",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/6402f5c2a59afac1.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/296548fc37311df5f2bad5e6371d8d89d318cda8e583f79926e86da051b7d5fc",
+      "name": "Creatures In Heaven",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/e32de4e41867fbca.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/e9f6320f8fe1b45fc7f2a72d7dd61b63d7084f01bd459422d152e2b997424ae1",
+      "name": "Chicken Banana",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/75ebfac6f2f0d002.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6480a48a7df94315812ec829587cef859376f10b8847841df570881fa4e01242",
+      "name": "Somebody That I Used To Know",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/7a055d834f2845d6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2d7d7b0bde06126d9cdd3bcc00afb5e49dcd918a2d2c3f6315ad6a3bbfaab0fc",
+      "name": "Go Galactic",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/f7adbc3dbde4dd01/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/ae97d5a3464b7b743465fab9f4b06646001a361c2d9d996829516e8afa9636fb",
+      "name": "VJR Glow",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/4de28cd79542675c/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/7117200f8e2a5ad0aa4f3e0eb0061d558e7f855ab5f43e15e57116256c9851d4",
+      "name": "Stalwart Sweeper",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1a43a67276be5b0a/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/defe85efc16c38ebf4208606c2d557cf2ba03676efe39d2b50f2aeb2a7ddc701",
+      "name": "Magmatix",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/46c2dc8a594d8fd6/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Unknown season",
+      "price": 600,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/a1010c620d3e88248611fc87757a7d86407b96facce363ed4594ffaa72c841f9",
+      "name": "Adam's Song",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/715809facf49e92f.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/939510d52d463049450d175b7940fa16e44c90489744e660fbdbb457fd40073e",
+      "name": "THE DINER",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f8f1d43489cafdf3.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1ff412e2bcc7deb93b212f61fe73882f12d13c43a0a2555b8d7d16a79f7a6da8",
+      "name": "The Black Cat",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/87f6e1f57dbd1f60/renderimage_0.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Unknown season",
+      "price": 800,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/269ae58538728a42f94578de942040d249b077642d2ae79bc48c150b9655a50f",
+      "name": "TV Off",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/28266d282a24023e/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 6, Season 3.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/76fd30d2600398ce5396b07cce8c6ae5b6fa1d4a9ab0ac3579a3610f02396f13",
+      "name": "Super Striker",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/392d9549527d9400/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/0c7d71077b4b8f8c9348148d0e63b9d7fa8c2ea167715de1edc700f3e2dfb574",
+      "name": "Fat Lip",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/002f769e1e855822.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/46566d731b32d716f5531400061cff14f4e7870f51517a59797e4c782ecbe24c",
+      "name": "Rogue Gunner",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/cec78e5c65d84cc9/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 4, Season 2.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/7de61029a8a53ffc960c59523f1f3311ced2a1651fc8be07f298d5b6bfa3281f",
+      "name": "Axe of All Time",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/abd1d329cfe1e08d/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/8dcd7fe8c4b0ff1f10a926db022c4bd254f1a10797e35a964680a64e5979011c",
+      "name": "Fate",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/51a2e08f2756f7f3/renderimage_0.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 2000,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/69f20c7b2b78a34e3273da8978464a576056606ea3ced7f3ce9020c65a570cfa",
+      "name": "Combat Counter",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/d9452129ae305c77/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/0ed07ad16af0cf6b0ab50c6adae91cc3b96c27e71b30dec40b5cec82a0a8251b",
+      "name": "Stargazing",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/69e31f4821e13123.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/dee4bf8afde6fc364628f4f2471bbcde84d1070c7a95c27a09c5568800399e16",
+      "name": "Clinical Crosser",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/8f24a15469b389f3/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/388d5cb3b63f37ae6622c98b2314cbddcd5b644b8c72777f6885c176be6437e7",
+      "name": "Maps",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/43e4d4080fca102c.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/34b378cec7206fc512c94bb0d5a8447bbf0f5b28b23653e767bcd747a83a6512",
+      "name": "Ruby Soho",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/1b3e710b6d5ce4ee.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d3d41d8aa789b3e63b703b93d5059fe5f9b6a202181fae60fa035ba3935cecc8",
+      "name": "Whenever, Wherever",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/267a7748dbd363a8.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/90ea12a5f3c76cb42f849df75212ce47f42013c579e1d2bb6c034d92b1cece57",
+      "name": "Cat Gamer Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c723e34d2d3b08dc/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 1600,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/db3dda9f849cb54b90a766cf156fef72285c3d08d104ad9129000667d69bba40",
+      "name": "The Bark Voyager",
+      "type": "Sidekick",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/d5824e47569daf5f/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1200,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/68af7e03c8e464c966bc7fdd3b88658252f3e2ad4848734fa0756902ae0d2c48",
+      "name": "Fluffle Bag",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_519_comet/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/3cbbdc5504936fbeed35fc5cc5c415a7396e4f5e144b0417b671b2fd00448a63",
+      "name": "Skeletor's Weaponry",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/da40759ff7b0d16d/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/7826e6c5d5b36648b6155e3e8de5a3c450cfba33c10ecaac4f2448cedb589acd",
+      "name": "Phantom Guff",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/a2a757f6287df719/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/884d63dc9dbf99dff2125e0dc9dbee2bbee1e81823503e738caa8b025d8a440c",
+      "name": "Never Back Down",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/backpack_weaveharbor/icon.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/64bbdb9191105eae4d63ffed42541d7c886a284058ea6cd25097ff1f54afa6e4",
+      "name": "Fruit Punchers",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/70195176526e65df/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/cb1778abe33b8e4fe19ee4abf7783e352ae7bf6c70204a641321151def7368bc",
+      "name": "Vini's Football Maces",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/02256c0e91369a9e/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/02f98f12f1792a815be5e02e7e04770a61fa3dabe5bdc1d104baaccd91658e79",
+      "name": "Someday",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/1de637f176bd1e31.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/bb6a8c700377740a445ce6987adc93cb49d3bd9bf50c0402e03eebd59a66a4c2",
+      "name": "Skeletor's Cape",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/3d512abc7cb99484/renderimage_0.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/ba507c71b51c22e9c0d602a32a968068386e6cb92de7387e09ac631c4f735342",
+      "name": "He-Man's Weaponry",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/843414d0b4421800/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/fccc3eddba00325234900283018246cc1e634251200adcd202d0c7a79231b7ac",
+      "name": "Stronger (What Doesn't Kill You)",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a10a4bb20d5894ac.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/9057771ae2033ba780ecd0a688c954282cd40808613409c68e9cd0806d3eef6f",
+      "name": "Paxton Price",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/35b7dde73b17d258/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 4, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/75b2a255ad55b8857c05b2ef094548640bdd6445202b470b4341e544501566a7",
+      "name": "Poised Playmaker",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/8e84c065b948a566/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/b8fa75633baaba7f2f96dac4432d225a38754ace18ef07055b3b5ed2d2b70693",
+      "name": "Big Dawgs",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/ea0241594a091af6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8815964226468ce6943cd2b9575f3846f6b8a7ab2858c96803a869f4eb63dd58",
+      "name": "Molten Metal Mouth",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/0e956b525ef144a0/renderimage_0.png",
+      "rarity": "Lava Series",
+      "season": "Introduced in Chapter 6, Season 4.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/9bdce91c9b48625c91669ea7d2a0b5e2af9698096313c09388db3e4c6202972a",
+      "name": "Love Me Not",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/2e77ceceadbf708d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/10f48d940c269312182baef2bb6ea726bd60a96af693d702fccc81ec29379cc6",
+      "name": "Rockstar",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c09045ddf8095e15/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/3d30ace29611ad215f02b6ea5e9c9a2d36492604cf10a5b1d2119bfa64c6e2ea",
+      "name": "We Like To Party! (The Vengabus)",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/95ce805230beb803.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3f11c8e7448f352c2071951d814c3a1fb434012e62466fb9b8cfe3aca77b5328",
+      "name": "My House",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/ea0060d26a7907b0.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/71f92c8083d99174c2ddc07e215dc3c1e79cc6f56a5ea4a0c738608e13973928",
+      "name": "Red Card",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/89bf2f802afb76f8/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 200,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/d3574f2da4905910a03ae8197552962e5fc80b7197d0ce32a4b7f8ff9e426758",
+      "name": "Control",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c338d82d6f03a105/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 6, Season 1.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/7c6d920968408bace768cf78881d3d049cd5d5147cca515cc416f516e8b70f15",
+      "name": "Takaneno Hanakosan",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b7aba33d54970f46.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/79dc1d79105e44ca214ae32a59a2d9a3a2fc21669d0f82177a1c732bfaf9beb7",
+      "name": "Caper",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/d6073cf76e0c981f/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 4, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/c1ed46b9d0a83f86d639cc2147bcf2992d67bdd717da58f25d821b926a5b8113",
+      "name": "Kitbash",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/da31b9e597c769fd/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 7.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/681ae7cba91ba55df4861d3d036f512c4a7a30d3deae1a7460e150f36d149bd5",
+      "name": "Gimme The Light",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/08133301746cd134.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/bd3b977510c70404aac742a628069ae8f8deb343b9067c88171aefd61d67df94",
+      "name": "I Wanna Get Better",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/cd16816664a9d447.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/ca90e1939246b13ac846339075a9a5b061f2d185631af3e2a1d45902cbf1ae01",
+      "name": "Midfield Maestro",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/723e61b10e00be2b/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/ced95b0192762dbc09e63d1370a3a0fad33ff21dda181e2998650e7a0b3ae6ec",
+      "name": "Zina",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/cf725ebd21cfa5ce/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/7cbf396a25689b4bbc84856cae2b147081db61a481070d963bc319edc5bd9dde",
+      "name": "Kill Bill",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/bf15db19e2b045ee.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/555ce78a734fb31161928954eb5a420abd8c6eaa33990d5f79713d2739ec8df6",
+      "name": "Board Bag",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_209_robottroublemale/icon.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 7.",
+      "price": 200,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/4ee83fac9140c346deb2053b3a50ddc89d3045170b5bfaf5fc13717b1af51257",
+      "name": "Catrin Claws",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/97ed59dafdfdc8c9/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 500,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/b8f5e2440aea79cbb1d72b1da94414959efe08649132014d4ee5cc1f9c309bb5",
+      "name": "I Write Sins Not Tragedies",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a94837d0a0d422c0.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/73499cb63b97f9228aedaba22db63d980eabead5a68e474f607918ff753ff6ad",
+      "name": "Scenario",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/8196b3b2a32cf3e6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/de1f47761e3953fc9be4bb1499f3f7488f84535d97a53c0deca323cea358bd9a",
+      "name": "Star Playmakers Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/80ecd806068f2611/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 2500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/8dcdbfd477abcbc8e2580a2b19c67784b5f68dd3119fc6b75cf88509dbb2367d",
+      "name": "I Had Some Help",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f1d80f94e3fc6f35.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/a43de103990823424c67099a4618c8565bfd16241eaba72730368afb1464eadb",
+      "name": "Tá OK",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/3b0f989eb44d55eb/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/066625d49abe83b30e598910e90b7844844526bd2b436134342a9ff08d75476c",
+      "name": "Oxytocin",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/ca5fa47e7d017a43.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b87eba03b7312943c0de3122f2050959537a43975edffe247b13954e0723526f",
+      "name": "Who Let The Dogs Out",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f190d33166964268.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/20906933c15f3f56dbd3b087e18341b347656636e396d371286343b3ac41f594",
+      "name": "Blame Brett",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f6d923ff202af745.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1df2b3e8ce129ed0d4952be3d934b606e944432eea3d2ad71d854b266799111e",
+      "name": "No Doubt",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a038172353a33d8a.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/72fcab1810a4e6fa219750b919f4a44ec378de7248bbd095875d64e5faa44fb1",
+      "name": "Bloody Mary",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b7eda787bf78b873.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/f501156989ef5a811ac345262b5e0a01121f0dd7b598d0d8f16c671646e7c0d9",
+      "name": "On Target",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/4102ad2ebfd749c9/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/733963258b086dd1e85cae41fb7c89e5c4d4f65ff6d75e0ad66336bee584c9a4",
+      "name": "Daisy 2.0",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/fee2ca6a7cb5b07b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d57fe080eab2c4a354ebb748ebebf74529eec48c2bba099fbe663a197a3747bf",
+      "name": "As Alive As You Need Me To Be",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b3ffa70f132df6e6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2c48d88d185638f2b9af7e6feed495d44914f6268360f7fda3db1a43c0f423e8",
+      "name": "Vuvuzela",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/b9d0b2006bc2548c/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/edc4a58304c04cfadd90daa6506e3f367b83ee571d4590ad4c6de0adf83fa064",
+      "name": "EVIL J0RDAN",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/2be51782d70b2693.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/11a04138770a08241e68a7dd54123bb2033c485325ab6083f6436df6d639c45a",
+      "name": "Vini Jr.",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/ae6668f8d7d55c8c/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/2439715e61073f44b89ff3d9169a3e3f21029f875a665aa428a54a69c14dd49e",
+      "name": "In The End",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/1275ee566e69ded2.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d034c63ad9c51af74dc879e152854aa53bb7d3dd5ae27730467f8d1ed4c84c0f",
+      "name": "Shield of the Greatest",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/79603c1b7529ab31/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/9a33d2d52141a597a304070379c9402f6f68260792875ffe7b2257fada6db66b",
+      "name": "Regal Floof",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/b45be7eee267b412/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/b58d76b9b94cdd80f2ac5f2ec213cb9e44ab83599a880127329132cae45cc820",
+      "name": "back to friends",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b4832b2be2da935d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1acf81668c0fb92059b3665643ffaca5e71462ad827cac08094135f545a9eeb5",
+      "name": "Who",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/da13e9a835084aad.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/bbe7350befabdf7461207b47456a5f3ba15b82b3b53b74cd672d8d1a51e882a1",
+      "name": "Please Please Please",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/569c1c2ba2f11ba3.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8ce75e5fb823ee931621c08f530989ee4a9db469f089b023c282f6cc1994e5fa",
+      "name": "Bulls On Parade",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f2b7b374b8336422.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/71fc561537e9c3c0c85ba7c9478f9bfb366689640452d037d793ecde20e0d584",
+      "name": "XO Tour Llif3",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/773dca9c3a04615b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3b1e9038a4fe011da5b1435add85fcb8e8b815728e0655395a94c935a2d741b1",
+      "name": "Vini Jr. Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/feca1f8fe5f1d303/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 2600,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/bd7a2b5a4bd1399c047abee1ec554d6f591421c8d28c0a4e3c5d2350f1993115",
+      "name": "Toxic Kitty",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_345_toxickitty/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/cd21e90bc39ea17994d276c37f26cc2a5d6aba1da300c5eb99cd2a9f10f5c3fe",
+      "name": "You Think You're The King?",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/334a08d753d9c084/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 300,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/5a732d3aad853ee9f2489524aeeb8bfef967032e5733fea2b439ef5d8c48865c",
+      "name": "Sticks of Eternia",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/5bb633561a5d6810/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/8be7ea1ebe62a455c382ddb3d9e5d70d912ec6a8ac07c6b5f3266c0c15e86e1b",
+      "name": "afraid",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/0200d2408bc7dc43.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/811baa2104c82e3690460817004bac2c59a54f5fee16f27f639d23fe463e5279",
+      "name": "Champions of the Pitch Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/dc795e9b4dcb2670/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 2500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/5160d641a4513ec7c46f62fbd8744d86c8ccfcd52ed977b7209752c594763138",
+      "name": "Guffie Stuffie",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/9cc3097beaf08063/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 7.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/1edc7382ec9c82d3e2d7fbd2d7a958aa1442a6571c294e79af5892da31c83069",
+      "name": "Guff",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/e140599efeba8cc4/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/1324fbed2d5937f4a3010377aac56e58de3a80e10058c8a5cc59d9aa030f8a98",
+      "name": "Godzilla",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/764fb5e3e3ebbd64.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/5a5a1b8713219c2516531d872a40aa2cd87ae7bd6d47ab5231b22f050f638dfb",
+      "name": "Louis Plushie",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/ba9e3df7e15cc94e/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/5489466c357e0445554d27a75790ee94979822acbca3cc6eeedb0dfd61e78754",
+      "name": "Ballin'",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a8ed66580bd3092d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/41f16336fe9dc6e95bad8f150512a4a9261b423ce76357493a5b894f71de1b57",
+      "name": "Next Semester",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a7fcd8d0d965e6a3.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/c8cd0b448977efed1c78d0bebd11f5c50de9b540080fe800bee3da68dc98e152",
+      "name": "Never Back Down",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/5118aab9c5606449.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/faf89272cf3b09529385c1184aef9301af80fa9255ff8a51c20257044f2124e3",
+      "name": "LISA",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/8db7eb0a649d1fd3/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 1500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/9f4fa6d2a3b93164194a68550cf69c8cfd46ca0c7da2eeb187b130c63e57b5b6",
+      "name": "Faint",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/1d28b2a3c26c0308.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8fe71934027376ab1914ac8be7d455f6ec0eb50121ba9b1cb74970e5d46350f5",
+      "name": "emo girl",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/e6308fa22abf40f4.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2aa6896a894dd6c73c06ba1e61604c4cdff2a0ddbe637e3661638014bb668e97",
+      "name": "Nick Eh 30 Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/9b0eaf1a7089c6d4/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 2400,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/74e287683a62b286806e9de35af8c32e3964148b625a53f9d0c614f639caf61c",
+      "name": "Move Your Feet",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/e4ba1214dbd30541.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6beebd4df8b2324226699ca2688a5f2e7fe5c1dd2c0e3c71a0b04edc76bf7c08",
+      "name": "THE GOAT",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/068fbe1820f38431/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/99227e8c746c6d0f2753e09e0fc73ea0a695fe4ed25b74a059f8e9fe90e1f2c4",
+      "name": "She-Ra's Cape",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/f37f12985cf264ce/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/b6047b98ba989c94fea5a0688b0b8ebcb25e8c663f736a1989f492b2b5b66c51",
+      "name": "Goalbound",
+      "type": "Glider",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/e747be6521bc736d/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 500,
+      "category": "gliders"
+    },
+    {
+      "id": "v2:/0925ffcc7f0ff1400a792c2180ace9122c215bb6eac3c216d3bf6788b0aab8ea",
+      "name": "Vini's Game Day Gear",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/edd19c5ddf28a736/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/dfe2eb2914caa60957bff928331d8cfb5db34006bbf479daabae571538a78cda",
+      "name": "Nick Eh 30",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/6eda1a2f6fa5ec6b/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/fa5d9479d6f10cafbdceefdcc07d1afca19546efe88ed8de94555aa6fd28696d",
+      "name": "High Hopes",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/3648be6fba3c4a3a.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/05112a186d2775ce68c59cf1a8f4c71d4b376840ba29f6fc5f8da34e4339b31f",
+      "name": "all red",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/9a1e4d277b4f2925/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 6, Season 2.",
+      "price": 400,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/bed3fea7f1dc9436b7e8bedbf198f2128f199c062d917bffe3121c0e38895f79",
+      "name": "Fighter",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/0a3c784754622ff6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/8919ad82cbe67cc6246997e4bcac530b904a2106be0afca86369f34ab1b20b78",
+      "name": "Guff Grippers",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/3d5f2500c4d5bc60/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 600,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/24bdbe926321a1f75480b3513cb85daac709a82bde0d2a28aaac23c6b1f50743",
+      "name": "Dragula",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/194946c091d2ebcb.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/911f7cfb136cf9880628c83338607d5da1432a6ed612620980909e257b6950cf",
+      "name": "Whine Up",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f00f64cacbd1b3c1.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1d48d93f7ba794c4c8a4109ddbea08f8a2218ed9575f63a060c1c0fccb8b5338",
+      "name": "Red Alert",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_354_streetfashionred/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/471bf94e4bb8b0e630a7596b01f556c1f11ce1afd1b1e3b57a6917e1a8bcc241",
+      "name": "Firework",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/d5065b901ed9fd41.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6b208972523f678a162890ca18666d9a1b66f92e071d75e3a42b88a22862285e",
+      "name": "LISA's Classic Mic",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c095d21a667a7250/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 500,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/ae903791b73d2de9f0f0412946d62791c74daa1c65c8c71920a6058068ab014e",
+      "name": "Black Cat Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/32e1e9cd0b48165a/renderimage_0.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 2300,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/65e3c62f4ab13a796ccbea362c48e35c01267f6f12fb6ef4de858fe0eed4ef2e",
+      "name": "Hot In Herre",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a590988722909edb.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/5064e745b2c903ca9b03e0b9904b8c024ebe1f93ff850576b6ecee6c5f2638d4",
+      "name": "Cat's Tracks",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/057213dbcc3aca98/renderimage_0.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/f965477364204835c839ec3084046e1383fe3f9a8827bf857ec828f3d134629d",
+      "name": "Revolt",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/88b84e389ae281b4/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 7.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/78020938744f4af2fbb0ba5e9376ec7aadfce08234bf422670f6e6d6e816b257",
+      "name": "Bum Bum",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/3f5043aef5387b1b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/406757c255ee70ccb0d4e6ce1843a3cdfed50d5a86cd1474ed36ca1e71ae1f15",
+      "name": "Wildberry Lillet",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f075187351f1d5a4.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b0c1bff12fc163d0002a7907a0e432fd824fe8e4f15ff004a8dbc9171868be98",
+      "name": "Toxic",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/dd6bae817c1802f0.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/e867e901fd83fe58e22b258596758b203d9545c7f44a9575706afa57b2830fe7",
+      "name": "Kick Ups",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/b8a39a14d9beec45/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/cad4858ba0b37ed24ae8e67f68b9b1d61dcc24b0e1aeebddedbb9defd694b618",
+      "name": "GIVENCHY",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/91a341a5ea2db960.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/864ce1e6a92f6f262a85aee69d8073cf07e02f2a46e6d4d25d002eb1105c73f5",
+      "name": "Down with the Sickness",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f470e485ad1558bb.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3fb4243ccaa9715cd5181a6922c1c70f5168d1a7b26e2e79546f4843df5a8d36",
+      "name": "The Largest",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/0cc48b4501f6dede/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/a204f0e7d8456e3504307976b3e9c8b24b4edc5b7a77e1c029ffdf85422b8a00",
+      "name": "Cabbie",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/58a81411477abe88/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 7.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/29c3c58886d8f8785815ecc8e99ea9203cbd218672dd4942eda5d8821801c1ad",
+      "name": "all the good girls go to hell",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/8ed907e86fea3592.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3aba031499a049b4d4dd456532fc78fce18a5381e796fb912d2bdadcc8a37d8c",
+      "name": "Bounce Berry",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/878b67adb9a85e6f/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 300,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/d5a3aecd4e1b5d96b97749e5b435b00175055e703f269ccacca50f9568df0865",
+      "name": "The Brave",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/912d64f4dff4ac6c.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2dd45b20b7f78c1cd45e22f784e2470b92520611b81d8ee4d4f1bb9ea0e1520a",
+      "name": "Thumbs Down",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/84a4908413a1511a/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 200,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/db33768ffba23fabd838d1c281ca2562809cb18e7ebf5bad6db2e46ba5855b75",
+      "name": "Crocs Roy ‘Chrome’",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/69f1331c92d6ae59/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1000,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/63fed25c5fad413daf22efe0728fbcaf5a8196fd573ad58b5615d96f6df04829",
+      "name": "HOT TO GO!",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f247965161eb45e0.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d18ba266328e344b3f6e6492d4ed11aab58b7f7fc738015a48d9d8e4acc7016c",
+      "name": "if u think i'm pretty",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/afd76c06a49fc709.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/450d02a2ba53bc757281a328f2a55f996c28fac777c664dc25b75e68e4acfc59",
+      "name": "Never Gonna Give You Up",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/9dde32bcd2c348af.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1752a3574d106ad35fe6be331f50a833b9656c8dc273de16fb319e9610b5fdf0",
+      "name": "Stronghold ",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_348_paddedarmor/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/767da4f93c35f7a7705b8b6d14a13c4b0bfaa01e97b801f68dc86e919ede0d05",
+      "name": "Cat's Catastrophe",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/6befd9c4e950190b/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/ee7887fa6851c556532e53c82449659d987d646b5eb0ecf37f7c4bd4fdf1b8c8",
+      "name": "Masters of the Universe Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/27c1012276fffe39/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 3600,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/181f80713c01d31448341fe98e247e72b337546bb9c8e7eee650ee2b19e0df55",
+      "name": "Die With A Smile",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/5e3f7c960a5fa2ea.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/de2efc561012cf1f357c67a2debc079075de3edaf898f8afb846b7b602504253",
+      "name": "Get Busy",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b65df786960f64d0.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/1b3454a3933ffaa0ed79860b16317df879a08e94c0ae9c5ab900f9e92b05ed0a",
+      "name": "Happy",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/8c23d73e2a32bc9b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6e730ccbf7f49ca26cb9094288da6b9d5bf50dc7ededffcc810b8cc04ed90c38",
+      "name": "Air Jordan XXXV Rui Hachimura PE 'Cherry Blossom'",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/6f87295470a770db/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 6, Season 1.",
+      "price": 1000,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/9498df8d2b68a27ec8681be5acefb5d55d95c361ac3279a099dc3a8d326db09f",
+      "name": "Say So",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/17b77f24b35ac41b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/044779791d281aa01c485e1346c15871efe9f5ec949005937fe92357dceda824",
+      "name": "Breaking Me",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/e168a7a4b4200777.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/f26658b9c8410c40881dba049cd6195db0e2e35a1544e1103a74b77d7ad68715",
+      "name": "Fell In Love With A Girl",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/32201817e0621acd.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/3d6a11e3acdb0dc967a76617515484a96dff9cbe36e6b8e8a015aea0f6a210e6",
+      "name": "get him back!",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/76a5efec368ff66b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/5db4dd4696a53a82def2d5d6e02388db537bcde2ec8da3920fecb2c66129362a",
+      "name": "I Believe in a Thing Called Love",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/0cf15d5167f69445.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/305230c6ad5dabfc523e40643bcb29a22560cc1ce906890f4f2f0664ca6fad93",
+      "name": "All The Small Things",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/b52758a8d3514025.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b98e5ff2bbee99e41eecf007d3c7cff2e37b53a217d01106446aac3057ea094a",
+      "name": "Ominous Orb",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_060_darkninja/icon.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 800,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/0a30d8cde15d4c8c6e07e73eeaab5b5e1a40d2a1b0c0b509c08ea245b262204a",
+      "name": "Finesse Finisher",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/df9c9b6ae96c529a/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/26b706d2286300180aff1b7ae684607d5c52b4779be8afa7cabfb959c60b84fb",
+      "name": "Best of You",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/adcc3426251575c4.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/fe7d490da5e64a53ce822a20c4c678ce6b0b411dd3d2f3f9187808f4273aac8a",
+      "name": "Laugh of Power",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/5596b9add329e3dd/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 400,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/38f05270123644795d7ac446b5ad64c40ab8e3f01890a5193da99f664586d036",
+      "name": "Master of Puppets",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/dce28c1e57fa536b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/cb735c8c5347a7f7b86bb96be65e8a0ab7b8dd680a42b5741e23f9e9391d1031",
+      "name": "Catrin Glitch",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/685ef2e8eb9aea11/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/b5f1e6271655de925707f3aa778e270d8a5d9cf28f894fe4b8af16eb3dcb1e5f",
+      "name": "Seat of Defeat",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/40d42076aa9ab495/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 300,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/59e22eb07aca7f88e3d7369fdb5e865a93b69e658398238b6d20181c97f86fa1",
+      "name": "adidas Anthony Edwards 1 Low 'Champagne Metallic'",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/25ad3124eff2548d/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 6, Season 1.",
+      "price": 1000,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/fef1ed78989d2c9f689f16e297b6d6500b2600aa218e835c796bb03048166df0",
+      "name": "Misery Business",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f092ec1bed88c8cb.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/38a36728a36c77ca8012d4f337b9c0b930d62e56aeff14bc6974393355754dcf",
+      "name": "Don't Let Me Down",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/3264bbb66eba7cd9.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/751e3014ba77b7ff9118a3b99a41fd0e80ed74c21a4d8d83e14bef11349667d4",
+      "name": "Loserfruit Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/865baa841c05f126/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 1800,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/528f90c1c1c8c04de72695bd7b074c8f790f534df09d1f4a5ca4d9909bd6613f",
+      "name": "Sunflower - Spider-Man: Into the Spider-Verse",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/ad6fa2ab41e8a472.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2fa78e1dcb4c34e8a33674bccd0dbb91c2277f8e77f3c29d7f6e26cae3e29995",
+      "name": "Catastrophe",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/39f4a82e370dc4ed/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/16f853d8a4e909cedbc07f2421b1e535adadcd93abae13af890b026fb57e036b",
+      "name": "Locked Out Of Heaven",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/319fe95a9b3cc988.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/7157aa045d83d1837e99cc88bd7c17000ff85d91502dd6f319ff1144d6d1ae6e",
+      "name": "Mythical Might Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/3c3ccf38d3d6010e/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 2100,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/8500dd9df36acc12fe444e76e70a338de004420a7464126c38f67bc4fffdad60",
+      "name": "Eh Theme",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/60f6455bcf745a0b/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 5, Season 3.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/c0daa74fa00781ec6acf40b614316f958875e9f249e1ba2f3bc98b120e061200",
+      "name": "DAISIES",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/1f3195ef651330b6.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/af3308a9cd8b222e5da39f1e1b97e250a74f486a7523b333aa57813da5a52a13",
+      "name": "Lamborghini Temerario GT3",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/a11c6f6d3fe39e9a/renderimage_0.png",
+      "rarity": "Bundle",
+      "season": "Unknown season",
+      "price": 2700,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/4d4d83d65c5653e4195cbfb115cc60395d86065b1109f4cd9c8240dddfabbe30",
+      "name": "Ruff'n'Guff",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/6f3549b30de6f5e7/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/55d970dbca217a2d4545efc3d6f0d9be90c7a0dcd02014a4fb6408a71479f777",
+      "name": "Ghost",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/8ca7d0865d008c81.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/996c3f8efaf385c1fb11109618d330a58bc5cec3ee570b68326aaaf02b0c4918",
+      "name": "Survival Specialist",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/990a4aa842418b2b/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 1.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/a66409745b1714dcd353653c4e08a74ab8edc4184636fd898313914652de3e9f",
+      "name": "Fly",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/5c491a51fd22065d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/50ae0b9c793cc030038489fc1d6875cd0e4899df790ad7289f046ad32b65ee0e",
+      "name": "Stick Season",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/9f50a7282c82ed20.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/307b63e222c599912a649c9c08c09e0809a0816e9f1084f5490f32bb469080e2",
+      "name": "Firestarter",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_545_renegaderaiderfire/icon.png",
+      "rarity": "Lava Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/d9f0918d89b653035fc8f50d5cf6313917dcf83812369526b14589ae642971c8",
+      "name": "PUMA King Indoor ‘Black/Warm White’",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/0fb09bf13c4e9570/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/003b36d4de56e3ceeae3ae67a6035774ffd5d476f45dc4a5a8e7a3d305403810",
+      "name": "Cat's Pack",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/backpack_sweetletter/icon.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/82c29b8d3760befd5547cdce8bde174c1893a18e107cd246ac379aec339e2436",
+      "name": "Cube Cruiser",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/11506de83b0e5a64/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 400,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/846a5c5e9e1f6ff7d43c33934aea05dc7da4911c0cbd88e9cc8f7f05b5cceaf7",
+      "name": "Happier Than Ever - Edit",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/f60e3c74435dcb40.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/0fb70b053aa726dcf24f44b745afc2151cda64c5bbad4f4d614aeef8d04eec29",
+      "name": "Deeno",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/84aa4ab9dd4b2f7d/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 6, Season 2.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/abaafcdf36ad1592f4db3fc9a3e4a9857ed193aed7f4bbee2341558bf0d1f27b",
+      "name": "Stash'd",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/34c5e83128666825/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 3, Season 1.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/4800b155dea3e68d6825f9adcf38ef949b85907fd31c5438031f6644863d2261",
+      "name": "Dream On",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/57b15f2e0707c240.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/eed8e2fe64936bc439e6ec28b9cdba761a379abff45ace9719a5fe0faf5ffe20",
+      "name": "Dancing in the Flames",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/12390c5020de389c.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b1b946b645f0230584fce2fde2bad317c7409a4338b24f06923d197805daa47a",
+      "name": "Chaos Cluster",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/183dc11c32620e75/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/cdd107562ed16b7f1d8bfad19d3e227c9fb9b9025a56e4242d0f70a9c0249bbe",
+      "name": "Armed And Dangerous",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/652d5e69481b9f0e.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/d727e1bdb8de1bc86808b64eafccd0b1f88a9ade15ddff2b4d134bbb48233355",
+      "name": "Absolute Zero",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/00b5bd7a4993882f/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 1.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/63a191cfcd8aeeb1577885082a11303baa0418655f5f6489452f79e43ed4b1f7",
+      "name": "Fancy Footwork",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/38fb5205853b98a6/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 5.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/d2f4e2aa73c1ae34d8cc8c18c33e15ea24ff7fa21f38081e0a42acc45804670e",
+      "name": "Young, Wild & Free",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/95d2ddb796684fd4.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/e183f9db85d04811bba596f6d7c2c6c30a2c9e6e65a7c532152b9b691bedc92f",
+      "name": "Right Round",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/00d87e546885444d.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b7efc0a91d63bf96069976eee96f4f1188e57a7c1c9a843d661bbf28d757e390",
+      "name": "Overcompensate",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/c629b5fbee064c7b.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/6f4efde8ff4b6543e30212376d6ae65a1accfde525fdd63b1db5d27a8c6279c0",
+      "name": "Synapse",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/da01fded7a641a7f/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 9.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/cf4bef7953525526976f82599bc3f5681538551e5eb1bb1f38d623f1afd1756e",
+      "name": "Voyager's Cube",
+      "type": "Wrap",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/a1112824a51b8ab1/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "wraps"
+    },
+    {
+      "id": "v2:/e06e0021d205c296d125c90bc6947e68dfb71a98d5a4c3c5a0b6aac683f0859f",
+      "name": "Honor & Glory",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/backpack_dapperpunch/smallicon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 4, Season 4.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/0e058e1d7971fd6c2b4c0ebf262b98b0121407789d3b34b9fdecfc5072666203",
+      "name": "Crystal",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/d5d76dab6fce45c3/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/07f1a2b422b251d7e75c5a763f938fdca9703419fe26e3f8e77dae6fa24f9733",
+      "name": "Black Cat",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/a385192e1aefa050/renderimage_0.png",
+      "rarity": "MARVEL SERIES",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/776fe7a0bdba3bd11d72949a30da075f0f8f51c3351532100470e1e4e9222d94",
+      "name": "Tropical Stash",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_495_pineapplebandit/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 2, Season 2.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/f35561ae6dc098c2d22edef23cf41bac2c6e32a1501a65a0c54091d7a9860a5d",
+      "name": "Blitzkrieg Bop",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/9603260e3386723a.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/98a462301e9672d4a302242cd118eb470c4517adb3af5e3425197fb7fc5e7c84",
+      "name": "Dirty Little Secret",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/22078f6b27e59bbf.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/5c0cba224a6a62a5b44b8689d7ba332567680712549a1faaf67b268d37944e49",
+      "name": "Trash Lid",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_205_scrapyardmale/icon.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 1, Season 7.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/0074a473de1c5b7337a17f5ade750d6fede33950aaf6b3c9f86f87b94e54c5b2",
+      "name": "Cuddle Team Leader",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/6ea20ea38ba0830a/renderimage_0.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 1, Season 2.",
+      "price": 2000,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/6eb1f8180823974f8ea2e8c81b0c232c15ad14356f262026c3dd1f3b5386fd94",
+      "name": "Fireball",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/fbf614afdc3e7209.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/c42ed80f818d7a566e82a8a7d330ceb3982b38e040287aee2efaf847ff89455e",
+      "name": "Bang Bang",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/d4725a571ffb5396.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/df602858b31e9bbf83f4d32ef025239586f8d3b5a45c47e0564515d7a82b5cd0",
+      "name": "Vini's 7 Striker",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/c1bb734118752ba8/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/2073c5fc8e0ec9202efc4eb8151db122bd2e74b1c7c1ed9f8d2fbd1004f0de1b",
+      "name": "Takumi Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/acbf5f967ff0b1ea/renderimage_0.png",
+      "rarity": "Bundle",
+      "season": "Unknown season",
+      "price": 1500,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/4c79d398dd3042f548ba6880f43562bd9820b4f5e33c1ee98f9eb6b38c4caeb5",
+      "name": "Lean Back",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/7cbc7b247abd4a2e.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/96aad66d5aa7042ecab83646de1da2f438834654deb56d346a27090e085b4aad",
+      "name": "Pompeii",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/040026b4b1cf6da5.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/03f8fff2808220bb1666307778f80fcfcc0658d6a94ad5f81944ff00db20a7f8",
+      "name": "Sucker",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/199ef013f959e17e.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/58f40a9687716066da6fdb0b573169f6fb5aa6e33f961997f25443acd09d0b78",
+      "name": "Lucky Cat",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/68be387c97971db7/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 6, Season 5.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/84b05011e66c74881c0479c088167167454ac442c8b684829d1e3b05d88da6c9",
+      "name": "Chaos Cutlasses",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1ef25f8486042138/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 800,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/a0439080b071dfc190eae371fce0b9e493a26cedd21bfe89add0fe43f4024880",
+      "name": "Air Jordan 7 Retro 'White/Metallic Gold'",
+      "type": "Shoes",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/4109d5a1e8906eb1/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 6, Season 4.",
+      "price": 800,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/52f7e0aacf5e9aceb67c3ce01645dc592d76a8185b69c4f92432ba6a61fbdf30",
+      "name": "Move (Adapted)",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/5ed4979b7119cf8a.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/00fc6e04b3db7d3251e2ebb724b4bbbd7a8548d53df9931aad69374b900ff7d9",
+      "name": "Break From Toronto",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/a0ed31a5b6470282.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/819fed2c3ad7fffd7ea3cfd951e2a892cdd3e93d87bd6796f9e87801262790fd",
+      "name": "Black Diamond",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/813fd2a9713b5150.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/47dff61eed59a4f23e2f24ce9ec98a35650f0142d0a764e333f9744dcf96caa3",
+      "name": "Through the Fire and Flames",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/6fb1bf99553edddf.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/b16bbda7cc345c881c089fd6aa2cfdf9b0951fe654bcdddfc06c5cb56a39dda5",
+      "name": "Snare Solo",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/0d5ab3c41ca56fc6/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 8.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/945325c587a4fe3e7a441f03576047525a3c2ec0734c02fff66e53a86b203346",
+      "name": "Vini Fashion Flow",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/a02331e50c0bbedc/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/4d8e445f3bbf4537126b66f3ccc359c6d4fce365332734102021c46ca85b34e7",
+      "name": "Sword of Protection",
+      "type": "Pickaxe",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/970d64fca03d688d/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 500,
+      "category": "pickaxes"
+    },
+    {
+      "id": "v2:/78030c3a0e8cdcb2fbc0bfe94f776e790b59e1d20b8f95ed5933e19c7f8ed7d0",
+      "name": "Blaze",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/7e492d36dea70684/renderimage_0.png",
+      "rarity": "Lava Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/bd8fa022b74d647415144055020e09e57b320789f5abc27304ba93b6ddf3690c",
+      "name": "Snow Squall",
+      "type": "Glider",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/02f999fb08287a62/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 1, Season 1.",
+      "price": 500,
+      "category": "gliders"
+    },
+    {
+      "id": "v2:/4ac8276203cae87eb74e742637bb1a1b4f57cc23abe63c053054cb46e63719d8",
+      "name": "Voyager Unleashed",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1f747876c2ec733a/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/bb55161d24a7d9353c1f8608af4edbddf87a6d74494d60502bd0912b2910000a",
+      "name": "Catling Gun",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/9023a37884864abe/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 4, Season OG.",
+      "price": 300,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/e1e407064785f437572701a0de656962635e8f18aa8ae0e589c34b1ccb6d0837",
+      "name": "Poison",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/c186df232665ff32.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/f87f63d41ad3bc50e7b420a7338489c59169d77ccb3424c7b6283fd418cbc283",
+      "name": "Ruby",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/2a40ac0323d7937d/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season X.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/94631de474fe761383d56e7cd9ab5875e1168587d50467885257a82632a2778a",
+      "name": "Never Gonna",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/f9468f65a09c6b5b/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 1.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/b68ac8ae4891e2c7a0ba43cdd4228b811eaaf36f4bcfad9d313f6445c089da5d",
+      "name": "Free Bird",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/39a3d8ac933ab07f.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/414ab5c39de06143985abdd36d0577ee86aca8fa771dda5ac49d6da36155fa88",
+      "name": "Go Goated Bundle",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/01b1f3f6d02f7a22/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 2200,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/7b0be72023788d522a76627a92303cb3fe41029601fd12cf1998d293824e804d",
+      "name": "He-Man",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/0c006cff2506c893/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1800,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/62f9e2bf5e9eeb75ba3c59a04f6ebfee013df0343b1b512df24b4e38aacf65ca",
+      "name": "Loserfruit",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/54c1c77c1459bc99/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 1500,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/5aee4acd31315e0d2f21dfb09691977bbe065e407d17466cb1958927788b5539",
+      "name": "She-Ra",
+      "type": "Bundle",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/7f054cddd8e264bc/renderimage_0.png",
+      "rarity": "Epic",
+      "season": "Introduced in Chapter 7, Season 3.",
+      "price": 1600,
+      "category": "bundles"
+    },
+    {
+      "id": "v2:/c4986d579f2af05e751b7aa9c6d16dd81831fe9c3532231fc68c8ed2603f50a2",
+      "name": "from me to u",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/05d4a173db1143de.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/2b03290010d6bcb073b2741d8cc5b0258dc9a0241298d8f0bd0b7e969111d396",
+      "name": "FUTW",
+      "type": "Emote",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/5b6b7541d5733f8f/renderimage_0.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 7, Season 1.",
+      "price": 500,
+      "category": "emotes"
+    },
+    {
+      "id": "v2:/5d090a006653b0e693db0c437deb2bb1a818b3b19e3370780885620e372ec2e6",
+      "name": "Mi Gente",
+      "type": "Jam Track",
+      "image": "https://cdn.fortnite-api.com/tracks/6f90537ce93d25dd.jpg",
+      "rarity": "Unknown",
+      "season": "Unknown season",
+      "price": 500,
+      "category": "jamTracks"
+    },
+    {
+      "id": "v2:/197dab3ccd39197c97841b7a265370ade5a578246e648cfa41699d81a82f040e",
+      "name": "Buddy Bag",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/bid_527_loofah/icon.png",
+      "rarity": "Icon Series",
+      "season": "Introduced in Chapter 2, Season 3.",
+      "price": 300,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/884485931db7d1aa18f308291eb74f7604aed253b3ec78f6a3fa87337192ae94",
+      "name": "Shadow Stuffie",
+      "type": "Back Bling",
+      "image": "https://fortnite-api.com/images/cosmetics/br/backpack_fuzzydarkness/icon.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 5, Season 4.",
+      "price": 400,
+      "category": "backBlings"
+    },
+    {
+      "id": "v2:/b2b3e47faf3a2563f7c6a6805aaf70c3376b0473da6454ffe67a1282d02d8196",
+      "name": "Backlash",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/225d29b269de6b8b/renderimage_0.png",
+      "rarity": "Legendary",
+      "season": "Introduced in Chapter 2, Season 4.",
+      "price": 1800,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/0772b5eced90ebcf7d28591f73831d01f5c29e2ecf31dbc92edd055a7204e393",
+      "name": "Dynamic Dribbler",
+      "type": "Outfit",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/4028229f5a8222b4/renderimage_0.png",
+      "rarity": "Rare",
+      "season": "Introduced in Chapter 1, Season 4.",
+      "price": 1200,
+      "category": "skins"
+    },
+    {
+      "id": "v2:/7d9b04142e6fd047d1fca77dbaede2d1212a19b1ad5cf848c08e3566b9317e97",
+      "name": "Bonesy",
+      "type": "Sidekick",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/476459dfd92de60d/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 6, Season 6.",
+      "price": 1200,
+      "category": "kicks"
+    },
+    {
+      "id": "v2:/4776eda5a0f06f358d99987947bc71ebec54e9624a629b2e6cca81fef7fb68e9",
+      "name": "Cuddle Team Jr. ",
+      "type": "Sidekick",
+      "image": "https://fortnite-api.com/images/cosmetics/br/newdisplayassets/1da9d1dbf1dace94/renderimage_0.png",
+      "rarity": "Uncommon",
+      "season": "Introduced in Chapter 6, Season 6.",
+      "price": 1500,
+      "category": "kicks"
+    }
+  ]
+}
