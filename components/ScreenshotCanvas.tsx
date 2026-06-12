@@ -41,25 +41,25 @@ export function ScreenshotCanvas({
 }: ScreenshotCanvasProps) {
   return (
     <div className="w-[1080px] bg-slate-950 text-white">
-      <div className="relative overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-8">
+      <div className="relative overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-6">
         <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-fuchsia-400 to-amber-300" />
-        <div className="relative z-10 mb-6 grid gap-5 sm:grid-cols-[1fr_340px] sm:items-end">
+        <div className="relative z-10 mb-5 grid gap-5 sm:grid-cols-[1fr_300px] sm:items-end">
           <div>
             <p className="mb-2 text-sm font-black uppercase tracking-normal text-cyan-200">
               Unofficial Fortnite Item Shop
             </p>
-            <h1 className="text-6xl font-black leading-none tracking-normal">Shop Shot</h1>
-            <p className="mt-3 max-w-2xl text-lg text-slate-300">
+            <h1 className="text-5xl font-black leading-none tracking-normal">Shop Shot</h1>
+            <p className="mt-2 max-w-2xl text-base text-slate-300">
               {formatDate(updatedAt)} snapshot with V-Bucks and Birr purchase-cost estimates.
             </p>
-            <p className="mt-2 text-sm font-bold uppercase tracking-normal text-amber-200">
+            <p className="mt-2 text-xs font-bold uppercase tracking-normal text-amber-200">
               {activeFilterLabel}
             </p>
           </div>
 
-          <div className="grid gap-2 rounded-xl border border-white/10 bg-black/35 p-4 text-right">
+          <div className="grid gap-2 rounded-lg border border-white/10 bg-black/35 p-3 text-right">
             <span className="text-xs font-bold uppercase tracking-normal text-slate-400">Rate</span>
-            <strong className="text-2xl text-amber-200">
+            <strong className="text-xl text-amber-200">
               1 V-Buck = {birrPerVbuck.toLocaleString()} Birr
             </strong>
             <span className="text-sm text-slate-300">
@@ -69,7 +69,7 @@ export function ScreenshotCanvas({
         </div>
 
         {groups.length > 0 ? (
-          <div className="grid gap-4">
+          <div className="grid gap-3">
             {groups.map((group) => (
               <CategorySection
                 birrPerVbuck={birrPerVbuck}
