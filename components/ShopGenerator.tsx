@@ -20,6 +20,8 @@ const CARD_COLUMNS = 5;
 const CARD_WIDTH = (POSTER_WIDTH - POSTER_PADDING * 2 - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
 const CARD_HEIGHT = 244;
 const CARD_IMAGE_HEIGHT = 132;
+const POSTER_IMAGE_TIMEOUT = 45000;
+const POSTER_IMAGE_CONCURRENCY = 8;
 
 function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
   if (splitCount === 1) {
@@ -142,7 +144,7 @@ function drawText(
 function loadPosterImage(src: string) {
   return new Promise<HTMLImageElement | null>((resolve) => {
     const image = new Image();
-    const timeout = window.setTimeout(() => resolve(null), 25000);
+    const timeout = window.setTimeout(() => resolve(null), POSTER_IMAGE_TIMEOUT);
 
     image.crossOrigin = "anonymous";
     image.onload = () => {
@@ -155,6 +157,25 @@ function loadPosterImage(src: string) {
     };
     image.src = src;
   });
+}
+
+async function loadPosterImages(sources: string[]) {
+  const images: (HTMLImageElement | null)[] = Array(sources.length).fill(null);
+  let nextIndex = 0;
+
+  async function worker() {
+    while (nextIndex < sources.length) {
+      const index = nextIndex;
+      nextIndex += 1;
+      images[index] = await loadPosterImage(sources[index]);
+    }
+  }
+
+  await Promise.all(
+    Array.from({ length: Math.min(POSTER_IMAGE_CONCURRENCY, sources.length) }, () => worker())
+  );
+
+  return images;
 }
 
 function drawContainedImage(
@@ -172,6 +193,31 @@ function drawContainedImage(
   const renderedY = y + (height - renderedHeight) / 2;
 
   context.drawImage(image, renderedX, renderedY, renderedWidth, renderedHeight);
+}
+
+function drawImageFallback(context: CanvasRenderingContext2D, itemName: string, x: number, y: number, width: number, height: number) {
+  const initials = itemName
+    .split(/\s+/)
+    .filter(Boolean)
+    .slice(0, 2)
+    .map((word) => word[0]?.toUpperCase())
+    .join("");
+
+  context.save();
+  context.fillStyle = "#111827";
+  context.fillRect(x, y, width, height);
+  context.strokeStyle = "rgba(125, 211, 252, 0.22)";
+  context.lineWidth = 1;
+  context.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
+  context.fillStyle = "#67e8f9";
+  context.font = "900 30px Arial, sans-serif";
+  context.textAlign = "center";
+  context.textBaseline = "middle";
+  context.fillText(initials || "ITEM", x + width / 2, y + height / 2 - 8);
+  context.fillStyle = "#94a3b8";
+  context.font = "800 9px Arial, sans-serif";
+  context.fillText("ITEM ART", x + width / 2, y + height / 2 + 22);
+  context.restore();
 }
 
 export function ShopGenerator() {
@@ -373,8 +419,7 @@ export function ShopGenerator() {
       context.font = "800 14px Arial, sans-serif";
       context.fillText(`${group.items.length}`, POSTER_WIDTH - POSTER_PADDING - 42, y + 28);
 
-      const imagePromises = group.items.map((item) => loadPosterImage(item.image));
-      const images = await Promise.all(imagePromises);
+      const images = await loadPosterImages(group.items.map((item) => item.image));
 
       group.items.forEach((item, index) => {
         const column = index % CARD_COLUMNS;
@@ -398,6 +443,8 @@ export function ShopGenerator() {
         const image = images[index];
         if (image) {
           drawContainedImage(context, image, x + 12, cardY + 12, CARD_WIDTH - 24, CARD_IMAGE_HEIGHT - 8);
+        } else {
+          drawImageFallback(context, item.name, x + 12, cardY + 12, CARD_WIDTH - 24, CARD_IMAGE_HEIGHT - 8);
         }
 
         roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, CARD_WIDTH - 24), 20, 4);
@@ -482,7 +529,7 @@ export function ShopGenerator() {
               Fortnite Item Shop Shot
             </h1>
             <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
-              Build a clean screenshot from the current shop. Choose a category, filter the
+              Build a clean screenshot from the current shop. Choose categories, filter the
               results, then download one, two, or three PNG files.
             </p>
           </div>
