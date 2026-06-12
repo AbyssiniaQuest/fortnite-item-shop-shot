@@ -12,6 +12,7 @@ import {
 
 type ShopGroup = ReturnType<typeof groupShopItems>[number];
 type SplitCount = 1 | 2 | 3;
+type CategorySelection = "all" | ShopCategory;
 
 function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
   if (splitCount === 1) {
@@ -99,7 +100,8 @@ export function ShopGenerator() {
   const [birrPerVbuck, setBirrPerVbuck] = useState(1);
   const [isScreenshotMode, setIsScreenshotMode] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
-  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>([...SHOP_CATEGORIES]);
+  const [downloadMessage, setDownloadMessage] = useState("");
+  const [categorySelection, setCategorySelection] = useState<CategorySelection>("all");
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
@@ -152,10 +154,9 @@ export function ShopGenerator() {
 
   const filteredItems = useMemo(() => {
     const normalizedName = nameFilter.trim().toLowerCase();
-    const selectedCategorySet = new Set(selectedCategories);
 
     return (shop?.items ?? []).filter((item) => {
-      const matchesCategory = selectedCategorySet.has(item.category);
+      const matchesCategory = categorySelection === "all" || categorySelection === item.category;
       const matchesName =
         !normalizedName ||
         item.name.toLowerCase().includes(normalizedName) ||
@@ -165,17 +166,14 @@ export function ShopGenerator() {
 
       return matchesCategory && matchesName && matchesRarity && matchesSeason;
     });
-  }, [nameFilter, rarityFilter, seasonFilter, selectedCategories, shop]);
+  }, [categorySelection, nameFilter, rarityFilter, seasonFilter, shop]);
 
   const groups = useMemo(() => groupShopItems(filteredItems), [filteredItems]);
   const splitPages = useMemo(() => splitGroups(groups, splitCount), [groups, splitCount]);
   const totalShopCount = shop?.items.length ?? 0;
   const filteredCount = filteredItems.length;
   const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
-  const categorySummary =
-    selectedCategories.length === SHOP_CATEGORIES.length
-      ? "All categories"
-      : selectedCategories.map((category) => categoryLabels[category]).join(", ");
+  const categorySummary = categorySelection === "all" ? "All categories" : categoryLabels[categorySelection];
   const activeFilterLabel = [
     categorySummary,
     nameFilter.trim() ? `Name: ${nameFilter.trim()}` : "",
@@ -185,27 +183,13 @@ export function ShopGenerator() {
     .filter(Boolean)
     .join(" / ");
 
-  function toggleCategory(category: ShopCategory) {
-    setSelectedCategories((current) => {
-      if (current.includes(category)) {
-        const next = current.filter((item) => item !== category);
-        return next.length > 0 ? next : current;
-      }
-
-      return [...current, category];
-    });
-  }
-
-  function selectOnlyCategory(category: ShopCategory) {
-    setSelectedCategories([category]);
-  }
-
   function resetFilters() {
-    setSelectedCategories([...SHOP_CATEGORIES]);
+    setCategorySelection("all");
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
     setSplitCount(1);
+    setDownloadMessage("");
   }
 
   async function captureNode(node: HTMLElement, filename: string) {
@@ -224,10 +208,12 @@ export function ShopGenerator() {
 
   async function downloadPngs() {
     setIsDownloading(true);
+    setDownloadMessage("Preparing your PNG...");
 
     try {
       if (splitCount === 1 && canvasRef.current) {
         await captureNode(canvasRef.current, "fortnite-shop-shot-selected.png");
+        setDownloadMessage("PNG generated. Check your downloads or file manager.");
         return;
       }
 
@@ -236,6 +222,13 @@ export function ShopGenerator() {
       for (const [index, node] of nodes.entries()) {
         await captureNode(node, `fortnite-shop-shot-${index + 1}-of-${nodes.length}.png`);
       }
+      setDownloadMessage(`${nodes.length} PNG files generated. Check your downloads or file manager.`);
+    } catch (reason) {
+      setDownloadMessage(
+        reason instanceof Error
+          ? `PNG export failed: ${reason.message}`
+          : "PNG export failed. Please try again."
+      );
     } finally {
       setIsDownloading(false);
     }
@@ -243,18 +236,18 @@ export function ShopGenerator() {
 
   return (
     <main className="min-h-screen bg-slate-950 text-white">
-      <section className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.22),transparent_34%),linear-gradient(180deg,#020617,#0f172a)] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-5 lg:grid-cols-[1fr_420px] lg:items-end">
+      <section className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_34%),linear-gradient(180deg,#020617,#0f172a)] px-4 py-6 sm:px-6 lg:px-8">
+        <div className="mx-auto grid max-w-7xl gap-5 xl:grid-cols-[1fr_420px] xl:items-end">
           <div>
             <p className="mb-2 text-xs font-black uppercase tracking-normal text-cyan-200">
               Screenshot generator
             </p>
-            <h1 className="text-4xl font-black leading-none tracking-normal sm:text-6xl">
+            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-normal sm:text-6xl">
               Fortnite Item Shop Shot
             </h1>
-            <p className="mt-4 max-w-2xl text-base leading-7 text-slate-300">
-              Choose all categories or focus on skins, pickaxes, emotes, and more. The PNG
-              export uses exactly the filtered shop view below.
+            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
+              Build a clean screenshot from the current shop. Choose a category, filter the
+              results, then download one, two, or three PNG files.
             </p>
           </div>
 
@@ -283,79 +276,47 @@ export function ShopGenerator() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:px-6 lg:grid-cols-[340px_minmax(0,1fr)] lg:px-8">
-        <aside className="h-fit rounded-lg border border-white/10 bg-white/[0.055] p-4 lg:sticky lg:top-4">
-          <div className="grid gap-5">
-            <div className="grid gap-3">
-              <div className="flex items-center justify-between gap-3">
+      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:px-6 lg:px-8">
+        <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-2xl shadow-black/20">
+          <div className="grid gap-4">
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="grid min-w-[210px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Screenshot categories
+                  Screenshot category
                 </span>
-                <button
-                  className="rounded bg-cyan-300 px-2 py-1 text-xs font-black text-slate-950"
-                  onClick={() => setSelectedCategories([...SHOP_CATEGORIES])}
-                  type="button"
+                <select
+                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  data-testid="category-select"
+                  onChange={(event) => setCategorySelection(event.target.value as CategorySelection)}
+                  value={categorySelection}
                 >
-                  All
-                </button>
-              </div>
-              <div className="grid gap-2">
-                {SHOP_CATEGORIES.map((category) => {
-                  const isSelected = selectedCategories.includes(category);
+                  <option value="all">All categories ({totalShopCount})</option>
+                  {SHOP_CATEGORIES.map((category) => (
+                    <option key={category} value={category}>
+                      {categoryLabels[category]} only ({categoryCounts.get(category) ?? 0})
+                    </option>
+                  ))}
+                </select>
+              </label>
 
-                  return (
-                    <div className="grid grid-cols-[1fr_64px] gap-2" key={category}>
-                      <button
-                        className={`min-h-10 rounded-md border px-3 text-left text-xs font-black transition ${
-                          isSelected
-                            ? "border-cyan-200 bg-cyan-300 text-slate-950"
-                            : "border-white/10 bg-slate-950 text-slate-300"
-                        }`}
-                        data-testid={`category-toggle-${category}`}
-                        onClick={() => toggleCategory(category)}
-                        type="button"
-                      >
-                        <span className="flex items-center justify-between gap-2">
-                          <span>{categoryLabels[category]}</span>
-                          <span>{categoryCounts.get(category) ?? 0}</span>
-                        </span>
-                      </button>
-                      <button
-                        className="min-h-10 rounded-md border border-white/10 bg-black/25 px-2 text-xs font-black text-amber-100"
-                        data-testid={`category-only-${category}`}
-                        onClick={() => selectOnlyCategory(category)}
-                        type="button"
-                      >
-                        Only
-                      </button>
-                    </div>
-                  );
-                })}
-              </div>
-              <p className="text-xs leading-5 text-slate-400">
-                Tap category names to include or remove them. Use Only to screenshot one category.
-              </p>
-            </div>
-
-            <div className="grid gap-3">
-              <label className="grid gap-2">
+              <label className="grid min-w-[220px] flex-[1.4] gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Filter by name or type
                 </span>
                 <input
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setNameFilter(event.target.value)}
                   placeholder="Outfit name, pickaxe, wrap..."
                   value={nameFilter}
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="grid min-w-[170px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Filter by rarity
+                  Rarity
                 </span>
                 <select
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setRarityFilter(event.target.value)}
                   value={rarityFilter}
                 >
@@ -368,12 +329,12 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
+              <label className="grid min-w-[220px] flex-[1.2] gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Filter by season
+                  Season
                 </span>
                 <select
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setSeasonFilter(event.target.value)}
                   value={seasonFilter}
                 >
@@ -385,45 +346,39 @@ export function ShopGenerator() {
                   ))}
                 </select>
               </label>
-            </div>
 
-            <label className="grid gap-2">
-              <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                V-Bucks-to-Birr rate
-              </span>
-              <input
-                className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-white outline-none ring-cyan-300/30 focus:ring-4"
-                min="0"
-                onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
-                step="0.01"
-                type="number"
-                value={birrPerVbuck}
-              />
-              <span className="text-xs text-slate-400">Default: 1 V-Buck = 1 Birr.</span>
-            </label>
-
-            <div className="grid gap-3 rounded-md bg-black/25 p-3">
-              <label className="flex items-center justify-between gap-4">
-                <span className="text-sm font-bold text-slate-200">Screenshot mode</span>
+              <label className="grid min-w-[150px] gap-2">
+                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                  Birr rate
+                </span>
                 <input
-                  checked={isScreenshotMode}
-                  className="h-5 w-5 accent-cyan-300"
-                  onChange={(event) => setIsScreenshotMode(event.target.checked)}
-                  type="checkbox"
+                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  min="0"
+                  onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
+                  step="0.01"
+                  type="number"
+                  value={birrPerVbuck}
                 />
               </label>
+            </div>
 
-              <div className="grid gap-2">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Split export
-                </span>
-                <div className="grid grid-cols-3 gap-2">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <div className="flex flex-wrap items-center gap-3">
+                <label className="flex min-h-10 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3">
+                  <input
+                    checked={isScreenshotMode}
+                    className="h-5 w-5 accent-cyan-300"
+                    onChange={(event) => setIsScreenshotMode(event.target.checked)}
+                    type="checkbox"
+                  />
+                  <span className="text-sm font-bold text-slate-200">Screenshot preview</span>
+                </label>
+
+                <div className="flex rounded-md border border-white/10 bg-slate-950 p-1">
                   {[1, 2, 3].map((count) => (
                     <button
-                      className={`h-10 rounded-md border text-sm font-black ${
-                        splitCount === count
-                          ? "border-amber-200 bg-amber-200 text-slate-950"
-                          : "border-white/10 bg-slate-950 text-slate-300"
+                      className={`h-9 min-w-16 rounded px-3 text-sm font-black transition ${
+                        splitCount === count ? "bg-amber-200 text-slate-950" : "text-slate-300 hover:bg-white/10"
                       }`}
                       data-testid={`split-${count}`}
                       key={count}
@@ -434,12 +389,18 @@ export function ShopGenerator() {
                     </button>
                   ))}
                 </div>
-              </div>
-            </div>
 
-            <div className="grid gap-2">
+                <button
+                  className="h-10 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-bold text-slate-200 transition hover:bg-white/10"
+                  onClick={resetFilters}
+                  type="button"
+                >
+                  Reset
+                </button>
+              </div>
+
               <button
-                className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60"
+                className="h-11 rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60"
                 data-testid="download-pngs"
                 disabled={!shop || isDownloading || filteredCount === 0}
                 onClick={downloadPngs}
@@ -449,19 +410,20 @@ export function ShopGenerator() {
                   ? "Rendering..."
                   : `Download ${splitCount} PNG${splitCount > 1 ? " files" : ""}`}
               </button>
-              <button
-                className="h-10 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-bold text-slate-200"
-                onClick={resetFilters}
-                type="button"
-              >
-                Reset filters
-              </button>
-              <p className="text-xs leading-5 text-slate-400">
-                The screenshot includes only the selected categories and filters.
-              </p>
+            </div>
+
+            <div className="grid gap-2 rounded-lg bg-black/20 p-3 text-sm text-slate-300 sm:flex sm:items-center sm:justify-between">
+              <span>
+                Showing <strong className="text-white">{filteredCount}</strong> of{" "}
+                <strong className="text-white">{totalShopCount}</strong> items for{" "}
+                <strong className="text-cyan-200">{categorySummary}</strong>.
+              </span>
+              <span className={downloadMessage.includes("failed") ? "text-red-200" : "text-amber-100"}>
+                {downloadMessage || "Downloads save to your browser downloads/file manager."}
+              </span>
             </div>
           </div>
-        </aside>
+        </div>
 
         <div className="min-w-0">
           {error ? (
