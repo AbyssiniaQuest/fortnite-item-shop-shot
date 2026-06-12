@@ -8,7 +8,7 @@ An unofficial Fortnite item shop screenshot generator built with Next.js, React,
 - Caches shop data in the Next.js route handler for 15 minutes.
 - Organizes items into skins, emotes, pickaxes, kicks, bundles, gliders, wraps, back blings, jam tracks/music, and uncategorized groups.
 - Shows item name, type, image, rarity, V-Bucks price, and Birr purchase-cost estimate.
-- Lets you screenshot all categories together or choose a single category such as only skins or only pickaxes from a top toolbar dropdown.
+- Lets you screenshot all categories together or choose multiple categories such as skins plus pickaxes from a top toolbar multi-select.
 - Filters the screenshot by item name/type, rarity, and season.
 - Uses an editable V-Bucks-to-Birr rate. The default is `1 V-Buck = 1 Birr`.
 - Provides a screenshot-mode layout designed for export.
