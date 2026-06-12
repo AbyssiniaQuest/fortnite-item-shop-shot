@@ -110,7 +110,7 @@ export function ShopGenerator() {
   useEffect(() => {
     let mounted = true;
 
-    fetch("/shop-data.json")
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/shop-data.json`)
       .then(async (response) => {
         if (!response.ok) {
           throw new Error("Unable to load today's shop.");
