@@ -13,6 +13,14 @@ import {
 type ShopGroup = ReturnType<typeof groupShopItems>[number];
 type SplitCount = 1 | 2 | 3;
 
+const POSTER_WIDTH = 1080;
+const POSTER_PADDING = 32;
+const CARD_GAP = 10;
+const CARD_COLUMNS = 5;
+const CARD_WIDTH = (POSTER_WIDTH - POSTER_PADDING * 2 - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
+const CARD_HEIGHT = 244;
+const CARD_IMAGE_HEIGHT = 132;
+
 function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
   if (splitCount === 1) {
     return [groups];
@@ -57,33 +65,6 @@ function downloadDataUrl(dataUrl: string, filename: string) {
   link.click();
 }
 
-async function waitForImages(node: HTMLElement) {
-  const images = Array.from(node.querySelectorAll("img"));
-
-  await Promise.all(
-    images.map((image) => {
-      if (image.complete && image.naturalWidth > 0) {
-        return Promise.resolve();
-      }
-
-      const timeout = new Promise<void>((resolve) => {
-        window.setTimeout(resolve, 12000);
-      });
-
-      if (typeof image.decode === "function") {
-        return Promise.race([image.decode().catch(() => undefined), timeout]);
-      }
-
-      const imageEvent = new Promise<void>((resolve) => {
-        image.addEventListener("load", () => resolve(), { once: true });
-        image.addEventListener("error", () => resolve(), { once: true });
-      });
-
-      return Promise.race([imageEvent, timeout]);
-    })
-  );
-}
-
 function formatDateTime(value?: string) {
   if (!value) {
     return "Loading...";
@@ -97,6 +78,100 @@ function formatDateTime(value?: string) {
 
 function uniqueSorted(values: string[]) {
   return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b));
+}
+
+function roundedRect(
+  context: CanvasRenderingContext2D,
+  x: number,
+  y: number,
+  width: number,
+  height: number,
+  radius: number
+) {
+  context.beginPath();
+  context.moveTo(x + radius, y);
+  context.arcTo(x + width, y, x + width, y + height, radius);
+  context.arcTo(x + width, y + height, x, y + height, radius);
+  context.arcTo(x, y + height, x, y, radius);
+  context.arcTo(x, y, x + width, y, radius);
+  context.closePath();
+}
+
+function drawText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth: number,
+  lineHeight: number,
+  maxLines: number
+) {
+  const words = text.split(" ");
+  const lines: string[] = [];
+  let activeLine = "";
+
+  for (const word of words) {
+    const testLine = activeLine ? `${activeLine} ${word}` : word;
+
+    if (context.measureText(testLine).width <= maxWidth || !activeLine) {
+      activeLine = testLine;
+      continue;
+    }
+
+    lines.push(activeLine);
+    activeLine = word;
+
+    if (lines.length === maxLines) {
+      break;
+    }
+  }
+
+  if (activeLine && lines.length < maxLines) {
+    lines.push(activeLine);
+  }
+
+  lines.slice(0, maxLines).forEach((line, index) => {
+    const renderedLine =
+      index === maxLines - 1 && lines.length === maxLines && words.join(" ") !== lines.join(" ")
+        ? `${line.replace(/\W?\w*$/, "")}...`
+        : line;
+    context.fillText(renderedLine, x, y + index * lineHeight);
+  });
+}
+
+function loadPosterImage(src: string) {
+  return new Promise<HTMLImageElement | null>((resolve) => {
+    const image = new Image();
+    const timeout = window.setTimeout(() => resolve(null), 25000);
+
+    image.crossOrigin = "anonymous";
+    image.onload = () => {
+      window.clearTimeout(timeout);
+      resolve(image);
+    };
+    image.onerror = () => {
+      window.clearTimeout(timeout);
+      resolve(null);
+    };
+    image.src = src;
+  });
+}
+
+function drawContainedImage(
+  context: CanvasRenderingContext2D,
+  image: HTMLImageElement,
+  x: number,
+  y: number,
+  width: number,
+  height: number
+) {
+  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
+  const renderedWidth = image.naturalWidth * scale;
+  const renderedHeight = image.naturalHeight * scale;
+  const renderedX = x + (width - renderedWidth) / 2;
+  const renderedY = y + (height - renderedHeight) / 2;
+
+  context.drawImage(image, renderedX, renderedY, renderedWidth, renderedHeight);
 }
 
 export function ShopGenerator() {
@@ -222,17 +297,150 @@ export function ShopGenerator() {
     setDownloadMessage("");
   }
 
-  async function captureNode(node: HTMLElement, filename: string) {
-    const { toPng } = await import("html-to-image");
+  async function captureGroups(groupsToCapture: ShopGroup[], filename: string, pageNumber?: number, pageTotal?: number) {
+    const rows = groupsToCapture.reduce(
+      (sum, group) => sum + Math.ceil(group.items.length / CARD_COLUMNS),
+      0
+    );
+    const posterHeight =
+      POSTER_PADDING +
+      138 +
+      groupsToCapture.length * 54 +
+      rows * CARD_HEIGHT +
+      Math.max(rows - 1, 0) * CARD_GAP +
+      52;
+    const canvas = document.createElement("canvas");
+    const context = canvas.getContext("2d");
 
-    await waitForImages(node);
+    if (!context) {
+      throw new Error("Canvas is not supported in this browser.");
+    }
 
-    const dataUrl = await toPng(node, {
-      cacheBust: true,
-      pixelRatio: 1.5,
-      backgroundColor: "#020617"
-    });
+    canvas.width = POSTER_WIDTH;
+    canvas.height = Math.max(POSTER_WIDTH, posterHeight);
 
+    const background = context.createLinearGradient(0, 0, POSTER_WIDTH, canvas.height);
+    background.addColorStop(0, "#020617");
+    background.addColorStop(0.55, "#101827");
+    background.addColorStop(1, "#171717");
+    context.fillStyle = background;
+    context.fillRect(0, 0, canvas.width, canvas.height);
+
+    context.fillStyle = "#67e8f9";
+    context.fillRect(0, 0, POSTER_WIDTH, 5);
+    context.fillStyle = "#f0f9ff";
+    context.font = "900 54px Arial, sans-serif";
+    context.fillText("Shop Shot", POSTER_PADDING, 72);
+    context.fillStyle = "#bae6fd";
+    context.font = "900 18px Arial, sans-serif";
+    context.fillText("UNOFFICIAL FORTNITE ITEM SHOP", POSTER_PADDING, 108);
+    context.fillStyle = "#cbd5e1";
+    context.font = "600 18px Arial, sans-serif";
+    context.fillText(`${formatDateTime(shop?.updatedAt)} - ${filteredCount} selected items`, POSTER_PADDING, 136);
+    context.fillStyle = "#fde68a";
+    context.font = "900 16px Arial, sans-serif";
+    drawText(context, activeFilterLabel, POSTER_PADDING, 164, 670, 20, 2);
+
+    roundedRect(context, POSTER_WIDTH - 330, 40, 298, 92, 12);
+    context.fillStyle = "rgba(0,0,0,0.36)";
+    context.fill();
+    context.fillStyle = "#94a3b8";
+    context.font = "800 13px Arial, sans-serif";
+    context.fillText("RATE", POSTER_WIDTH - 306, 72);
+    context.fillStyle = "#fde68a";
+    context.font = "900 22px Arial, sans-serif";
+    context.fillText(`1 V-Buck = ${birrPerVbuck.toLocaleString()} Birr`, POSTER_WIDTH - 306, 104);
+    context.fillStyle = "#cbd5e1";
+    context.font = "700 14px Arial, sans-serif";
+    context.fillText(pageNumber ? `PNG ${pageNumber}/${pageTotal}` : "Single PNG", POSTER_WIDTH - 306, 126);
+
+    let y = 210;
+
+    for (const group of groupsToCapture) {
+      const sectionRows = Math.ceil(group.items.length / CARD_COLUMNS);
+      const sectionHeight = 42 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 18;
+
+      roundedRect(context, POSTER_PADDING, y, POSTER_WIDTH - POSTER_PADDING * 2, sectionHeight, 14);
+      context.fillStyle = "rgba(255,255,255,0.045)";
+      context.fill();
+      context.strokeStyle = "rgba(255,255,255,0.1)";
+      context.stroke();
+
+      context.fillStyle = "#67e8f9";
+      context.font = "900 20px Arial, sans-serif";
+      context.fillText(group.label.toUpperCase(), POSTER_PADDING + 18, y + 28);
+      context.fillStyle = "#e2e8f0";
+      context.font = "800 14px Arial, sans-serif";
+      context.fillText(`${group.items.length}`, POSTER_WIDTH - POSTER_PADDING - 42, y + 28);
+
+      const imagePromises = group.items.map((item) => loadPosterImage(item.image));
+      const images = await Promise.all(imagePromises);
+
+      group.items.forEach((item, index) => {
+        const column = index % CARD_COLUMNS;
+        const row = Math.floor(index / CARD_COLUMNS);
+        const x = POSTER_PADDING + 18 + column * (CARD_WIDTH + CARD_GAP);
+        const cardY = y + 46 + row * (CARD_HEIGHT + CARD_GAP);
+
+        roundedRect(context, x, cardY, CARD_WIDTH, CARD_HEIGHT, 8);
+        context.fillStyle = "rgba(2,6,23,0.78)";
+        context.fill();
+        context.strokeStyle = "rgba(255,255,255,0.10)";
+        context.stroke();
+
+        roundedRect(context, x + 8, cardY + 8, CARD_WIDTH - 16, CARD_IMAGE_HEIGHT, 8);
+        const imageBackground = context.createLinearGradient(x, cardY, x + CARD_WIDTH, cardY + CARD_IMAGE_HEIGHT);
+        imageBackground.addColorStop(0, "#0f172a");
+        imageBackground.addColorStop(1, "#111827");
+        context.fillStyle = imageBackground;
+        context.fill();
+
+        const image = images[index];
+        if (image) {
+          drawContainedImage(context, image, x + 12, cardY + 12, CARD_WIDTH - 24, CARD_IMAGE_HEIGHT - 8);
+        }
+
+        roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, CARD_WIDTH - 24), 20, 4);
+        context.fillStyle = "rgba(0,0,0,0.62)";
+        context.fill();
+        context.fillStyle = "#cffafe";
+        context.font = "900 10px Arial, sans-serif";
+        context.fillText(item.rarity.toUpperCase(), x + 20, cardY + 26, CARD_WIDTH - 34);
+
+        context.fillStyle = "#94a3b8";
+        context.font = "800 10px Arial, sans-serif";
+        context.fillText(item.type.toUpperCase(), x + 10, cardY + 160, CARD_WIDTH - 20);
+        context.fillStyle = "#ffffff";
+        context.font = "900 15px Arial, sans-serif";
+        drawText(context, item.name, x + 10, cardY + 181, CARD_WIDTH - 20, 17, 2);
+        context.fillStyle = "#94a3b8";
+        context.font = "700 10px Arial, sans-serif";
+        drawText(context, item.season, x + 10, cardY + 218, CARD_WIDTH - 20, 12, 1);
+
+        context.fillStyle = "#bae6fd";
+        context.font = "900 13px Arial, sans-serif";
+        context.fillText(`${item.price.toLocaleString()} V-Bucks`, x + 10, cardY + 236);
+        context.fillStyle = "#fde68a";
+        context.textAlign = "right";
+        context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + CARD_WIDTH - 10, cardY + 236);
+        context.textAlign = "left";
+      });
+
+      y += sectionHeight + 14;
+    }
+
+    context.fillStyle = "#94a3b8";
+    context.font = "700 12px Arial, sans-serif";
+    context.fillText(
+      "Unofficial fan-made generator. Not affiliated with, endorsed, sponsored, or approved by Epic Games.",
+      POSTER_PADDING,
+      canvas.height - 24
+    );
+    context.textAlign = "right";
+    context.fillText("Data: Fortnite-API.com", POSTER_WIDTH - POSTER_PADDING, canvas.height - 24);
+    context.textAlign = "left";
+
+    const dataUrl = canvas.toDataURL("image/png");
     downloadDataUrl(dataUrl, filename);
   }
 
@@ -241,18 +449,16 @@ export function ShopGenerator() {
     setDownloadMessage("Preparing your PNG...");
 
     try {
-      if (splitCount === 1 && canvasRef.current) {
-        await captureNode(canvasRef.current, "fortnite-shop-shot-selected.png");
+      if (splitCount === 1) {
+        await captureGroups(groups, "fortnite-shop-shot-selected.png");
         setDownloadMessage("PNG generated. Check your downloads or file manager.");
         return;
       }
 
-      const nodes = splitRefs.current.filter((node): node is HTMLDivElement => Boolean(node));
-
-      for (const [index, node] of nodes.entries()) {
-        await captureNode(node, `fortnite-shop-shot-${index + 1}-of-${nodes.length}.png`);
+      for (const [index, pageGroups] of splitPages.entries()) {
+        await captureGroups(pageGroups, `fortnite-shop-shot-${index + 1}-of-${splitPages.length}.png`, index + 1, splitPages.length);
       }
-      setDownloadMessage(`${nodes.length} PNG files generated. Check your downloads or file manager.`);
+      setDownloadMessage(`${splitPages.length} PNG files generated. Check your downloads or file manager.`);
     } catch (reason) {
       setDownloadMessage(
         reason instanceof Error
