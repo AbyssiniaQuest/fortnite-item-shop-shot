@@ -7,6 +7,7 @@ type CategorySectionProps = {
   items: ShopItem[];
   birrPerVbuck: number;
   columns: number;
+  compact: boolean;
 };
 
 const categoryAccent: Record<ShopCategory, string> = {
@@ -22,7 +23,7 @@ const categoryAccent: Record<ShopCategory, string> = {
   uncategorized: "from-slate-300 to-slate-100"
 };
 
-export function CategorySection({ category, label, items, birrPerVbuck, columns }: CategorySectionProps) {
+export function CategorySection({ category, label, items, birrPerVbuck, columns, compact }: CategorySectionProps) {
   return (
     <section className="break-inside-avoid rounded-lg border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-black/20">
       <div className="mb-3 flex items-center justify-between gap-3">
@@ -43,7 +44,7 @@ export function CategorySection({ category, label, items, birrPerVbuck, columns 
         style={{ gridTemplateColumns: `repeat(${columns}, minmax(130px, 1fr))` }}
       >
         {items.map((item) => (
-          <ShopCard birrPerVbuck={birrPerVbuck} item={item} key={item.id} />
+          <ShopCard birrPerVbuck={birrPerVbuck} compact={compact} item={item} key={item.id} />
         ))}
       </div>
     </section>
