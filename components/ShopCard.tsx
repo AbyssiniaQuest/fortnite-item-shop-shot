@@ -21,7 +21,9 @@ export function ShopCard({ item, birrPerVbuck }: ShopCardProps) {
           alt={item.name}
           className="h-full w-full object-contain p-2 drop-shadow-2xl"
           crossOrigin="anonymous"
-          loading="eager"
+          decoding="async"
+          fetchPriority="low"
+          loading="lazy"
           src={proxiedImageUrl(item.image)}
         />
         <span className="absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-[9px] font-black uppercase tracking-normal text-cyan-100">
