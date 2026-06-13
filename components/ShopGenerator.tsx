@@ -11,26 +11,25 @@ import {
 } from "@/lib/shop";
 
 type ShopGroup = ReturnType<typeof groupShopItems>[number];
-type SplitCount = 1 | 2 | 3;
 
 const POSTER_WIDTH = 1080;
 const POSTER_PADDING = 32;
 const CARD_GAP = 10;
-const CARD_COLUMNS = 5;
-const CARD_WIDTH = (POSTER_WIDTH - POSTER_PADDING * 2 - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
 const CARD_HEIGHT = 244;
 const CARD_IMAGE_HEIGHT = 132;
 const POSTER_IMAGE_TIMEOUT = 12000;
 const POSTER_IMAGE_CONCURRENCY = 16;
+const MIN_EXPORT_COLUMNS = 2;
+const MAX_EXPORT_COLUMNS = 6;
+const MIN_EXPORT_ROWS = 1;
+const MAX_EXPORT_ROWS = 30;
 const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
-function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
-  if (splitCount === 1) {
-    return [groups];
-  }
+function clampNumber(value: number, min: number, max: number) {
+  return Math.min(Math.max(value, min), max);
+}
 
-  const totalItems = groups.reduce((sum, group) => sum + group.items.length, 0);
-  const targetItemsPerPage = Math.ceil(totalItems / splitCount);
+function splitGroupsByCapacity(groups: ShopGroup[], itemsPerPage: number) {
   const pages: ShopGroup[][] = [[]];
   let activePage = 0;
   let activePageCount = 0;
@@ -39,13 +38,13 @@ function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
     let start = 0;
 
     while (start < group.items.length) {
-      if (activePageCount >= targetItemsPerPage && activePage < splitCount - 1) {
+      if (activePageCount >= itemsPerPage) {
         activePage += 1;
         pages[activePage] = [];
         activePageCount = 0;
       }
 
-      const capacity = Math.max(targetItemsPerPage - activePageCount, 1);
+      const capacity = Math.max(itemsPerPage - activePageCount, 1);
       const chunk = group.items.slice(start, start + capacity);
       pages[activePage].push({
         ...group,
@@ -256,7 +255,8 @@ export function ShopGenerator() {
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
-  const [splitCount, setSplitCount] = useState<SplitCount>(1);
+  const [exportColumns, setExportColumns] = useState(4);
+  const [exportRows, setExportRows] = useState(6);
 
   useEffect(() => {
     let mounted = true;
@@ -319,7 +319,8 @@ export function ShopGenerator() {
   }, [nameFilter, rarityFilter, seasonFilter, selectedCategories, shop]);
 
   const groups = useMemo(() => groupShopItems(filteredItems), [filteredItems]);
-  const splitPages = useMemo(() => splitGroups(groups, splitCount), [groups, splitCount]);
+  const itemsPerPng = exportColumns * exportRows;
+  const splitPages = useMemo(() => splitGroupsByCapacity(groups, itemsPerPng), [groups, itemsPerPng]);
   const totalShopCount = shop?.items.length ?? 0;
   const filteredCount = filteredItems.length;
   const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
@@ -352,13 +353,16 @@ export function ShopGenerator() {
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
-    setSplitCount(1);
+    setExportColumns(4);
+    setExportRows(6);
     setDownloadMessage("");
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string, pageNumber?: number, pageTotal?: number) {
+    const cardWidth =
+      (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns;
     const rows = groupsToCapture.reduce(
-      (sum, group) => sum + Math.ceil(group.items.length / CARD_COLUMNS),
+      (sum, group) => sum + Math.ceil(group.items.length / exportColumns),
       0
     );
     const posterHeight =
@@ -386,7 +390,7 @@ export function ShopGenerator() {
     let y = POSTER_PADDING;
 
     for (const group of groupsToCapture) {
-      const sectionRows = Math.ceil(group.items.length / CARD_COLUMNS);
+      const sectionRows = Math.ceil(group.items.length / exportColumns);
       const sectionHeight = 38 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
 
       roundedRect(context, POSTER_PADDING, y, POSTER_WIDTH - POSTER_PADDING * 2, sectionHeight, 10);
@@ -411,19 +415,19 @@ export function ShopGenerator() {
       const images = await loadPosterImages(group.items.map((item) => item.image));
 
       group.items.forEach((item, index) => {
-        const column = index % CARD_COLUMNS;
-        const row = Math.floor(index / CARD_COLUMNS);
-        const x = POSTER_PADDING + 18 + column * (CARD_WIDTH + CARD_GAP);
+        const column = index % exportColumns;
+        const row = Math.floor(index / exportColumns);
+        const x = POSTER_PADDING + 18 + column * (cardWidth + CARD_GAP);
         const cardY = y + 42 + row * (CARD_HEIGHT + CARD_GAP);
 
-        roundedRect(context, x, cardY, CARD_WIDTH, CARD_HEIGHT, 8);
+        roundedRect(context, x, cardY, cardWidth, CARD_HEIGHT, 8);
         context.fillStyle = "rgba(2,6,23,0.78)";
         context.fill();
         context.strokeStyle = "rgba(255,255,255,0.10)";
         context.stroke();
 
-        roundedRect(context, x + 8, cardY + 8, CARD_WIDTH - 16, CARD_IMAGE_HEIGHT, 8);
-        const imageBackground = context.createLinearGradient(x, cardY, x + CARD_WIDTH, cardY + CARD_IMAGE_HEIGHT);
+        roundedRect(context, x + 8, cardY + 8, cardWidth - 16, CARD_IMAGE_HEIGHT, 8);
+        const imageBackground = context.createLinearGradient(x, cardY, x + cardWidth, cardY + CARD_IMAGE_HEIGHT);
         imageBackground.addColorStop(0, "#0f172a");
         imageBackground.addColorStop(1, "#111827");
         context.fillStyle = imageBackground;
@@ -431,34 +435,34 @@ export function ShopGenerator() {
 
         const image = images[index];
         if (image) {
-          drawContainedImage(context, image, x + 12, cardY + 12, CARD_WIDTH - 24, CARD_IMAGE_HEIGHT - 8);
+          drawContainedImage(context, image, x + 12, cardY + 12, cardWidth - 24, CARD_IMAGE_HEIGHT - 8);
         } else {
-          drawImageFallback(context, item.name, x + 12, cardY + 12, CARD_WIDTH - 24, CARD_IMAGE_HEIGHT - 8);
+          drawImageFallback(context, item.name, x + 12, cardY + 12, cardWidth - 24, CARD_IMAGE_HEIGHT - 8);
         }
 
-        roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, CARD_WIDTH - 24), 20, 4);
+        roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, cardWidth - 24), 20, 4);
         context.fillStyle = "rgba(0,0,0,0.62)";
         context.fill();
         context.fillStyle = "#cffafe";
         context.font = "900 10px Arial, sans-serif";
-        context.fillText(item.rarity.toUpperCase(), x + 20, cardY + 26, CARD_WIDTH - 34);
+        context.fillText(item.rarity.toUpperCase(), x + 20, cardY + 26, cardWidth - 34);
 
         context.fillStyle = "#94a3b8";
         context.font = "800 10px Arial, sans-serif";
-        context.fillText(item.type.toUpperCase(), x + 10, cardY + 160, CARD_WIDTH - 20);
+        context.fillText(item.type.toUpperCase(), x + 10, cardY + 160, cardWidth - 20);
         context.fillStyle = "#ffffff";
         context.font = "900 15px Arial, sans-serif";
-        drawText(context, item.name, x + 10, cardY + 181, CARD_WIDTH - 20, 17, 2);
+        drawText(context, item.name, x + 10, cardY + 181, cardWidth - 20, 17, 2);
         context.fillStyle = "#94a3b8";
         context.font = "700 10px Arial, sans-serif";
-        drawText(context, item.season, x + 10, cardY + 218, CARD_WIDTH - 20, 12, 1);
+        drawText(context, item.season, x + 10, cardY + 218, cardWidth - 20, 12, 1);
 
         context.fillStyle = "#bae6fd";
         context.font = "900 13px Arial, sans-serif";
         context.fillText(`${item.price.toLocaleString()} V-Bucks`, x + 10, cardY + 236);
         context.fillStyle = "#fde68a";
         context.textAlign = "right";
-        context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + CARD_WIDTH - 10, cardY + 236);
+        context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + cardWidth - 10, cardY + 236);
         context.textAlign = "left";
       });
 
@@ -474,14 +478,14 @@ export function ShopGenerator() {
     setDownloadMessage("Preparing your PNG...");
 
     try {
-      if (splitCount === 1) {
-        await captureGroups(groups, "fortnite-shop-shot-selected.png");
+      if (splitPages.length === 1) {
+        await captureGroups(splitPages[0] ?? groups, "fortnite-items-selected.png");
         setDownloadMessage("PNG generated. Check your downloads or file manager.");
         return;
       }
 
       for (const [index, pageGroups] of splitPages.entries()) {
-        await captureGroups(pageGroups, `fortnite-shop-shot-${index + 1}-of-${splitPages.length}.png`, index + 1, splitPages.length);
+        await captureGroups(pageGroups, `fortnite-items-${index + 1}-of-${splitPages.length}.png`, index + 1, splitPages.length);
       }
       setDownloadMessage(`${splitPages.length} PNG files generated. Check your downloads or file manager.`);
     } catch (reason) {
@@ -496,23 +500,19 @@ export function ShopGenerator() {
   }
 
   return (
-    <main className="min-h-screen bg-slate-950 text-white">
-      <section className="border-b border-white/10 bg-[radial-gradient(circle_at_top_left,rgba(34,211,238,0.18),transparent_34%),linear-gradient(180deg,#020617,#0f172a)] px-4 py-6 sm:px-6 lg:px-8">
-        <div className="mx-auto grid max-w-7xl gap-5 xl:grid-cols-[1fr_420px] xl:items-end">
-          <div>
-            <p className="mb-2 text-xs font-black uppercase tracking-normal text-cyan-200">
-              Screenshot generator
+    <main className="min-h-screen bg-[#05070d] text-white">
+      <section className="border-b border-white/10 bg-[linear-gradient(180deg,#07111f,#05070d)] px-3 py-3 sm:px-5">
+        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
+          <div className="min-w-0">
+            <p className="text-[11px] font-black uppercase tracking-normal text-cyan-200">
+              Item screenshot workspace
             </p>
-            <h1 className="max-w-4xl text-4xl font-black leading-none tracking-normal sm:text-6xl">
-              Fortnite Item Shop Shot
+            <h1 className="text-2xl font-black tracking-normal sm:text-3xl">
+              Fortnite Item Shop Generator
             </h1>
-            <p className="mt-4 max-w-3xl text-base leading-7 text-slate-300">
-              Build a clean screenshot from the current shop. Choose categories, filter the
-              results, then download one, two, or three PNG files.
-            </p>
           </div>
 
-          <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.06] p-4">
+          <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.05] p-3 shadow-xl shadow-black/20 sm:min-w-[420px]">
             <div className="flex items-center justify-between gap-3">
               <span className="text-sm text-slate-300">Latest shop</span>
               <strong className="text-right text-sm text-white">{formatDateTime(shop?.updatedAt)}</strong>
@@ -537,11 +537,11 @@ export function ShopGenerator() {
         </div>
       </section>
 
-      <section className="mx-auto grid max-w-7xl gap-4 px-4 py-5 sm:px-6 lg:px-8">
-        <div className="rounded-xl border border-white/10 bg-white/[0.055] p-4 shadow-2xl shadow-black/20">
+      <section className="grid min-h-[calc(100vh-108px)] gap-0 xl:grid-cols-[420px_minmax(0,1fr)]">
+        <div className="border-b border-white/10 bg-[#08101d]/95 p-3 shadow-2xl shadow-black/20 backdrop-blur xl:sticky xl:top-0 xl:h-[calc(100vh-108px)] xl:overflow-y-auto xl:border-b-0 xl:border-r">
           <div className="grid gap-4">
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="grid min-w-[210px] flex-1 gap-2">
+            <div className="grid gap-3">
+              <label className="grid gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Screenshot categories
                 </span>
@@ -610,7 +610,7 @@ export function ShopGenerator() {
                 </div>
               </label>
 
-              <label className="grid min-w-[220px] flex-[1.4] gap-2">
+              <label className="grid gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Filter by name or type
                 </span>
@@ -622,7 +622,7 @@ export function ShopGenerator() {
                 />
               </label>
 
-              <label className="grid min-w-[170px] flex-1 gap-2">
+              <label className="grid gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Rarity
                 </span>
@@ -640,7 +640,7 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <label className="grid min-w-[220px] flex-[1.2] gap-2">
+              <label className="grid gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Season
                 </span>
@@ -658,23 +658,59 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <label className="grid min-w-[150px] gap-2">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Birr rate
-                </span>
-                <input
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
-                  min="0"
-                  onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
-                  step="0.01"
-                  type="number"
-                  value={birrPerVbuck}
-                />
-              </label>
+              <div className="grid grid-cols-3 gap-3">
+                <label className="grid gap-2">
+                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                    Columns
+                  </span>
+                  <input
+                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
+                    data-testid="export-columns"
+                    max={MAX_EXPORT_COLUMNS}
+                    min={MIN_EXPORT_COLUMNS}
+                    onChange={(event) =>
+                      setExportColumns(clampNumber(Number(event.target.value) || MIN_EXPORT_COLUMNS, MIN_EXPORT_COLUMNS, MAX_EXPORT_COLUMNS))
+                    }
+                    type="number"
+                    value={exportColumns}
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                    Rows
+                  </span>
+                  <input
+                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
+                    data-testid="export-rows"
+                    max={MAX_EXPORT_ROWS}
+                    min={MIN_EXPORT_ROWS}
+                    onChange={(event) =>
+                      setExportRows(clampNumber(Number(event.target.value) || MIN_EXPORT_ROWS, MIN_EXPORT_ROWS, MAX_EXPORT_ROWS))
+                    }
+                    type="number"
+                    value={exportRows}
+                  />
+                </label>
+
+                <label className="grid gap-2">
+                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                    Birr rate
+                  </span>
+                  <input
+                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
+                    min="0"
+                    onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
+                    step="0.01"
+                    type="number"
+                    value={birrPerVbuck}
+                  />
+                </label>
+              </div>
             </div>
 
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <div className="flex flex-wrap items-center gap-3">
+            <div className="grid gap-3 border-t border-white/10 pt-4">
+              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
                 <label className="flex min-h-10 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3">
                   <input
                     checked={isScreenshotMode}
@@ -684,22 +720,6 @@ export function ShopGenerator() {
                   />
                   <span className="text-sm font-bold text-slate-200">Screenshot preview</span>
                 </label>
-
-                <div className="flex rounded-md border border-white/10 bg-slate-950 p-1">
-                  {[1, 2, 3].map((count) => (
-                    <button
-                      className={`h-9 min-w-16 rounded px-3 text-sm font-black transition ${
-                        splitCount === count ? "bg-amber-200 text-slate-950" : "text-slate-300 hover:bg-white/10"
-                      }`}
-                      data-testid={`split-${count}`}
-                      key={count}
-                      onClick={() => setSplitCount(count as SplitCount)}
-                      type="button"
-                    >
-                      {count} PNG
-                    </button>
-                  ))}
-                </div>
 
                 <button
                   className="h-10 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-bold text-slate-200 transition hover:bg-white/10"
@@ -711,7 +731,7 @@ export function ShopGenerator() {
               </div>
 
               <button
-                className="h-11 rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60"
+                className="h-12 rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60"
                 data-testid="download-pngs"
                 disabled={!shop || isDownloading || filteredCount === 0}
                 onClick={downloadPngs}
@@ -719,7 +739,7 @@ export function ShopGenerator() {
               >
                 {isDownloading
                   ? "Rendering..."
-                  : `Download ${splitCount} PNG${splitCount > 1 ? " files" : ""}`}
+                  : `Download ${splitPages.length} PNG${splitPages.length > 1 ? " files" : ""}`}
               </button>
             </div>
 
@@ -728,6 +748,9 @@ export function ShopGenerator() {
                 Showing <strong className="text-white">{filteredCount}</strong> of{" "}
                 <strong className="text-white">{totalShopCount}</strong> items for{" "}
                 <strong className="text-cyan-200">{categorySummary}</strong>.
+                <span className="block pt-1 text-xs text-slate-400">
+                  Layout: {exportColumns} columns x {exportRows} rows per PNG, {itemsPerPng} items per file.
+                </span>
               </span>
               <span className={downloadMessage.includes("failed") ? "text-red-200" : "text-amber-100"}>
                 {downloadMessage || "Downloads save to your browser downloads/file manager."}
@@ -736,7 +759,7 @@ export function ShopGenerator() {
           </div>
         </div>
 
-        <div className="min-w-0">
+        <div className="min-w-0 bg-[#05070d] p-3 sm:p-5">
           {error ? (
             <div className="rounded-lg border border-red-300/30 bg-red-950/50 p-4 text-red-100">{error}</div>
           ) : null}
@@ -751,13 +774,14 @@ export function ShopGenerator() {
             <div
               className={
                 isScreenshotMode
-                  ? "max-w-full overflow-x-auto rounded-lg border border-white/10 bg-black/40 p-3"
-                  : "max-w-full overflow-x-auto"
+                  ? "min-h-full rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30"
+                  : "min-h-full"
               }
             >
               <div data-testid="shop-canvas">
                 <ScreenshotCanvas
                   birrPerVbuck={birrPerVbuck}
+                  columns={exportColumns}
                   groups={groups}
                 />
               </div>
