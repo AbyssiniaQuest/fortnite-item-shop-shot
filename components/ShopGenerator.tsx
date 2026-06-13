@@ -20,9 +20,9 @@ const CARD_IMAGE_HEIGHT = 132;
 const POSTER_IMAGE_TIMEOUT = 12000;
 const POSTER_IMAGE_CONCURRENCY = 16;
 const MIN_EXPORT_COLUMNS = 2;
-const MAX_EXPORT_COLUMNS = 6;
+const MAX_EXPORT_COLUMNS = 20;
 const MIN_EXPORT_ROWS = 1;
-const MAX_EXPORT_ROWS = 30;
+const MAX_EXPORT_ROWS = 20;
 const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function clampNumber(value: number, min: number, max: number) {
@@ -255,8 +255,8 @@ export function ShopGenerator() {
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
-  const [exportColumns, setExportColumns] = useState(4);
-  const [exportRows, setExportRows] = useState(6);
+  const [exportColumns, setExportColumns] = useState(8);
+  const [exportRows, setExportRows] = useState(8);
 
   useEffect(() => {
     let mounted = true;
@@ -353,14 +353,15 @@ export function ShopGenerator() {
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
-    setExportColumns(4);
-    setExportRows(6);
+    setExportColumns(8);
+    setExportRows(8);
     setDownloadMessage("");
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string, pageNumber?: number, pageTotal?: number) {
     const cardWidth =
-      (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns;
+      Math.max(160, (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns);
+    const posterWidth = POSTER_PADDING * 2 + 36 + exportColumns * cardWidth + CARD_GAP * (exportColumns - 1);
     const rows = groupsToCapture.reduce(
       (sum, group) => sum + Math.ceil(group.items.length / exportColumns),
       0
@@ -377,10 +378,10 @@ export function ShopGenerator() {
       throw new Error("Canvas is not supported in this browser.");
     }
 
-    canvas.width = POSTER_WIDTH;
+    canvas.width = posterWidth;
     canvas.height = Math.max(320, posterHeight);
 
-    const background = context.createLinearGradient(0, 0, POSTER_WIDTH, canvas.height);
+    const background = context.createLinearGradient(0, 0, posterWidth, canvas.height);
     background.addColorStop(0, "#020617");
     background.addColorStop(0.55, "#101827");
     background.addColorStop(1, "#171717");
@@ -393,7 +394,7 @@ export function ShopGenerator() {
       const sectionRows = Math.ceil(group.items.length / exportColumns);
       const sectionHeight = 38 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
 
-      roundedRect(context, POSTER_PADDING, y, POSTER_WIDTH - POSTER_PADDING * 2, sectionHeight, 10);
+      roundedRect(context, POSTER_PADDING, y, posterWidth - POSTER_PADDING * 2, sectionHeight, 10);
       context.fillStyle = "rgba(255,255,255,0.045)";
       context.fill();
       context.strokeStyle = "rgba(255,255,255,0.1)";
@@ -407,7 +408,7 @@ export function ShopGenerator() {
       context.textAlign = "right";
       context.fillText(
         `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}${pageNumber ? ` - ${pageNumber}/${pageTotal}` : ""}`,
-        POSTER_WIDTH - POSTER_PADDING - 18,
+        posterWidth - POSTER_PADDING - 18,
         y + 28
       );
       context.textAlign = "left";
@@ -537,11 +538,11 @@ export function ShopGenerator() {
         </div>
       </section>
 
-      <section className="grid min-h-[calc(100vh-108px)] gap-0 xl:grid-cols-[420px_minmax(0,1fr)]">
-        <div className="border-b border-white/10 bg-[#08101d]/95 p-3 shadow-2xl shadow-black/20 backdrop-blur xl:sticky xl:top-0 xl:h-[calc(100vh-108px)] xl:overflow-y-auto xl:border-b-0 xl:border-r">
+      <section className="min-h-[calc(100vh-108px)]">
+        <div className="sticky top-0 z-20 border-b border-white/10 bg-[#08101d]/95 p-3 shadow-2xl shadow-black/20 backdrop-blur">
           <div className="grid gap-4">
-            <div className="grid gap-3">
-              <label className="grid gap-2">
+            <div className="flex flex-wrap items-end gap-3">
+              <label className="grid min-w-[220px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Screenshot categories
                 </span>
@@ -610,7 +611,7 @@ export function ShopGenerator() {
                 </div>
               </label>
 
-              <label className="grid gap-2">
+              <label className="grid min-w-[240px] flex-[1.4] gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Filter by name or type
                 </span>
@@ -622,7 +623,7 @@ export function ShopGenerator() {
                 />
               </label>
 
-              <label className="grid gap-2">
+              <label className="grid min-w-[170px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Rarity
                 </span>
@@ -640,7 +641,7 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <label className="grid gap-2">
+              <label className="grid min-w-[220px] flex-[1.2] gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Season
                 </span>
@@ -658,7 +659,7 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <div className="grid grid-cols-3 gap-3">
+              <div className="grid min-w-[330px] grid-cols-3 gap-3">
                 <label className="grid gap-2">
                   <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                     Columns
@@ -709,8 +710,8 @@ export function ShopGenerator() {
               </div>
             </div>
 
-            <div className="grid gap-3 border-t border-white/10 pt-4">
-              <div className="grid gap-3 sm:grid-cols-2 xl:grid-cols-1">
+            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
+              <div className="flex flex-wrap items-center gap-3">
                 <label className="flex min-h-10 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3">
                   <input
                     checked={isScreenshotMode}
