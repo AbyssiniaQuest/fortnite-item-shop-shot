@@ -447,16 +447,14 @@ export function ShopGenerator() {
           drawImageFallback(context, item.name, x + 12, cardY + 12, cardWidth - 24, imageHeight - 8);
         }
 
-        roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, cardWidth - 24), 20, 4);
-        context.fillStyle = "rgba(0,0,0,0.62)";
-        context.fill();
-        context.fillStyle = "#cffafe";
-        context.font = "900 10px Arial, sans-serif";
-        context.fillText(item.rarity.toUpperCase(), x + 20, cardY + 26, cardWidth - 34);
-
+        const metaY = cardY + (isCompactExport ? 112 : 160);
         context.fillStyle = "#94a3b8";
         context.font = `${isCompactExport ? "700 8px" : "800 10px"} Arial, sans-serif`;
-        context.fillText(item.type.toUpperCase(), x + 10, cardY + (isCompactExport ? 112 : 160), cardWidth - 20);
+        context.fillText(item.type.toUpperCase(), x + 10, metaY, cardWidth * 0.54);
+        context.fillStyle = "#cffafe";
+        context.textAlign = "right";
+        context.fillText(item.rarity.toUpperCase(), x + cardWidth - 10, metaY, cardWidth * 0.42);
+        context.textAlign = "left";
         context.fillStyle = "#ffffff";
         context.font = `${isCompactExport ? "900 12px" : "900 15px"} Arial, sans-serif`;
         drawText(context, item.name, x + 10, cardY + (isCompactExport ? 130 : 181), cardWidth - 20, isCompactExport ? 13 : 17, 2);
