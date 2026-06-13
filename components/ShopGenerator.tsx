@@ -26,10 +26,20 @@ const POSTER_IMAGE_TIMEOUT = 12000;
 const POSTER_IMAGE_CONCURRENCY = 16;
 const MIN_EXPORT_COLUMNS = 2;
 const MAX_EXPORT_COLUMNS = 20;
+const DESKTOP_DEFAULT_COLUMNS = 8;
+const MOBILE_DEFAULT_COLUMNS = 4;
 const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function clampNumber(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function getDefaultColumnsForViewport() {
+  if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
+    return MOBILE_DEFAULT_COLUMNS;
+  }
+
+  return DESKTOP_DEFAULT_COLUMNS;
 }
 
 function downloadDataUrl(dataUrl: string, filename: string) {
@@ -227,7 +237,8 @@ export function ShopGenerator() {
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
-  const [exportColumns, setExportColumns] = useState(8);
+  const [exportColumns, setExportColumns] = useState(DESKTOP_DEFAULT_COLUMNS);
+  const [isPhoneLayout, setIsPhoneLayout] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [screenshotFields, setScreenshotFields] = useState<ScreenshotFields>({
     birr: true,
@@ -235,6 +246,26 @@ export function ShopGenerator() {
     description: false
   });
   const categoryMenuRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    const mediaQuery = window.matchMedia("(max-width: 767px)");
+
+    function syncPhoneLayout() {
+      setIsPhoneLayout(mediaQuery.matches);
+    }
+
+    syncPhoneLayout();
+
+    if (mediaQuery.matches) {
+      setExportColumns(MOBILE_DEFAULT_COLUMNS);
+    }
+
+    mediaQuery.addEventListener("change", syncPhoneLayout);
+
+    return () => {
+      mediaQuery.removeEventListener("change", syncPhoneLayout);
+    };
+  }, []);
 
   useEffect(() => {
     let mounted = true;
@@ -323,7 +354,8 @@ export function ShopGenerator() {
       : selectedCategories.length === SHOP_CATEGORIES.length
         ? "All categories"
         : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
-  const isCompactExport = exportColumns >= 8;
+  const isCompactExport = exportColumns >= 8 || isPhoneLayout;
+  const isCompactPreview = isCompactExport;
 
   function toggleCategory(category: ShopCategory) {
     setSelectedCategories((current) => {
@@ -346,7 +378,7 @@ export function ShopGenerator() {
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
-    setExportColumns(8);
+    setExportColumns(getDefaultColumnsForViewport());
     setScreenshotFields({
       birr: true,
       vbucks: true,
@@ -365,9 +397,8 @@ export function ShopGenerator() {
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
     const cardHeight = (isCompactExport ? 188 : CARD_HEIGHT) + (screenshotFields.description ? 20 : 0);
     const imageHeight = isCompactExport ? 86 : CARD_IMAGE_HEIGHT;
-    const cardWidth =
-      Math.max(160, (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns);
-    const posterWidth = POSTER_PADDING * 2 + 36 + exportColumns * cardWidth + CARD_GAP * (exportColumns - 1);
+    const posterWidth = POSTER_WIDTH;
+    const cardWidth = (posterWidth - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns;
     const rows = groupsToCapture.reduce(
       (sum, group) => sum + Math.ceil(group.items.length / exportColumns),
       0
@@ -592,8 +623,8 @@ export function ShopGenerator() {
           </div>
 
           <div className={`${isMobileControlsOpen ? "grid" : "hidden"} gap-4 pt-3 md:grid md:pt-0`}>
-            <div className="flex flex-wrap items-end gap-3">
-              <label className="grid min-w-[220px] flex-1 gap-2">
+            <div className="grid gap-3 md:flex md:flex-wrap md:items-end">
+              <label className="grid min-w-0 flex-1 gap-2 md:min-w-[220px]">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Screenshot categories
                 </span>
@@ -657,24 +688,24 @@ export function ShopGenerator() {
                 </div>
               </label>
 
-              <label className="grid min-w-[240px] flex-[1.4] gap-2">
+              <label className="grid min-w-0 flex-[1.4] gap-2 md:min-w-[240px]">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Filter by name or type
                 </span>
                 <input
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setNameFilter(event.target.value)}
                   placeholder="Outfit name, pickaxe, wrap..."
                   value={nameFilter}
                 />
               </label>
 
-              <label className="grid min-w-[170px] flex-1 gap-2">
+              <label className="grid min-w-0 flex-1 gap-2 md:min-w-[170px]">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Rarity
                 </span>
                 <select
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setRarityFilter(event.target.value)}
                   value={rarityFilter}
                 >
@@ -687,12 +718,12 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <label className="grid min-w-[220px] flex-[1.2] gap-2">
+              <label className="grid min-w-0 flex-[1.2] gap-2 md:min-w-[220px]">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Season
                 </span>
                 <select
-                  className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
+                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
                   onChange={(event) => setSeasonFilter(event.target.value)}
                   value={seasonFilter}
                 >
@@ -705,13 +736,13 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <div className="grid min-w-[260px] grid-cols-2 gap-3">
+              <div className="grid min-w-0 grid-cols-2 gap-3 md:min-w-[260px]">
                 <label className="grid gap-2">
                   <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                     Columns
                   </span>
                   <input
-                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
+                    className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
                     data-testid="export-columns"
                     max={MAX_EXPORT_COLUMNS}
                     min={MIN_EXPORT_COLUMNS}
@@ -728,7 +759,7 @@ export function ShopGenerator() {
                     Birr rate
                   </span>
                   <input
-                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
+                    className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
                     min="0"
                     onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
                     step="0.01"
@@ -738,7 +769,7 @@ export function ShopGenerator() {
                 </label>
               </div>
 
-              <fieldset className="grid min-w-[260px] flex-1 gap-2">
+              <fieldset className="grid min-w-0 flex-1 gap-2 md:min-w-[260px]">
                 <legend className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Screenshot details
                 </legend>
@@ -825,14 +856,14 @@ export function ShopGenerator() {
             <div
               className={
                 isScreenshotMode
-                  ? "min-h-full overflow-x-auto rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30"
-                  : "min-h-full overflow-x-auto"
+                  ? "min-h-full overflow-hidden rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30 md:overflow-x-auto"
+                  : "min-h-full overflow-hidden md:overflow-x-auto"
               }
             >
               <div data-testid="shop-canvas">
                 <ScreenshotCanvas
                   birrPerVbuck={birrPerVbuck}
-                  compact={isCompactExport}
+                  compact={isCompactPreview}
                   columns={exportColumns}
                   groups={groups}
                   screenshotFields={screenshotFields}
