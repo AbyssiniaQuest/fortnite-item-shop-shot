@@ -21,43 +21,10 @@ const POSTER_IMAGE_TIMEOUT = 12000;
 const POSTER_IMAGE_CONCURRENCY = 16;
 const MIN_EXPORT_COLUMNS = 2;
 const MAX_EXPORT_COLUMNS = 20;
-const MIN_EXPORT_ROWS = 1;
-const MAX_EXPORT_ROWS = 20;
 const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function clampNumber(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
-}
-
-function splitGroupsByCapacity(groups: ShopGroup[], itemsPerPage: number) {
-  const pages: ShopGroup[][] = [[]];
-  let activePage = 0;
-  let activePageCount = 0;
-
-  for (const group of groups) {
-    let start = 0;
-
-    while (start < group.items.length) {
-      if (activePageCount >= itemsPerPage) {
-        activePage += 1;
-        pages[activePage] = [];
-        activePageCount = 0;
-      }
-
-      const capacity = Math.max(itemsPerPage - activePageCount, 1);
-      const chunk = group.items.slice(start, start + capacity);
-      pages[activePage].push({
-        ...group,
-        label: start > 0 ? `${group.label} continued` : group.label,
-        items: chunk
-      });
-
-      start += chunk.length;
-      activePageCount += chunk.length;
-    }
-  }
-
-  return pages.filter((page) => page.length > 0);
 }
 
 function downloadDataUrl(dataUrl: string, filename: string) {
@@ -256,7 +223,6 @@ export function ShopGenerator() {
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
   const [exportColumns, setExportColumns] = useState(8);
-  const [exportRows, setExportRows] = useState(8);
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -336,8 +302,6 @@ export function ShopGenerator() {
   }, [nameFilter, rarityFilter, seasonFilter, selectedCategories, shop]);
 
   const groups = useMemo(() => groupShopItems(filteredItems), [filteredItems]);
-  const itemsPerPng = exportColumns * exportRows;
-  const splitPages = useMemo(() => splitGroupsByCapacity(groups, itemsPerPng), [groups, itemsPerPng]);
   const totalShopCount = shop?.items.length ?? 0;
   const filteredCount = filteredItems.length;
   const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
@@ -348,7 +312,7 @@ export function ShopGenerator() {
       : selectedCategories.length === SHOP_CATEGORIES.length
         ? "All categories"
         : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
-  const isCompactExport = exportRows > 12;
+  const isCompactExport = exportColumns >= 8;
 
   function toggleCategory(category: ShopCategory) {
     setSelectedCategories((current) => {
@@ -372,11 +336,10 @@ export function ShopGenerator() {
     setRarityFilter("all");
     setSeasonFilter("all");
     setExportColumns(8);
-    setExportRows(8);
     setDownloadMessage("");
   }
 
-  async function captureGroups(groupsToCapture: ShopGroup[], filename: string, pageNumber?: number, pageTotal?: number) {
+  async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
     const cardHeight = isCompactExport ? 184 : CARD_HEIGHT;
     const imageHeight = isCompactExport ? 94 : CARD_IMAGE_HEIGHT;
     const cardWidth =
@@ -427,7 +390,7 @@ export function ShopGenerator() {
       context.font = "800 14px Arial, sans-serif";
       context.textAlign = "right";
       context.fillText(
-        `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}${pageNumber ? ` - ${pageNumber}/${pageTotal}` : ""}`,
+        `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}`,
         posterWidth - POSTER_PADDING - 18,
         y + 28
       );
@@ -508,16 +471,8 @@ export function ShopGenerator() {
     setDownloadMessage("Preparing your PNG...");
 
     try {
-      if (splitPages.length === 1) {
-        await captureGroups(splitPages[0] ?? groups, "fortnite-items-selected.png");
-        setDownloadMessage("PNG generated. Check your downloads or file manager.");
-        return;
-      }
-
-      for (const [index, pageGroups] of splitPages.entries()) {
-        await captureGroups(pageGroups, `fortnite-items-${index + 1}-of-${splitPages.length}.png`, index + 1, splitPages.length);
-      }
-      setDownloadMessage(`${splitPages.length} PNG files generated. Check your downloads or file manager.`);
+      await captureGroups(groups, "fortnite-items-selected.png");
+      setDownloadMessage("PNG generated. Check your downloads or file manager.");
     } catch (reason) {
       setDownloadMessage(
         reason instanceof Error
@@ -683,7 +638,7 @@ export function ShopGenerator() {
                 </select>
               </label>
 
-              <div className="grid min-w-[330px] grid-cols-3 gap-3">
+              <div className="grid min-w-[260px] grid-cols-2 gap-3">
                 <label className="grid gap-2">
                   <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                     Columns
@@ -698,23 +653,6 @@ export function ShopGenerator() {
                     }
                     type="number"
                     value={exportColumns}
-                  />
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                    Rows
-                  </span>
-                  <input
-                    className="h-11 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
-                    data-testid="export-rows"
-                    max={MAX_EXPORT_ROWS}
-                    min={MIN_EXPORT_ROWS}
-                    onChange={(event) =>
-                      setExportRows(clampNumber(Number(event.target.value) || MIN_EXPORT_ROWS, MIN_EXPORT_ROWS, MAX_EXPORT_ROWS))
-                    }
-                    type="number"
-                    value={exportRows}
                   />
                 </label>
 
@@ -756,15 +694,13 @@ export function ShopGenerator() {
               </div>
 
               <button
-                className="h-12 rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60"
+                className="h-12 w-full rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
                 data-testid="download-pngs"
                 disabled={!shop || isDownloading || filteredCount === 0}
                 onClick={downloadPngs}
                 type="button"
               >
-                {isDownloading
-                  ? "Rendering..."
-                  : `Download ${splitPages.length} PNG${splitPages.length > 1 ? " files" : ""}`}
+                {isDownloading ? "Rendering..." : "Download PNG"}
               </button>
             </div>
 
@@ -774,7 +710,7 @@ export function ShopGenerator() {
                 <strong className="text-white">{totalShopCount}</strong> items for{" "}
                 <strong className="text-cyan-200">{categorySummary}</strong>.
                 <span className="block pt-1 text-xs text-slate-400">
-                  Layout: {exportColumns} columns x {exportRows} rows per PNG, {itemsPerPng} items per file.
+                  Layout: {exportColumns} columns per PNG.
                 </span>
               </span>
               <span className={downloadMessage.includes("failed") ? "text-red-200" : "text-amber-100"}>
@@ -799,8 +735,8 @@ export function ShopGenerator() {
             <div
               className={
                 isScreenshotMode
-                  ? "min-h-full rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30"
-                  : "min-h-full"
+                  ? "min-h-full overflow-x-auto rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30"
+                  : "min-h-full overflow-x-auto"
               }
             >
               <div data-testid="shop-canvas">
