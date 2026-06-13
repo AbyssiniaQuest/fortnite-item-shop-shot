@@ -11,12 +11,14 @@ type ScreenshotCanvasProps = {
   groups: ShopGroup[];
   birrPerVbuck: number;
   columns: number;
+  compact: boolean;
 };
 
 export function ScreenshotCanvas({
   groups,
   birrPerVbuck,
-  columns
+  columns,
+  compact
 }: ScreenshotCanvasProps) {
   return (
     <div className="w-full bg-slate-950 text-white">
@@ -27,6 +29,7 @@ export function ScreenshotCanvas({
               <CategorySection
                 birrPerVbuck={birrPerVbuck}
                 category={group.category}
+                compact={compact}
                 columns={columns}
                 items={group.items}
                 key={group.category}
