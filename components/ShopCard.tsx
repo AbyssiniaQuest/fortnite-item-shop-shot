@@ -23,7 +23,7 @@ export function ShopCard({ item, birrPerVbuck, compact, screenshotFields }: Shop
 
   return (
     <article className="overflow-hidden rounded-md border border-white/10 bg-slate-950/75 shadow-[0_10px_24px_rgba(0,0,0,0.24)]">
-      <div className="relative grid aspect-square place-items-center bg-[radial-gradient(circle_at_50%_25%,rgba(34,211,238,0.22),transparent_35%),linear-gradient(145deg,rgba(30,41,59,0.95),rgba(2,6,23,0.96))]">
+      <div className="grid aspect-square place-items-center bg-[radial-gradient(circle_at_50%_25%,rgba(34,211,238,0.22),transparent_35%),linear-gradient(145deg,rgba(30,41,59,0.95),rgba(2,6,23,0.96))]">
         <img
           alt={item.name}
           className="h-full w-full object-contain p-2 drop-shadow-2xl"
@@ -33,14 +33,14 @@ export function ShopCard({ item, birrPerVbuck, compact, screenshotFields }: Shop
           loading="lazy"
           src={proxiedImageUrl(item.image)}
         />
-        <span className="absolute left-2 top-2 rounded bg-black/60 px-2 py-1 text-[9px] font-black uppercase tracking-normal text-cyan-100">
-          {item.rarity}
-        </span>
       </div>
 
       <div className={compact ? "grid gap-1 p-1.5 sm:p-2" : "grid gap-2 p-2"}>
         <div>
-          <p className={compact ? "text-[8px] font-bold uppercase tracking-normal text-slate-400 sm:text-[10px]" : "text-[10px] font-bold uppercase tracking-normal text-slate-400"}>{item.type}</p>
+          <div className={compact ? "flex items-center justify-between gap-1 text-[7px] font-black uppercase tracking-normal sm:text-[9px]" : "flex items-center justify-between gap-2 text-[10px] font-black uppercase tracking-normal"}>
+            <span className="truncate text-slate-400">{item.type}</span>
+            <span className="truncate text-cyan-100">{item.rarity}</span>
+          </div>
           <h3 className={compact ? "line-clamp-2 min-h-7 text-[9px] font-black leading-tight text-white sm:min-h-8 sm:text-[11px]" : "line-clamp-2 min-h-9 text-xs font-black leading-tight text-white"}>
             {item.name}
           </h3>
