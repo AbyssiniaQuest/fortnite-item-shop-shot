@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import { ScreenshotCanvas } from "@/components/ScreenshotCanvas";
 import {
   categoryLabels,
@@ -20,8 +20,9 @@ const CARD_COLUMNS = 5;
 const CARD_WIDTH = (POSTER_WIDTH - POSTER_PADDING * 2 - CARD_GAP * (CARD_COLUMNS - 1)) / CARD_COLUMNS;
 const CARD_HEIGHT = 244;
 const CARD_IMAGE_HEIGHT = 132;
-const POSTER_IMAGE_TIMEOUT = 45000;
-const POSTER_IMAGE_CONCURRENCY = 8;
+const POSTER_IMAGE_TIMEOUT = 12000;
+const POSTER_IMAGE_CONCURRENCY = 16;
+const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function splitGroups(groups: ShopGroup[], splitCount: SplitCount) {
   if (splitCount === 1) {
@@ -142,21 +143,44 @@ function drawText(
 }
 
 function loadPosterImage(src: string) {
-  return new Promise<HTMLImageElement | null>((resolve) => {
+  const cachedImage = posterImageCache.get(src);
+
+  if (cachedImage) {
+    return cachedImage;
+  }
+
+  const promise = new Promise<HTMLImageElement | null>((resolve) => {
+    let isDone = false;
     const image = new Image();
-    const timeout = window.setTimeout(() => resolve(null), POSTER_IMAGE_TIMEOUT);
+    const timeout = window.setTimeout(() => {
+      if (!isDone) {
+        isDone = true;
+        resolve(null);
+      }
+    }, POSTER_IMAGE_TIMEOUT);
 
     image.crossOrigin = "anonymous";
+    image.decoding = "async";
     image.onload = () => {
-      window.clearTimeout(timeout);
-      resolve(image);
+      if (!isDone) {
+        isDone = true;
+        window.clearTimeout(timeout);
+        resolve(image);
+      }
     };
     image.onerror = () => {
-      window.clearTimeout(timeout);
-      resolve(null);
+      if (!isDone) {
+        isDone = true;
+        window.clearTimeout(timeout);
+        resolve(null);
+      }
     };
     image.src = src;
   });
+
+  posterImageCache.set(src, promise);
+
+  return promise;
 }
 
 async function loadPosterImages(sources: string[]) {
@@ -227,14 +251,12 @@ export function ShopGenerator() {
   const [isScreenshotMode, setIsScreenshotMode] = useState(true);
   const [isDownloading, setIsDownloading] = useState(false);
   const [downloadMessage, setDownloadMessage] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>([...SHOP_CATEGORIES]);
+  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>(["skins"]);
   const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
   const [splitCount, setSplitCount] = useState<SplitCount>(1);
-  const canvasRef = useRef<HTMLDivElement>(null);
-  const splitRefs = useRef<Array<HTMLDivElement | null>>([]);
 
   useEffect(() => {
     let mounted = true;
@@ -306,15 +328,6 @@ export function ShopGenerator() {
     selectedCategories.length === SHOP_CATEGORIES.length
       ? "All categories"
       : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
-  const activeFilterLabel = [
-    categorySummary,
-    nameFilter.trim() ? `Name: ${nameFilter.trim()}` : "",
-    rarityFilter !== "all" ? `Rarity: ${rarityFilter}` : "",
-    seasonFilter !== "all" ? seasonFilter : ""
-  ]
-    .filter(Boolean)
-    .join(" / ");
-
   function toggleCategory(category: ShopCategory) {
     setSelectedCategories((current) => {
       if (current.includes(category)) {
@@ -349,12 +362,10 @@ export function ShopGenerator() {
       0
     );
     const posterHeight =
-      POSTER_PADDING +
-      138 +
-      groupsToCapture.length * 54 +
+      POSTER_PADDING * 2 +
+      groupsToCapture.length * 52 +
       rows * CARD_HEIGHT +
-      Math.max(rows - 1, 0) * CARD_GAP +
-      52;
+      Math.max(rows - groupsToCapture.length, 0) * CARD_GAP;
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
@@ -363,7 +374,7 @@ export function ShopGenerator() {
     }
 
     canvas.width = POSTER_WIDTH;
-    canvas.height = Math.max(POSTER_WIDTH, posterHeight);
+    canvas.height = Math.max(320, posterHeight);
 
     const background = context.createLinearGradient(0, 0, POSTER_WIDTH, canvas.height);
     background.addColorStop(0, "#020617");
@@ -372,41 +383,13 @@ export function ShopGenerator() {
     context.fillStyle = background;
     context.fillRect(0, 0, canvas.width, canvas.height);
 
-    context.fillStyle = "#67e8f9";
-    context.fillRect(0, 0, POSTER_WIDTH, 5);
-    context.fillStyle = "#f0f9ff";
-    context.font = "900 54px Arial, sans-serif";
-    context.fillText("Shop Shot", POSTER_PADDING, 72);
-    context.fillStyle = "#bae6fd";
-    context.font = "900 18px Arial, sans-serif";
-    context.fillText("UNOFFICIAL FORTNITE ITEM SHOP", POSTER_PADDING, 108);
-    context.fillStyle = "#cbd5e1";
-    context.font = "600 18px Arial, sans-serif";
-    context.fillText(`${formatDateTime(shop?.updatedAt)} - ${filteredCount} selected items`, POSTER_PADDING, 136);
-    context.fillStyle = "#fde68a";
-    context.font = "900 16px Arial, sans-serif";
-    drawText(context, activeFilterLabel, POSTER_PADDING, 164, 670, 20, 2);
-
-    roundedRect(context, POSTER_WIDTH - 330, 40, 298, 92, 12);
-    context.fillStyle = "rgba(0,0,0,0.36)";
-    context.fill();
-    context.fillStyle = "#94a3b8";
-    context.font = "800 13px Arial, sans-serif";
-    context.fillText("RATE", POSTER_WIDTH - 306, 72);
-    context.fillStyle = "#fde68a";
-    context.font = "900 22px Arial, sans-serif";
-    context.fillText(`1 V-Buck = ${birrPerVbuck.toLocaleString()} Birr`, POSTER_WIDTH - 306, 104);
-    context.fillStyle = "#cbd5e1";
-    context.font = "700 14px Arial, sans-serif";
-    context.fillText(pageNumber ? `PNG ${pageNumber}/${pageTotal}` : "Single PNG", POSTER_WIDTH - 306, 126);
-
-    let y = 210;
+    let y = POSTER_PADDING;
 
     for (const group of groupsToCapture) {
       const sectionRows = Math.ceil(group.items.length / CARD_COLUMNS);
-      const sectionHeight = 42 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 18;
+      const sectionHeight = 38 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
 
-      roundedRect(context, POSTER_PADDING, y, POSTER_WIDTH - POSTER_PADDING * 2, sectionHeight, 14);
+      roundedRect(context, POSTER_PADDING, y, POSTER_WIDTH - POSTER_PADDING * 2, sectionHeight, 10);
       context.fillStyle = "rgba(255,255,255,0.045)";
       context.fill();
       context.strokeStyle = "rgba(255,255,255,0.1)";
@@ -417,7 +400,13 @@ export function ShopGenerator() {
       context.fillText(group.label.toUpperCase(), POSTER_PADDING + 18, y + 28);
       context.fillStyle = "#e2e8f0";
       context.font = "800 14px Arial, sans-serif";
-      context.fillText(`${group.items.length}`, POSTER_WIDTH - POSTER_PADDING - 42, y + 28);
+      context.textAlign = "right";
+      context.fillText(
+        `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}${pageNumber ? ` - ${pageNumber}/${pageTotal}` : ""}`,
+        POSTER_WIDTH - POSTER_PADDING - 18,
+        y + 28
+      );
+      context.textAlign = "left";
 
       const images = await loadPosterImages(group.items.map((item) => item.image));
 
@@ -425,7 +414,7 @@ export function ShopGenerator() {
         const column = index % CARD_COLUMNS;
         const row = Math.floor(index / CARD_COLUMNS);
         const x = POSTER_PADDING + 18 + column * (CARD_WIDTH + CARD_GAP);
-        const cardY = y + 46 + row * (CARD_HEIGHT + CARD_GAP);
+        const cardY = y + 42 + row * (CARD_HEIGHT + CARD_GAP);
 
         roundedRect(context, x, cardY, CARD_WIDTH, CARD_HEIGHT, 8);
         context.fillStyle = "rgba(2,6,23,0.78)";
@@ -475,17 +464,6 @@ export function ShopGenerator() {
 
       y += sectionHeight + 14;
     }
-
-    context.fillStyle = "#94a3b8";
-    context.font = "700 12px Arial, sans-serif";
-    context.fillText(
-      "Unofficial fan-made generator. Not affiliated with, endorsed, sponsored, or approved by Epic Games.",
-      POSTER_PADDING,
-      canvas.height - 24
-    );
-    context.textAlign = "right";
-    context.fillText("Data: Fortnite-API.com", POSTER_WIDTH - POSTER_PADDING, canvas.height - 24);
-    context.textAlign = "left";
 
     const dataUrl = canvas.toDataURL("image/png");
     downloadDataUrl(dataUrl, filename);
@@ -777,38 +755,14 @@ export function ShopGenerator() {
                   : "max-w-full overflow-x-auto"
               }
             >
-              <div data-testid="shop-canvas" ref={canvasRef}>
+              <div data-testid="shop-canvas">
                 <ScreenshotCanvas
-                  activeFilterLabel={activeFilterLabel}
                   birrPerVbuck={birrPerVbuck}
                   groups={groups}
-                  itemCount={filteredCount}
-                  updatedAt={shop.updatedAt}
                 />
               </div>
             </div>
           )}
-
-          <div className="pointer-events-none fixed left-[-9999px] top-0 opacity-0">
-            {splitPages.map((pageGroups, index) => (
-              <div
-                key={index}
-                ref={(node) => {
-                  splitRefs.current[index] = node;
-                }}
-              >
-                <ScreenshotCanvas
-                  activeFilterLabel={activeFilterLabel}
-                  birrPerVbuck={birrPerVbuck}
-                  groups={pageGroups}
-                  itemCount={filteredCount}
-                  pageNumber={index + 1}
-                  pageTotal={splitPages.length}
-                  updatedAt={shop?.updatedAt}
-                />
-              </div>
-            ))}
-          </div>
         </div>
       </section>
     </main>
