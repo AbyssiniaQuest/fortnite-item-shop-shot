@@ -1,4 +1,5 @@
 import { ShopCard } from "@/components/ShopCard";
+import type { CSSProperties } from "react";
 import type { ShopCategory, ShopItem } from "@/lib/shop";
 
 type CategorySectionProps = {
@@ -45,8 +46,8 @@ export function CategorySection({ category, label, items, birrPerVbuck, columns,
       </div>
 
       <div
-        className="grid gap-2"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(130px, 1fr))` }}
+        className="grid gap-1 sm:gap-2 [grid-template-columns:repeat(var(--columns),minmax(82px,1fr))] sm:[grid-template-columns:repeat(var(--columns),minmax(130px,1fr))]"
+        style={{ "--columns": String(columns) } as CSSProperties}
       >
         {items.map((item) => (
           <ShopCard
