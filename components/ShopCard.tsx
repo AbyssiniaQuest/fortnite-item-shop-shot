@@ -3,6 +3,7 @@ import { proxiedImageUrl, type ShopItem } from "@/lib/shop";
 type ShopCardProps = {
   item: ShopItem;
   birrPerVbuck: number;
+  compact: boolean;
 };
 
 function formatNumber(value: number) {
@@ -11,7 +12,7 @@ function formatNumber(value: number) {
   }).format(value);
 }
 
-export function ShopCard({ item, birrPerVbuck }: ShopCardProps) {
+export function ShopCard({ item, birrPerVbuck, compact }: ShopCardProps) {
   const birrCost = item.price * birrPerVbuck;
 
   return (
@@ -31,21 +32,23 @@ export function ShopCard({ item, birrPerVbuck }: ShopCardProps) {
         </span>
       </div>
 
-      <div className="grid gap-2 p-2">
+      <div className={compact ? "grid gap-1 p-2" : "grid gap-2 p-2"}>
         <div>
           <p className="text-[10px] font-bold uppercase tracking-normal text-slate-400">{item.type}</p>
-          <h3 className="line-clamp-2 min-h-9 text-xs font-black leading-tight text-white">{item.name}</h3>
-          <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-slate-400">{item.season}</p>
+          <h3 className={compact ? "line-clamp-2 min-h-8 text-[11px] font-black leading-tight text-white" : "line-clamp-2 min-h-9 text-xs font-black leading-tight text-white"}>
+            {item.name}
+          </h3>
+          {!compact ? <p className="mt-1 line-clamp-1 text-[11px] font-semibold text-slate-400">{item.season}</p> : null}
         </div>
 
-        <div className="grid gap-1 rounded bg-white/[0.06] p-2 text-[11px]">
+        <div className={compact ? "grid gap-1 rounded bg-white/[0.06] p-1.5 text-[10px]" : "grid gap-1 rounded bg-white/[0.06] p-2 text-[11px]"}>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-300">V-Bucks</span>
+            <span className="text-slate-300">{compact ? "VB" : "V-Bucks"}</span>
             <strong className="text-cyan-200">{formatNumber(item.price)}</strong>
           </div>
           <div className="flex items-center justify-between gap-2">
-            <span className="text-slate-300">Birr cost</span>
-            <strong className="text-amber-200">{formatNumber(birrCost)} Birr</strong>
+            <span className="text-slate-300">{compact ? "Birr" : "Birr cost"}</span>
+            <strong className="text-amber-200">{formatNumber(birrCost)}{compact ? "" : " Birr"}</strong>
           </div>
         </div>
       </div>
