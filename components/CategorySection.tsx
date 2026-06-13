@@ -40,7 +40,7 @@ export function CategorySection({ category, label, items, birrPerVbuck, columns 
 
       <div
         className="grid gap-2"
-        style={{ gridTemplateColumns: `repeat(${columns}, minmax(0, 1fr))` }}
+        style={{ gridTemplateColumns: `repeat(${columns}, minmax(130px, 1fr))` }}
       >
         {items.map((item) => (
           <ShopCard birrPerVbuck={birrPerVbuck} item={item} key={item.id} />
