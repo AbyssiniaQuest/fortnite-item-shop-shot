@@ -12,13 +12,19 @@ type ScreenshotCanvasProps = {
   birrPerVbuck: number;
   columns: number;
   compact: boolean;
+  screenshotFields: {
+    birr: boolean;
+    vbucks: boolean;
+    description: boolean;
+  };
 };
 
 export function ScreenshotCanvas({
   groups,
   birrPerVbuck,
   columns,
-  compact
+  compact,
+  screenshotFields
 }: ScreenshotCanvasProps) {
   return (
     <div className="w-full bg-slate-950 text-white">
@@ -34,6 +40,7 @@ export function ScreenshotCanvas({
                 items={group.items}
                 key={group.category}
                 label={group.label}
+                screenshotFields={screenshotFields}
               />
             ))}
           </div>
