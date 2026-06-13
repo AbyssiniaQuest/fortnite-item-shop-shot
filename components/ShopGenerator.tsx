@@ -360,20 +360,14 @@ export function ShopGenerator() {
     });
   }
 
-  function selectAllCategories() {
-    setSelectedCategories([...SHOP_CATEGORIES]);
-  }
-
-  function unselectAllCategories() {
-    setSelectedCategories([]);
-  }
-
-  function clearCategorySelection() {
-    setSelectedCategories(["skins"]);
+  function toggleAllCategories() {
+    setSelectedCategories((current) =>
+      current.length === SHOP_CATEGORIES.length ? [] : [...SHOP_CATEGORIES]
+    );
   }
 
   function resetFilters() {
-    selectAllCategories();
+    setSelectedCategories(["skins"]);
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
@@ -601,28 +595,14 @@ export function ShopGenerator() {
                   </button>
 
                   {isCategoryMenuOpen ? (
-                    <div className="absolute left-0 right-0 z-30 mt-2 max-h-96 overflow-auto rounded-lg border border-white/10 bg-slate-950 p-2 shadow-2xl shadow-black/50">
-                      <div className="mb-2 grid grid-cols-3 gap-2">
+                    <div className="absolute left-0 right-0 z-30 mt-2 max-h-[min(24rem,70vh)] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-2 shadow-2xl shadow-black/50">
+                      <div className="mb-2">
                         <button
-                          className="h-9 rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950"
-                          onClick={selectAllCategories}
+                          className="h-9 w-full rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950 transition hover:bg-cyan-200"
+                          onClick={toggleAllCategories}
                           type="button"
                         >
-                          Mark all
-                        </button>
-                        <button
-                          className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-black text-slate-200"
-                          onClick={unselectAllCategories}
-                          type="button"
-                        >
-                          Unmark all
-                        </button>
-                        <button
-                          className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-black text-slate-200"
-                          onClick={clearCategorySelection}
-                          type="button"
-                        >
-                          Skins only
+                          {selectedCategories.length === SHOP_CATEGORIES.length ? "Unmark all" : "Mark all"}
                         </button>
                       </div>
 
