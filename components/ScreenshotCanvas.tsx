@@ -9,65 +9,16 @@ type ShopGroup = {
 
 type ScreenshotCanvasProps = {
   groups: ShopGroup[];
-  pageNumber?: number;
-  pageTotal?: number;
   birrPerVbuck: number;
-  updatedAt?: string;
-  itemCount: number;
-  activeFilterLabel?: string;
 };
-
-function formatDate(value?: string) {
-  if (!value) {
-    return "Loading today";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    weekday: "short",
-    month: "short",
-    day: "numeric",
-    year: "numeric"
-  }).format(new Date(value));
-}
 
 export function ScreenshotCanvas({
   groups,
-  pageNumber,
-  pageTotal,
-  birrPerVbuck,
-  updatedAt,
-  itemCount,
-  activeFilterLabel = "All shop categories"
+  birrPerVbuck
 }: ScreenshotCanvasProps) {
   return (
     <div className="w-[1080px] bg-slate-950 text-white">
       <div className="relative overflow-hidden bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-6">
-        <div className="absolute inset-x-0 top-0 h-1 bg-gradient-to-r from-cyan-300 via-fuchsia-400 to-amber-300" />
-        <div className="relative z-10 mb-5 grid gap-5 sm:grid-cols-[1fr_300px] sm:items-end">
-          <div>
-            <p className="mb-2 text-sm font-black uppercase tracking-normal text-cyan-200">
-              Unofficial Fortnite Item Shop
-            </p>
-            <h1 className="text-5xl font-black leading-none tracking-normal">Shop Shot</h1>
-            <p className="mt-2 max-w-2xl text-base text-slate-300">
-              {formatDate(updatedAt)} snapshot with V-Bucks and Birr purchase-cost estimates.
-            </p>
-            <p className="mt-2 text-xs font-bold uppercase tracking-normal text-amber-200">
-              {activeFilterLabel}
-            </p>
-          </div>
-
-          <div className="grid gap-2 rounded-lg border border-white/10 bg-black/35 p-3 text-right">
-            <span className="text-xs font-bold uppercase tracking-normal text-slate-400">Rate</span>
-            <strong className="text-xl text-amber-200">
-              1 V-Buck = {birrPerVbuck.toLocaleString()} Birr
-            </strong>
-            <span className="text-sm text-slate-300">
-              {itemCount.toLocaleString()} items{pageNumber ? ` - PNG ${pageNumber}/${pageTotal}` : ""}
-            </span>
-          </div>
-        </div>
-
         {groups.length > 0 ? (
           <div className="grid gap-3">
             {groups.map((group) => (
@@ -85,13 +36,6 @@ export function ScreenshotCanvas({
             No matching shop items for the selected filters.
           </div>
         )}
-
-        <div className="mt-6 flex items-center justify-between gap-5 border-t border-white/10 pt-4 text-xs text-slate-400">
-          <p>
-            Unofficial fan-made generator. Not affiliated with, endorsed, sponsored, or approved by Epic Games.
-          </p>
-          <p>Data: Fortnite-API.com</p>
-        </div>
       </div>
     </div>
   );
