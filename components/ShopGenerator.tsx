@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import { ScreenshotCanvas } from "@/components/ScreenshotCanvas";
 import {
   categoryLabels,
@@ -257,6 +257,7 @@ export function ShopGenerator() {
   const [seasonFilter, setSeasonFilter] = useState("all");
   const [exportColumns, setExportColumns] = useState(8);
   const [exportRows, setExportRows] = useState(8);
+  const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
     let mounted = true;
@@ -284,6 +285,22 @@ export function ShopGenerator() {
       mounted = false;
     };
   }, []);
+
+  useEffect(() => {
+    function handlePointerDown(event: PointerEvent) {
+      if (!categoryMenuRef.current?.contains(event.target as Node)) {
+        setIsCategoryMenuOpen(false);
+      }
+    }
+
+    if (isCategoryMenuOpen) {
+      document.addEventListener("pointerdown", handlePointerDown);
+    }
+
+    return () => {
+      document.removeEventListener("pointerdown", handlePointerDown);
+    };
+  }, [isCategoryMenuOpen]);
 
   const rarityOptions = useMemo(() => uniqueSorted(shop?.items.map((item) => item.rarity) ?? []), [shop]);
   const seasonOptions = useMemo(() => uniqueSorted(shop?.items.map((item) => item.season) ?? []), [shop]);
@@ -326,14 +343,17 @@ export function ShopGenerator() {
   const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
   const visibleCategorySummary = groups.map((group) => group.label).join(", ");
   const categorySummary =
-    selectedCategories.length === SHOP_CATEGORIES.length
-      ? "All categories"
-      : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
+    selectedCategories.length === 0
+      ? "No categories"
+      : selectedCategories.length === SHOP_CATEGORIES.length
+        ? "All categories"
+        : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
+  const isCompactExport = exportRows > 12;
+
   function toggleCategory(category: ShopCategory) {
     setSelectedCategories((current) => {
       if (current.includes(category)) {
-        const next = current.filter((selectedCategory) => selectedCategory !== category);
-        return next.length > 0 ? next : current;
+        return current.filter((selectedCategory) => selectedCategory !== category);
       }
 
       return [...current, category];
@@ -342,6 +362,10 @@ export function ShopGenerator() {
 
   function selectAllCategories() {
     setSelectedCategories([...SHOP_CATEGORIES]);
+  }
+
+  function unselectAllCategories() {
+    setSelectedCategories([]);
   }
 
   function clearCategorySelection() {
@@ -359,6 +383,8 @@ export function ShopGenerator() {
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string, pageNumber?: number, pageTotal?: number) {
+    const cardHeight = isCompactExport ? 184 : CARD_HEIGHT;
+    const imageHeight = isCompactExport ? 94 : CARD_IMAGE_HEIGHT;
     const cardWidth =
       Math.max(160, (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns);
     const posterWidth = POSTER_PADDING * 2 + 36 + exportColumns * cardWidth + CARD_GAP * (exportColumns - 1);
@@ -369,7 +395,7 @@ export function ShopGenerator() {
     const posterHeight =
       POSTER_PADDING * 2 +
       groupsToCapture.length * 52 +
-      rows * CARD_HEIGHT +
+      rows * cardHeight +
       Math.max(rows - groupsToCapture.length, 0) * CARD_GAP;
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
@@ -392,7 +418,7 @@ export function ShopGenerator() {
 
     for (const group of groupsToCapture) {
       const sectionRows = Math.ceil(group.items.length / exportColumns);
-      const sectionHeight = 38 + sectionRows * CARD_HEIGHT + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
+      const sectionHeight = 38 + sectionRows * cardHeight + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
 
       roundedRect(context, POSTER_PADDING, y, posterWidth - POSTER_PADDING * 2, sectionHeight, 10);
       context.fillStyle = "rgba(255,255,255,0.045)";
@@ -419,16 +445,16 @@ export function ShopGenerator() {
         const column = index % exportColumns;
         const row = Math.floor(index / exportColumns);
         const x = POSTER_PADDING + 18 + column * (cardWidth + CARD_GAP);
-        const cardY = y + 42 + row * (CARD_HEIGHT + CARD_GAP);
+        const cardY = y + 42 + row * (cardHeight + CARD_GAP);
 
-        roundedRect(context, x, cardY, cardWidth, CARD_HEIGHT, 8);
+        roundedRect(context, x, cardY, cardWidth, cardHeight, 8);
         context.fillStyle = "rgba(2,6,23,0.78)";
         context.fill();
         context.strokeStyle = "rgba(255,255,255,0.10)";
         context.stroke();
 
-        roundedRect(context, x + 8, cardY + 8, cardWidth - 16, CARD_IMAGE_HEIGHT, 8);
-        const imageBackground = context.createLinearGradient(x, cardY, x + cardWidth, cardY + CARD_IMAGE_HEIGHT);
+        roundedRect(context, x + 8, cardY + 8, cardWidth - 16, imageHeight, 8);
+        const imageBackground = context.createLinearGradient(x, cardY, x + cardWidth, cardY + imageHeight);
         imageBackground.addColorStop(0, "#0f172a");
         imageBackground.addColorStop(1, "#111827");
         context.fillStyle = imageBackground;
@@ -436,9 +462,9 @@ export function ShopGenerator() {
 
         const image = images[index];
         if (image) {
-          drawContainedImage(context, image, x + 12, cardY + 12, cardWidth - 24, CARD_IMAGE_HEIGHT - 8);
+          drawContainedImage(context, image, x + 12, cardY + 12, cardWidth - 24, imageHeight - 8);
         } else {
-          drawImageFallback(context, item.name, x + 12, cardY + 12, cardWidth - 24, CARD_IMAGE_HEIGHT - 8);
+          drawImageFallback(context, item.name, x + 12, cardY + 12, cardWidth - 24, imageHeight - 8);
         }
 
         roundedRect(context, x + 12, cardY + 12, Math.min(context.measureText(item.rarity).width + 18, cardWidth - 24), 20, 4);
@@ -449,21 +475,30 @@ export function ShopGenerator() {
         context.fillText(item.rarity.toUpperCase(), x + 20, cardY + 26, cardWidth - 34);
 
         context.fillStyle = "#94a3b8";
-        context.font = "800 10px Arial, sans-serif";
-        context.fillText(item.type.toUpperCase(), x + 10, cardY + 160, cardWidth - 20);
+        context.font = `${isCompactExport ? "700 8px" : "800 10px"} Arial, sans-serif`;
+        context.fillText(item.type.toUpperCase(), x + 10, cardY + (isCompactExport ? 118 : 160), cardWidth - 20);
         context.fillStyle = "#ffffff";
-        context.font = "900 15px Arial, sans-serif";
-        drawText(context, item.name, x + 10, cardY + 181, cardWidth - 20, 17, 2);
-        context.fillStyle = "#94a3b8";
-        context.font = "700 10px Arial, sans-serif";
-        drawText(context, item.season, x + 10, cardY + 218, cardWidth - 20, 12, 1);
+        context.font = `${isCompactExport ? "900 12px" : "900 15px"} Arial, sans-serif`;
+        drawText(context, item.name, x + 10, cardY + (isCompactExport ? 138 : 181), cardWidth - 20, isCompactExport ? 14 : 17, 2);
+
+        if (!isCompactExport) {
+          context.fillStyle = "#94a3b8";
+          context.font = "700 10px Arial, sans-serif";
+          drawText(context, item.season, x + 10, cardY + 218, cardWidth - 20, 12, 1);
+        }
 
         context.fillStyle = "#bae6fd";
-        context.font = "900 13px Arial, sans-serif";
-        context.fillText(`${item.price.toLocaleString()} V-Bucks`, x + 10, cardY + 236);
+        context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
+        context.fillText(isCompactExport ? item.price.toLocaleString() : `${item.price.toLocaleString()} V-Bucks`, x + 10, cardY + (isCompactExport ? 174 : 236));
         context.fillStyle = "#fde68a";
         context.textAlign = "right";
-        context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + cardWidth - 10, cardY + 236);
+        context.fillText(
+          isCompactExport
+            ? Math.round(item.price * birrPerVbuck).toLocaleString()
+            : `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
+          x + cardWidth - 10,
+          cardY + (isCompactExport ? 174 : 236)
+        );
         context.textAlign = "left";
       });
 
@@ -546,7 +581,7 @@ export function ShopGenerator() {
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
                   Screenshot categories
                 </span>
-                <div className="relative">
+                <div className="relative" ref={categoryMenuRef}>
                   <button
                     className="flex h-11 w-full items-center justify-between gap-3 rounded-md border border-white/10 bg-slate-950 px-3 text-left text-sm font-bold text-white outline-none ring-cyan-300/30 transition hover:bg-white/[0.06] focus:ring-4"
                     data-testid="category-select"
@@ -554,7 +589,9 @@ export function ShopGenerator() {
                     type="button"
                   >
                     <span className="truncate">
-                      {selectedCategories.length === SHOP_CATEGORIES.length
+                      {selectedCategories.length === 0
+                        ? "No categories selected"
+                        : selectedCategories.length === SHOP_CATEGORIES.length
                         ? `All categories (${totalShopCount})`
                         : `${selectedCategories.length} selected`}
                     </span>
@@ -565,13 +602,20 @@ export function ShopGenerator() {
 
                   {isCategoryMenuOpen ? (
                     <div className="absolute left-0 right-0 z-30 mt-2 max-h-96 overflow-auto rounded-lg border border-white/10 bg-slate-950 p-2 shadow-2xl shadow-black/50">
-                      <div className="mb-2 grid grid-cols-2 gap-2">
+                      <div className="mb-2 grid grid-cols-3 gap-2">
                         <button
                           className="h-9 rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950"
                           onClick={selectAllCategories}
                           type="button"
                         >
-                          Select all
+                          Mark all
+                        </button>
+                        <button
+                          className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-black text-slate-200"
+                          onClick={unselectAllCategories}
+                          type="button"
+                        >
+                          Unmark all
                         </button>
                         <button
                           className="h-9 rounded-md border border-white/10 bg-black/30 px-3 text-xs font-black text-slate-200"
@@ -782,6 +826,7 @@ export function ShopGenerator() {
               <div data-testid="shop-canvas">
                 <ScreenshotCanvas
                   birrPerVbuck={birrPerVbuck}
+                  compact={isCompactExport}
                   columns={exportColumns}
                   groups={groups}
                 />
