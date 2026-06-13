@@ -38,10 +38,10 @@ export function ShopCard({ item, birrPerVbuck, compact, screenshotFields }: Shop
         </span>
       </div>
 
-      <div className={compact ? "grid gap-1 p-2" : "grid gap-2 p-2"}>
+      <div className={compact ? "grid gap-1 p-1.5 sm:p-2" : "grid gap-2 p-2"}>
         <div>
-          <p className="text-[10px] font-bold uppercase tracking-normal text-slate-400">{item.type}</p>
-          <h3 className={compact ? "line-clamp-2 min-h-8 text-[11px] font-black leading-tight text-white" : "line-clamp-2 min-h-9 text-xs font-black leading-tight text-white"}>
+          <p className={compact ? "text-[8px] font-bold uppercase tracking-normal text-slate-400 sm:text-[10px]" : "text-[10px] font-bold uppercase tracking-normal text-slate-400"}>{item.type}</p>
+          <h3 className={compact ? "line-clamp-2 min-h-7 text-[9px] font-black leading-tight text-white sm:min-h-8 sm:text-[11px]" : "line-clamp-2 min-h-9 text-xs font-black leading-tight text-white"}>
             {item.name}
           </h3>
           {screenshotFields.description ? (
@@ -52,17 +52,17 @@ export function ShopCard({ item, birrPerVbuck, compact, screenshotFields }: Shop
         </div>
 
         {hasPrices ? (
-          <div className={compact ? "grid gap-1 rounded bg-white/[0.06] p-1.5 text-[10px]" : "grid gap-1 rounded bg-white/[0.06] p-2 text-[11px]"}>
+          <div className={compact ? "grid gap-1 rounded bg-white/[0.06] p-1 text-[8px] sm:p-1.5 sm:text-[10px]" : "grid gap-1 rounded bg-white/[0.06] p-2 text-[11px]"}>
             {screenshotFields.vbucks ? (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-slate-300">{compact ? "VB" : "V-Bucks"}</span>
-                <strong className="text-cyan-200">{formatNumber(item.price)}</strong>
+              <div className={compact ? "text-cyan-200" : "flex items-center justify-between gap-2"}>
+                {!compact ? <span className="text-slate-300">V-Bucks</span> : null}
+                <strong className="text-cyan-200">{formatNumber(item.price)} V-Bucks</strong>
               </div>
             ) : null}
             {screenshotFields.birr ? (
-              <div className="flex items-center justify-between gap-2">
-                <span className="text-slate-300">{compact ? "Birr" : "Birr cost"}</span>
-                <strong className="text-amber-200">{formatNumber(birrCost)}{compact ? "" : " Birr"}</strong>
+              <div className={compact ? "text-amber-200" : "flex items-center justify-between gap-2"}>
+                {!compact ? <span className="text-slate-300">Birr cost</span> : null}
+                <strong className="text-amber-200">{formatNumber(birrCost)} Birr</strong>
               </div>
             ) : null}
           </div>
