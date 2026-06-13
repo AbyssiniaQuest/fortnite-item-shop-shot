@@ -11,6 +11,11 @@ import {
 } from "@/lib/shop";
 
 type ShopGroup = ReturnType<typeof groupShopItems>[number];
+export type ScreenshotFields = {
+  birr: boolean;
+  vbucks: boolean;
+  description: boolean;
+};
 
 const POSTER_WIDTH = 1080;
 const POSTER_PADDING = 32;
@@ -223,6 +228,12 @@ export function ShopGenerator() {
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
   const [exportColumns, setExportColumns] = useState(8);
+  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [screenshotFields, setScreenshotFields] = useState<ScreenshotFields>({
+    birr: true,
+    vbucks: true,
+    description: false
+  });
   const categoryMenuRef = useRef<HTMLDivElement>(null);
 
   useEffect(() => {
@@ -336,11 +347,23 @@ export function ShopGenerator() {
     setRarityFilter("all");
     setSeasonFilter("all");
     setExportColumns(8);
+    setScreenshotFields({
+      birr: true,
+      vbucks: true,
+      description: false
+    });
     setDownloadMessage("");
   }
 
+  function toggleScreenshotField(field: keyof ScreenshotFields) {
+    setScreenshotFields((current) => ({
+      ...current,
+      [field]: !current[field]
+    }));
+  }
+
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
-    const cardHeight = isCompactExport ? 184 : CARD_HEIGHT;
+    const cardHeight = (isCompactExport ? 164 : CARD_HEIGHT) + (screenshotFields.description ? 24 : 0);
     const imageHeight = isCompactExport ? 94 : CARD_IMAGE_HEIGHT;
     const cardWidth =
       Math.max(160, (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns);
@@ -438,25 +461,32 @@ export function ShopGenerator() {
         context.font = `${isCompactExport ? "900 12px" : "900 15px"} Arial, sans-serif`;
         drawText(context, item.name, x + 10, cardY + (isCompactExport ? 138 : 181), cardWidth - 20, isCompactExport ? 14 : 17, 2);
 
-        if (!isCompactExport) {
+        if (screenshotFields.description) {
           context.fillStyle = "#94a3b8";
-          context.font = "700 10px Arial, sans-serif";
-          drawText(context, item.season, x + 10, cardY + 218, cardWidth - 20, 12, 1);
+          context.font = `${isCompactExport ? "700 9px" : "700 10px"} Arial, sans-serif`;
+          drawText(context, item.season, x + 10, cardY + (isCompactExport ? 160 : 218), cardWidth - 20, isCompactExport ? 10 : 12, 1);
         }
 
-        context.fillStyle = "#bae6fd";
-        context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
-        context.fillText(isCompactExport ? item.price.toLocaleString() : `${item.price.toLocaleString()} V-Bucks`, x + 10, cardY + (isCompactExport ? 174 : 236));
-        context.fillStyle = "#fde68a";
-        context.textAlign = "right";
-        context.fillText(
-          isCompactExport
-            ? Math.round(item.price * birrPerVbuck).toLocaleString()
-            : `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
-          x + cardWidth - 10,
-          cardY + (isCompactExport ? 174 : 236)
-        );
-        context.textAlign = "left";
+        const priceY = cardY + cardHeight - 10;
+        if (screenshotFields.vbucks) {
+          context.fillStyle = "#bae6fd";
+          context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
+          context.fillText(isCompactExport ? item.price.toLocaleString() : `${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
+        }
+
+        if (screenshotFields.birr) {
+          context.fillStyle = "#fde68a";
+          context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
+          context.textAlign = "right";
+          context.fillText(
+            isCompactExport
+              ? Math.round(item.price * birrPerVbuck).toLocaleString()
+              : `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
+            x + cardWidth - 10,
+            priceY
+          );
+          context.textAlign = "left";
+        }
       });
 
       y += sectionHeight + 14;
@@ -524,7 +554,30 @@ export function ShopGenerator() {
 
       <section className="min-h-[calc(100vh-108px)]">
         <div className="sticky top-0 z-20 border-b border-white/10 bg-[#08101d]/95 p-3 shadow-2xl shadow-black/20 backdrop-blur">
-          <div className="grid gap-4">
+          <div className="flex items-center justify-between gap-3 md:hidden">
+            <button
+              className="flex h-11 items-center gap-3 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-black text-white"
+              onClick={() => setIsMobileControlsOpen((isOpen) => !isOpen)}
+              type="button"
+            >
+              <span aria-hidden="true" className="grid gap-1">
+                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
+                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
+                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
+              </span>
+              Options
+            </button>
+            <button
+              className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60"
+              disabled={!shop || isDownloading || filteredCount === 0}
+              onClick={downloadPngs}
+              type="button"
+            >
+              {isDownloading ? "Rendering..." : "Download"}
+            </button>
+          </div>
+
+          <div className={`${isMobileControlsOpen ? "grid" : "hidden"} gap-4 pt-3 md:grid md:pt-0`}>
             <div className="flex flex-wrap items-end gap-3">
               <label className="grid min-w-[220px] flex-1 gap-2">
                 <span className="text-xs font-black uppercase tracking-normal text-slate-300">
@@ -670,6 +723,29 @@ export function ShopGenerator() {
                   />
                 </label>
               </div>
+
+              <fieldset className="grid min-w-[260px] flex-1 gap-2">
+                <legend className="text-xs font-black uppercase tracking-normal text-slate-300">
+                  Screenshot details
+                </legend>
+                <div className="grid grid-cols-3 gap-2 rounded-md border border-white/10 bg-slate-950 p-2">
+                  {[
+                    ["vbucks", "V-Bucks"],
+                    ["birr", "Birr"],
+                    ["description", "Description"]
+                  ].map(([field, label]) => (
+                    <label className="flex min-h-9 items-center justify-center gap-2 rounded bg-white/[0.04] px-2 text-xs font-black text-slate-200" key={field}>
+                      <input
+                        checked={screenshotFields[field as keyof ScreenshotFields]}
+                        className="h-4 w-4 accent-cyan-300"
+                        onChange={() => toggleScreenshotField(field as keyof ScreenshotFields)}
+                        type="checkbox"
+                      />
+                      <span>{label}</span>
+                    </label>
+                  ))}
+                </div>
+              </fieldset>
             </div>
 
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
@@ -694,7 +770,7 @@ export function ShopGenerator() {
               </div>
 
               <button
-                className="h-12 w-full rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto"
+                className="hidden h-12 w-full rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto md:block"
                 data-testid="download-pngs"
                 disabled={!shop || isDownloading || filteredCount === 0}
                 onClick={downloadPngs}
@@ -745,6 +821,7 @@ export function ShopGenerator() {
                   compact={isCompactExport}
                   columns={exportColumns}
                   groups={groups}
+                  screenshotFields={screenshotFields}
                 />
               </div>
             </div>
