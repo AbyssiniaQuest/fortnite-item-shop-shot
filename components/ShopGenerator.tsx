@@ -363,8 +363,8 @@ export function ShopGenerator() {
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
-    const cardHeight = (isCompactExport ? 164 : CARD_HEIGHT) + (screenshotFields.description ? 24 : 0);
-    const imageHeight = isCompactExport ? 94 : CARD_IMAGE_HEIGHT;
+    const cardHeight = (isCompactExport ? 188 : CARD_HEIGHT) + (screenshotFields.description ? 20 : 0);
+    const imageHeight = isCompactExport ? 86 : CARD_IMAGE_HEIGHT;
     const cardWidth =
       Math.max(160, (POSTER_WIDTH - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns);
     const posterWidth = POSTER_PADDING * 2 + 36 + exportColumns * cardWidth + CARD_GAP * (exportColumns - 1);
@@ -456,36 +456,52 @@ export function ShopGenerator() {
 
         context.fillStyle = "#94a3b8";
         context.font = `${isCompactExport ? "700 8px" : "800 10px"} Arial, sans-serif`;
-        context.fillText(item.type.toUpperCase(), x + 10, cardY + (isCompactExport ? 118 : 160), cardWidth - 20);
+        context.fillText(item.type.toUpperCase(), x + 10, cardY + (isCompactExport ? 112 : 160), cardWidth - 20);
         context.fillStyle = "#ffffff";
         context.font = `${isCompactExport ? "900 12px" : "900 15px"} Arial, sans-serif`;
-        drawText(context, item.name, x + 10, cardY + (isCompactExport ? 138 : 181), cardWidth - 20, isCompactExport ? 14 : 17, 2);
+        drawText(context, item.name, x + 10, cardY + (isCompactExport ? 130 : 181), cardWidth - 20, isCompactExport ? 13 : 17, 2);
 
         if (screenshotFields.description) {
           context.fillStyle = "#94a3b8";
           context.font = `${isCompactExport ? "700 9px" : "700 10px"} Arial, sans-serif`;
-          drawText(context, item.season, x + 10, cardY + (isCompactExport ? 160 : 218), cardWidth - 20, isCompactExport ? 10 : 12, 1);
+          drawText(context, item.season, x + 10, cardY + (isCompactExport ? 158 : 218), cardWidth - 20, isCompactExport ? 10 : 12, 1);
         }
 
         const priceY = cardY + cardHeight - 10;
-        if (screenshotFields.vbucks) {
-          context.fillStyle = "#bae6fd";
-          context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
-          context.fillText(isCompactExport ? item.price.toLocaleString() : `${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
-        }
+        if (isCompactExport) {
+          context.font = "900 10px Arial, sans-serif";
+          if (screenshotFields.vbucks) {
+            context.fillStyle = "#bae6fd";
+            context.fillText(
+              `${item.price.toLocaleString()} V-Bucks`,
+              x + 10,
+              screenshotFields.birr ? priceY - 12 : priceY,
+              cardWidth - 20
+            );
+          }
 
-        if (screenshotFields.birr) {
+          if (screenshotFields.birr) {
+            context.fillStyle = "#fde68a";
+            context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 10, priceY, cardWidth - 20);
+          }
+        } else {
+          if (screenshotFields.vbucks) {
+          context.fillStyle = "#bae6fd";
+          context.font = "900 13px Arial, sans-serif";
+          context.fillText(`${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
+          }
+
+          if (screenshotFields.birr) {
           context.fillStyle = "#fde68a";
-          context.font = `${isCompactExport ? "900 11px" : "900 13px"} Arial, sans-serif`;
+          context.font = "900 13px Arial, sans-serif";
           context.textAlign = "right";
           context.fillText(
-            isCompactExport
-              ? Math.round(item.price * birrPerVbuck).toLocaleString()
-              : `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
+            `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
             x + cardWidth - 10,
             priceY
           );
           context.textAlign = "left";
+          }
         }
       });
 
