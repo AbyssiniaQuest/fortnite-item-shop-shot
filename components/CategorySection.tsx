@@ -31,16 +31,16 @@ const categoryAccent: Record<ShopCategory, string> = {
 
 export function CategorySection({ category, label, items, birrPerVbuck, columns, compact, screenshotFields }: CategorySectionProps) {
   return (
-    <section className="break-inside-avoid rounded-lg border border-white/10 bg-white/[0.045] p-3 shadow-2xl shadow-black/20">
-      <div className="mb-3 flex items-center justify-between gap-3">
+    <section className="break-inside-avoid rounded-md border border-white/10 bg-white/[0.045] p-1.5 shadow-2xl shadow-black/20 sm:p-2">
+      <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
         <div className="min-w-0">
           <p
-            className={`bg-gradient-to-r ${categoryAccent[category]} bg-clip-text text-base font-black uppercase tracking-normal text-transparent`}
+            className={`bg-gradient-to-r ${categoryAccent[category]} bg-clip-text text-xs font-black uppercase tracking-normal text-transparent sm:text-sm`}
           >
             {label}
           </p>
         </div>
-        <span className="rounded-full border border-white/10 bg-black/35 px-3 py-1 text-xs font-bold text-slate-200">
+        <span className="rounded-full border border-white/10 bg-black/35 px-2 py-0.5 text-[10px] font-bold text-slate-200 sm:text-xs">
           {items.length}
         </span>
       </div>
