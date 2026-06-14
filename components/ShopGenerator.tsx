@@ -18,8 +18,9 @@ export type ScreenshotFields = {
 };
 
 const POSTER_WIDTH = 1080;
-const POSTER_PADDING = 32;
-const CARD_GAP = 10;
+const POSTER_PADDING = 18;
+const SECTION_INSET = 10;
+const CARD_GAP = 6;
 const CARD_HEIGHT = 244;
 const CARD_IMAGE_HEIGHT = 132;
 const POSTER_IMAGE_TIMEOUT = 12000;
@@ -434,17 +435,19 @@ export function ShopGenerator() {
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
-    const cardHeight = (isCompactExport ? 188 : CARD_HEIGHT) + (screenshotFields.description ? 20 : 0);
-    const imageHeight = isCompactExport ? 86 : CARD_IMAGE_HEIGHT;
+    const sectionHeaderHeight = isCompactExport ? 28 : 36;
+    const sectionFooterGap = isCompactExport ? 8 : 12;
+    const cardHeight = (isCompactExport ? 164 : CARD_HEIGHT) + (screenshotFields.description ? 16 : 0);
+    const imageHeight = isCompactExport ? 82 : CARD_IMAGE_HEIGHT;
     const posterWidth = POSTER_WIDTH;
-    const cardWidth = (posterWidth - POSTER_PADDING * 2 - 36 - CARD_GAP * (exportColumns - 1)) / exportColumns;
+    const cardWidth = (posterWidth - POSTER_PADDING * 2 - SECTION_INSET * 2 - CARD_GAP * (exportColumns - 1)) / exportColumns;
     const rows = groupsToCapture.reduce(
       (sum, group) => sum + Math.ceil(group.items.length / exportColumns),
       0
     );
     const posterHeight =
       POSTER_PADDING * 2 +
-      groupsToCapture.length * 52 +
+      groupsToCapture.length * (sectionHeaderHeight + sectionFooterGap) +
       rows * cardHeight +
       Math.max(rows - groupsToCapture.length, 0) * CARD_GAP;
     const canvas = document.createElement("canvas");
@@ -468,7 +471,7 @@ export function ShopGenerator() {
 
     for (const group of groupsToCapture) {
       const sectionRows = Math.ceil(group.items.length / exportColumns);
-      const sectionHeight = 38 + sectionRows * cardHeight + Math.max(sectionRows - 1, 0) * CARD_GAP + 14;
+      const sectionHeight = sectionHeaderHeight + sectionRows * cardHeight + Math.max(sectionRows - 1, 0) * CARD_GAP + sectionFooterGap;
 
       roundedRect(context, POSTER_PADDING, y, posterWidth - POSTER_PADDING * 2, sectionHeight, 10);
       context.fillStyle = "rgba(255,255,255,0.045)";
@@ -477,15 +480,15 @@ export function ShopGenerator() {
       context.stroke();
 
       context.fillStyle = "#67e8f9";
-      context.font = "900 20px Arial, sans-serif";
-      context.fillText(group.label.toUpperCase(), POSTER_PADDING + 18, y + 28);
+      context.font = `900 ${isCompactExport ? 15 : 18}px Arial, sans-serif`;
+      context.fillText(group.label.toUpperCase(), POSTER_PADDING + SECTION_INSET, y + (isCompactExport ? 20 : 26));
       context.fillStyle = "#e2e8f0";
-      context.font = "800 14px Arial, sans-serif";
+      context.font = `800 ${isCompactExport ? 11 : 13}px Arial, sans-serif`;
       context.textAlign = "right";
       context.fillText(
         `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}`,
-        posterWidth - POSTER_PADDING - 18,
-        y + 28
+        posterWidth - POSTER_PADDING - SECTION_INSET,
+        y + (isCompactExport ? 20 : 26)
       );
       context.textAlign = "left";
 
@@ -494,8 +497,8 @@ export function ShopGenerator() {
       group.items.forEach((item, index) => {
         const column = index % exportColumns;
         const row = Math.floor(index / exportColumns);
-        const x = POSTER_PADDING + 18 + column * (cardWidth + CARD_GAP);
-        const cardY = y + 42 + row * (cardHeight + CARD_GAP);
+        const x = POSTER_PADDING + SECTION_INSET + column * (cardWidth + CARD_GAP);
+        const cardY = y + sectionHeaderHeight + row * (cardHeight + CARD_GAP);
 
         roundedRect(context, x, cardY, cardWidth, cardHeight, 8);
         context.fillStyle = "rgba(2,6,23,0.78)";
@@ -503,7 +506,8 @@ export function ShopGenerator() {
         context.strokeStyle = "rgba(255,255,255,0.10)";
         context.stroke();
 
-        roundedRect(context, x + 8, cardY + 8, cardWidth - 16, imageHeight, 8);
+        const imagePad = isCompactExport ? 5 : 8;
+        roundedRect(context, x + imagePad, cardY + imagePad, cardWidth - imagePad * 2, imageHeight, 7);
         const imageBackground = context.createLinearGradient(x, cardY, x + cardWidth, cardY + imageHeight);
         imageBackground.addColorStop(0, "#0f172a");
         imageBackground.addColorStop(1, "#111827");
@@ -512,45 +516,45 @@ export function ShopGenerator() {
 
         const image = images[index];
         if (image) {
-          drawContainedImage(context, image, x + 12, cardY + 12, cardWidth - 24, imageHeight - 8);
+          drawContainedImage(context, image, x + imagePad + 3, cardY + imagePad + 3, cardWidth - imagePad * 2 - 6, imageHeight - 6);
         } else {
-          drawImageFallback(context, item.name, x + 12, cardY + 12, cardWidth - 24, imageHeight - 8);
+          drawImageFallback(context, item.name, x + imagePad + 3, cardY + imagePad + 3, cardWidth - imagePad * 2 - 6, imageHeight - 6);
         }
 
-        const metaY = cardY + (isCompactExport ? 112 : 160);
+        const metaY = cardY + (isCompactExport ? 101 : 160);
         context.fillStyle = "#94a3b8";
-        context.font = `${isCompactExport ? "700 8px" : "800 10px"} Arial, sans-serif`;
-        context.fillText(item.type.toUpperCase(), x + 10, metaY, cardWidth * 0.54);
+        context.font = `${isCompactExport ? "700 7px" : "800 10px"} Arial, sans-serif`;
+        context.fillText(item.type.toUpperCase(), x + 7, metaY, cardWidth * 0.54);
         context.fillStyle = "#cffafe";
         context.textAlign = "right";
-        context.fillText(item.rarity.toUpperCase(), x + cardWidth - 10, metaY, cardWidth * 0.42);
+        context.fillText(item.rarity.toUpperCase(), x + cardWidth - 7, metaY, cardWidth * 0.42);
         context.textAlign = "left";
         context.fillStyle = "#ffffff";
-        context.font = `${isCompactExport ? "900 12px" : "900 15px"} Arial, sans-serif`;
-        drawText(context, item.name, x + 10, cardY + (isCompactExport ? 130 : 181), cardWidth - 20, isCompactExport ? 13 : 17, 2);
+        context.font = `${isCompactExport ? "900 10px" : "900 15px"} Arial, sans-serif`;
+        drawText(context, item.name, x + 7, cardY + (isCompactExport ? 116 : 181), cardWidth - 14, isCompactExport ? 11 : 17, 2);
 
         if (screenshotFields.description) {
           context.fillStyle = "#94a3b8";
-          context.font = `${isCompactExport ? "700 9px" : "700 10px"} Arial, sans-serif`;
-          drawText(context, item.season, x + 10, cardY + (isCompactExport ? 158 : 218), cardWidth - 20, isCompactExport ? 10 : 12, 1);
+          context.font = `${isCompactExport ? "700 8px" : "700 10px"} Arial, sans-serif`;
+          drawText(context, item.season, x + 7, cardY + (isCompactExport ? 139 : 218), cardWidth - 14, isCompactExport ? 9 : 12, 1);
         }
 
-        const priceY = cardY + cardHeight - 10;
+        const priceY = cardY + cardHeight - 7;
         if (isCompactExport) {
-          context.font = "900 10px Arial, sans-serif";
+          context.font = "900 8px Arial, sans-serif";
           if (screenshotFields.vbucks) {
             context.fillStyle = "#bae6fd";
             context.fillText(
               `${item.price.toLocaleString()} V-Bucks`,
-              x + 10,
-              screenshotFields.birr ? priceY - 12 : priceY,
-              cardWidth - 20
+              x + 7,
+              screenshotFields.birr ? priceY - 10 : priceY,
+              cardWidth - 14
             );
           }
 
           if (screenshotFields.birr) {
             context.fillStyle = "#fde68a";
-            context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 10, priceY, cardWidth - 20);
+            context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 7, priceY, cardWidth - 14);
           }
         } else {
           if (screenshotFields.vbucks) {
