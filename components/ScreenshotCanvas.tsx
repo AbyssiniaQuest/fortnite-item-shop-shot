@@ -28,9 +28,9 @@ export function ScreenshotCanvas({
 }: ScreenshotCanvasProps) {
   return (
     <div className="w-full bg-slate-950 text-white">
-      <div className="relative bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-3 sm:p-5">
+      <div className="relative bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-1.5 sm:p-3">
         {groups.length > 0 ? (
-          <div className="grid gap-3">
+          <div className="grid gap-2">
             {groups.map((group) => (
               <CategorySection
                 birrPerVbuck={birrPerVbuck}
