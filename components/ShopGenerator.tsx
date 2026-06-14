@@ -23,6 +23,8 @@ const SECTION_INSET = 10;
 const CARD_GAP = 6;
 const CARD_HEIGHT = 244;
 const CARD_IMAGE_HEIGHT = 132;
+const EXPORT_PIXEL_SCALE = 2;
+const MAX_CANVAS_DIMENSION = 30000;
 const POSTER_IMAGE_TIMEOUT = 12000;
 const POSTER_IMAGE_CONCURRENCY = 16;
 const MIN_EXPORT_COLUMNS = 2;
@@ -43,11 +45,24 @@ function getDefaultColumnsForViewport() {
   return DESKTOP_DEFAULT_COLUMNS;
 }
 
-function downloadDataUrl(dataUrl: string, filename: string) {
+async function downloadCanvasPng(canvas: HTMLCanvasElement, filename: string) {
+  const blob = await new Promise<Blob>((resolve, reject) => {
+    canvas.toBlob((result) => {
+      if (result) {
+        resolve(result);
+        return;
+      }
+
+      reject(new Error("Unable to create PNG file."));
+    }, "image/png");
+  });
+  const url = URL.createObjectURL(blob);
   const link = document.createElement("a");
+
   link.download = filename;
-  link.href = dataUrl;
+  link.href = url;
   link.click();
+  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
 }
 
 function formatDateTime(value?: string) {
@@ -120,8 +135,46 @@ function drawText(
       index === maxLines - 1 && lines.length === maxLines && words.join(" ") !== lines.join(" ")
         ? `${line.replace(/\W?\w*$/, "")}...`
         : line;
+    const fillStyle = context.fillStyle;
+
+    context.save();
+    context.lineJoin = "round";
+    context.lineWidth = 2;
+    context.strokeStyle = "rgba(0,0,0,0.78)";
+    context.strokeText(renderedLine, x, y + index * lineHeight, maxWidth);
+    context.restore();
+    context.fillStyle = fillStyle;
     context.fillText(renderedLine, x, y + index * lineHeight);
   });
+}
+
+function fillReadableText(
+  context: CanvasRenderingContext2D,
+  text: string,
+  x: number,
+  y: number,
+  maxWidth?: number
+) {
+  const fillStyle = context.fillStyle;
+
+  context.save();
+  context.lineJoin = "round";
+  context.lineWidth = 2;
+  context.strokeStyle = "rgba(0,0,0,0.78)";
+  if (maxWidth) {
+    context.strokeText(text, x, y, maxWidth);
+  } else {
+    context.strokeText(text, x, y);
+  }
+  context.restore();
+  context.fillStyle = fillStyle;
+
+  if (maxWidth) {
+    context.fillText(text, x, y, maxWidth);
+    return;
+  }
+
+  context.fillText(text, x, y);
 }
 
 function loadPosterImage(src: string) {
@@ -457,15 +510,24 @@ export function ShopGenerator() {
       throw new Error("Canvas is not supported in this browser.");
     }
 
-    canvas.width = posterWidth;
-    canvas.height = Math.max(320, posterHeight);
+    const logicalPosterHeight = Math.max(320, posterHeight);
+    const exportScale = Math.max(
+      1,
+      Math.min(EXPORT_PIXEL_SCALE, MAX_CANVAS_DIMENSION / Math.max(posterWidth, logicalPosterHeight))
+    );
 
-    const background = context.createLinearGradient(0, 0, posterWidth, canvas.height);
+    canvas.width = Math.ceil(posterWidth * exportScale);
+    canvas.height = Math.ceil(logicalPosterHeight * exportScale);
+    context.scale(exportScale, exportScale);
+    context.imageSmoothingEnabled = true;
+    context.imageSmoothingQuality = "high";
+
+    const background = context.createLinearGradient(0, 0, posterWidth, logicalPosterHeight);
     background.addColorStop(0, "#020617");
     background.addColorStop(0.55, "#101827");
     background.addColorStop(1, "#171717");
     context.fillStyle = background;
-    context.fillRect(0, 0, canvas.width, canvas.height);
+    context.fillRect(0, 0, posterWidth, logicalPosterHeight);
 
     let y = POSTER_PADDING;
 
@@ -480,12 +542,13 @@ export function ShopGenerator() {
       context.stroke();
 
       context.fillStyle = "#67e8f9";
-      context.font = `900 ${isCompactExport ? 15 : 18}px Arial, sans-serif`;
-      context.fillText(group.label.toUpperCase(), POSTER_PADDING + SECTION_INSET, y + (isCompactExport ? 20 : 26));
+      context.font = `900 ${isCompactExport ? 16 : 18}px Arial, sans-serif`;
+      fillReadableText(context, group.label.toUpperCase(), POSTER_PADDING + SECTION_INSET, y + (isCompactExport ? 20 : 26));
       context.fillStyle = "#e2e8f0";
       context.font = `800 ${isCompactExport ? 11 : 13}px Arial, sans-serif`;
       context.textAlign = "right";
-      context.fillText(
+      fillReadableText(
+        context,
         `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}`,
         posterWidth - POSTER_PADDING - SECTION_INSET,
         y + (isCompactExport ? 20 : 26)
@@ -522,29 +585,37 @@ export function ShopGenerator() {
         }
 
         const metaY = cardY + (isCompactExport ? 101 : 160);
+        const tinyCard = cardWidth < 70;
+        const metaFontSize = isCompactExport ? (tinyCard ? 7 : 8) : 10;
+        const nameFontSize = isCompactExport ? (tinyCard ? 9 : 12) : 15;
+        const nameLineHeight = isCompactExport ? (tinyCard ? 10 : 13) : 17;
+        const descriptionFontSize = isCompactExport ? (tinyCard ? 8 : 9) : 10;
+        const priceFontSize = isCompactExport ? (tinyCard ? 8 : 10) : 13;
+
         context.fillStyle = "#94a3b8";
-        context.font = `${isCompactExport ? "700 7px" : "800 10px"} Arial, sans-serif`;
-        context.fillText(item.type.toUpperCase(), x + 7, metaY, cardWidth * 0.54);
+        context.font = `${isCompactExport ? "800" : "800"} ${metaFontSize}px Arial, sans-serif`;
+        fillReadableText(context, item.type.toUpperCase(), x + 7, metaY, cardWidth * 0.54);
         context.fillStyle = "#cffafe";
         context.textAlign = "right";
-        context.fillText(item.rarity.toUpperCase(), x + cardWidth - 7, metaY, cardWidth * 0.42);
+        fillReadableText(context, item.rarity.toUpperCase(), x + cardWidth - 7, metaY, cardWidth * 0.42);
         context.textAlign = "left";
         context.fillStyle = "#ffffff";
-        context.font = `${isCompactExport ? "900 10px" : "900 15px"} Arial, sans-serif`;
-        drawText(context, item.name, x + 7, cardY + (isCompactExport ? 116 : 181), cardWidth - 14, isCompactExport ? 11 : 17, 2);
+        context.font = `900 ${nameFontSize}px Arial, sans-serif`;
+        drawText(context, item.name, x + 7, cardY + (isCompactExport ? 116 : 181), cardWidth - 14, nameLineHeight, 2);
 
         if (screenshotFields.description) {
           context.fillStyle = "#94a3b8";
-          context.font = `${isCompactExport ? "700 8px" : "700 10px"} Arial, sans-serif`;
+          context.font = `800 ${descriptionFontSize}px Arial, sans-serif`;
           drawText(context, item.season, x + 7, cardY + (isCompactExport ? 139 : 218), cardWidth - 14, isCompactExport ? 9 : 12, 1);
         }
 
         const priceY = cardY + cardHeight - 7;
         if (isCompactExport) {
-          context.font = "900 8px Arial, sans-serif";
+          context.font = `900 ${priceFontSize}px Arial, sans-serif`;
           if (screenshotFields.vbucks) {
             context.fillStyle = "#bae6fd";
-            context.fillText(
+            fillReadableText(
+              context,
               `${item.price.toLocaleString()} V-Bucks`,
               x + 7,
               screenshotFields.birr ? priceY - 10 : priceY,
@@ -554,20 +625,21 @@ export function ShopGenerator() {
 
           if (screenshotFields.birr) {
             context.fillStyle = "#fde68a";
-            context.fillText(`${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 7, priceY, cardWidth - 14);
+            fillReadableText(context, `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 7, priceY, cardWidth - 14);
           }
         } else {
           if (screenshotFields.vbucks) {
           context.fillStyle = "#bae6fd";
           context.font = "900 13px Arial, sans-serif";
-          context.fillText(`${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
+          fillReadableText(context, `${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
           }
 
           if (screenshotFields.birr) {
           context.fillStyle = "#fde68a";
           context.font = "900 13px Arial, sans-serif";
           context.textAlign = "right";
-          context.fillText(
+          fillReadableText(
+            context,
             `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
             x + cardWidth - 10,
             priceY
@@ -580,8 +652,7 @@ export function ShopGenerator() {
       y += sectionHeight + 14;
     }
 
-    const dataUrl = canvas.toDataURL("image/png");
-    downloadDataUrl(dataUrl, filename);
+    await downloadCanvasPng(canvas, filename);
   }
 
   async function downloadPngs() {
