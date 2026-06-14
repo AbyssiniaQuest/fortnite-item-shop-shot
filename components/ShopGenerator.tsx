@@ -238,6 +238,8 @@ export function ShopGenerator() {
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
   const [exportColumns, setExportColumns] = useState(DESKTOP_DEFAULT_COLUMNS);
+  const [exportColumnInput, setExportColumnInput] = useState(String(DESKTOP_DEFAULT_COLUMNS));
+  const [isEditingExportColumns, setIsEditingExportColumns] = useState(false);
   const [isPhoneLayout, setIsPhoneLayout] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [screenshotFields, setScreenshotFields] = useState<ScreenshotFields>({
@@ -266,6 +268,12 @@ export function ShopGenerator() {
       mediaQuery.removeEventListener("change", syncPhoneLayout);
     };
   }, []);
+
+  useEffect(() => {
+    if (!isEditingExportColumns) {
+      setExportColumnInput(String(exportColumns));
+    }
+  }, [exportColumns, isEditingExportColumns]);
 
   useEffect(() => {
     let mounted = true;
@@ -374,11 +382,14 @@ export function ShopGenerator() {
   }
 
   function resetFilters() {
+    const defaultColumns = getDefaultColumnsForViewport();
+
     setSelectedCategories(["skins"]);
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
-    setExportColumns(getDefaultColumnsForViewport());
+    setExportColumns(defaultColumns);
+    setExportColumnInput(String(defaultColumns));
     setScreenshotFields({
       birr: true,
       vbucks: true,
@@ -392,6 +403,34 @@ export function ShopGenerator() {
       ...current,
       [field]: !current[field]
     }));
+  }
+
+  function handleExportColumnInput(value: string) {
+    const numericValue = value.replace(/\D/g, "");
+
+    setExportColumnInput(numericValue);
+
+    if (!numericValue) {
+      return;
+    }
+
+    const nextColumns = Number(numericValue);
+
+    if (Number.isFinite(nextColumns) && nextColumns >= MIN_EXPORT_COLUMNS && nextColumns <= MAX_EXPORT_COLUMNS) {
+      setExportColumns(nextColumns);
+    }
+  }
+
+  function commitExportColumnInput() {
+    const nextColumns = Number(exportColumnInput);
+    const clampedColumns =
+      Number.isFinite(nextColumns)
+        ? clampNumber(nextColumns, MIN_EXPORT_COLUMNS, MAX_EXPORT_COLUMNS)
+        : exportColumns;
+
+    setIsEditingExportColumns(false);
+    setExportColumns(clampedColumns);
+    setExportColumnInput(String(clampedColumns));
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
@@ -744,13 +783,15 @@ export function ShopGenerator() {
                   <input
                     className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
                     data-testid="export-columns"
+                    inputMode="numeric"
                     max={MAX_EXPORT_COLUMNS}
                     min={MIN_EXPORT_COLUMNS}
-                    onChange={(event) =>
-                      setExportColumns(clampNumber(Number(event.target.value) || MIN_EXPORT_COLUMNS, MIN_EXPORT_COLUMNS, MAX_EXPORT_COLUMNS))
-                    }
-                    type="number"
-                    value={exportColumns}
+                    onBlur={commitExportColumnInput}
+                    onChange={(event) => handleExportColumnInput(event.target.value)}
+                    onFocus={() => setIsEditingExportColumns(true)}
+                    pattern="[0-9]*"
+                    type="text"
+                    value={exportColumnInput}
                   />
                 </label>
 
