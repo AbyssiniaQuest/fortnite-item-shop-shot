@@ -1,0 +1,6 @@
+{
+  "enabled": false,
+  "intervalDays": 1,
+  "caption": "Today's item shop {date} 🔥",
+  "lastPostedAt": null
+}

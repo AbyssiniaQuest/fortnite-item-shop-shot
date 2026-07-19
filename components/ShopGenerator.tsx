@@ -17,6 +17,12 @@ export type ScreenshotFields = {
   description: boolean;
 };
 
+type AutoPostSettings = {
+  enabled: boolean;
+  intervalDays: number;
+  caption: string;
+};
+
 const POSTER_WIDTH = 1080;
 const POSTER_PADDING = 18;
 const SECTION_INSET = 10;
@@ -31,6 +37,8 @@ const MIN_EXPORT_COLUMNS = 2;
 const MAX_EXPORT_COLUMNS = 20;
 const DESKTOP_DEFAULT_COLUMNS = 8;
 const MOBILE_DEFAULT_COLUMNS = 4;
+const DEFAULT_AUTO_POST_CAPTION = "Today's item shop {date} 🔥";
+const AUTO_POST_ISSUE_URL = "https://github.com/AbyssiniaQuest/fortnite-item-shop-shot/issues/new";
 const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function clampNumber(value: number, min: number, max: number) {
@@ -74,6 +82,18 @@ function formatDateTime(value?: string) {
     dateStyle: "medium",
     timeStyle: "short"
   }).format(new Date(value));
+}
+
+function formatAutoPostDate(date = new Date()) {
+  return new Intl.DateTimeFormat("en", {
+    day: "numeric",
+    month: "long",
+    year: "numeric"
+  }).format(date);
+}
+
+function renderAutoPostCaption(caption: string) {
+  return caption.replaceAll("{date}", formatAutoPostDate());
 }
 
 function uniqueSorted(values: string[]) {
@@ -296,6 +316,12 @@ export function ShopGenerator() {
   const [isEditingExportColumns, setIsEditingExportColumns] = useState(false);
   const [isPhoneLayout, setIsPhoneLayout] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
+  const [isAutoPostPanelOpen, setIsAutoPostPanelOpen] = useState(false);
+  const [autoPostSettings, setAutoPostSettings] = useState<AutoPostSettings>({
+    enabled: false,
+    intervalDays: 1,
+    caption: DEFAULT_AUTO_POST_CAPTION
+  });
   const [screenshotFields, setScreenshotFields] = useState<ScreenshotFields>({
     birr: true,
     vbucks: true,
@@ -349,6 +375,37 @@ export function ShopGenerator() {
         if (mounted) {
           setError(reason instanceof Error ? reason.message : "Unable to load today's shop.");
         }
+      });
+
+    return () => {
+      mounted = false;
+    };
+  }, []);
+
+  useEffect(() => {
+    let mounted = true;
+
+    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/auto-post-config.json`, {
+      cache: "no-store"
+    })
+      .then(async (response) => {
+        if (!response.ok) {
+          throw new Error("Unable to load auto-post settings.");
+        }
+
+        return response.json() as Promise<AutoPostSettings>;
+      })
+      .then((settings) => {
+        if (mounted) {
+          setAutoPostSettings({
+            enabled: Boolean(settings.enabled),
+            intervalDays: clampNumber(Number(settings.intervalDays) || 1, 1, 30),
+            caption: settings.caption?.trim() || DEFAULT_AUTO_POST_CAPTION
+          });
+        }
+      })
+      .catch(() => {
+        // The defaults keep the form usable before automation is configured.
       });
 
     return () => {
@@ -457,6 +514,29 @@ export function ShopGenerator() {
       ...current,
       [field]: !current[field]
     }));
+  }
+
+  function openAutoPostSettingsIssue() {
+    const safeCaption = autoPostSettings.caption
+      .trim()
+      .replaceAll("```", "'''") || DEFAULT_AUTO_POST_CAPTION;
+    const issueBody = [
+      "<!-- auto-post-settings -->",
+      `Enabled: ${autoPostSettings.enabled}`,
+      `Interval-Days: ${autoPostSettings.intervalDays}`,
+      "Caption:",
+      "```text",
+      safeCaption,
+      "```",
+      "",
+      "Submitting this issue applies these auto-post settings and closes the issue automatically."
+    ].join("\n");
+    const params = new URLSearchParams({
+      title: "Configure auto-posting",
+      body: issueBody
+    });
+
+    window.open(`${AUTO_POST_ISSUE_URL}?${params.toString()}`, "_blank", "noopener,noreferrer");
   }
 
   function handleExportColumnInput(value: string) {
@@ -909,6 +989,85 @@ export function ShopGenerator() {
               </fieldset>
             </div>
 
+            {isAutoPostPanelOpen ? (
+              <fieldset className="grid gap-3 rounded-md border border-cyan-300/20 bg-black/25 p-3">
+                <div className="flex flex-wrap items-center justify-between gap-3">
+                  <legend className="text-xs font-black uppercase tracking-normal text-cyan-100">
+                    Telegram auto posting
+                  </legend>
+                  <label className="flex min-h-10 cursor-pointer items-center gap-3 rounded-md border border-white/10 bg-slate-950 px-3">
+                    <input
+                      checked={autoPostSettings.enabled}
+                      className="h-5 w-5 accent-cyan-300"
+                      onChange={(event) =>
+                        setAutoPostSettings((current) => ({
+                          ...current,
+                          enabled: event.target.checked
+                        }))
+                      }
+                      type="checkbox"
+                    />
+                    <span className="text-sm font-black text-white">
+                      {autoPostSettings.enabled ? "Enabled" : "Disabled"}
+                    </span>
+                  </label>
+                </div>
+
+                <div className="grid gap-3 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-end">
+                  <label className="grid gap-2">
+                    <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                      Post every
+                    </span>
+                    <select
+                      className="h-11 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
+                      onChange={(event) =>
+                        setAutoPostSettings((current) => ({
+                          ...current,
+                          intervalDays: Number(event.target.value)
+                        }))
+                      }
+                      value={autoPostSettings.intervalDays}
+                    >
+                      {Array.from({ length: 30 }, (_, index) => index + 1).map((days) => (
+                        <option key={days} value={days}>
+                          {days} {days === 1 ? "day" : "days"}
+                        </option>
+                      ))}
+                    </select>
+                  </label>
+
+                  <label className="grid min-w-0 gap-2">
+                    <span className="text-xs font-black uppercase tracking-normal text-slate-300">
+                      Caption
+                    </span>
+                    <input
+                      className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
+                      maxLength={800}
+                      onChange={(event) =>
+                        setAutoPostSettings((current) => ({
+                          ...current,
+                          caption: event.target.value
+                        }))
+                      }
+                      value={autoPostSettings.caption}
+                    />
+                  </label>
+
+                  <button
+                    className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 transition hover:bg-cyan-200"
+                    onClick={openAutoPostSettingsIssue}
+                    type="button"
+                  >
+                    Save settings
+                  </button>
+                </div>
+
+                <p className="truncate text-xs font-bold text-slate-400">
+                  {renderAutoPostCaption(autoPostSettings.caption || DEFAULT_AUTO_POST_CAPTION)}
+                </p>
+              </fieldset>
+            ) : null}
+
             <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
               <div className="flex flex-wrap items-center gap-3">
                 <label className="flex min-h-10 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3">
@@ -927,6 +1086,18 @@ export function ShopGenerator() {
                   type="button"
                 >
                   Reset
+                </button>
+
+                <button
+                  className={`h-10 rounded-md border px-4 text-sm font-black transition ${
+                    autoPostSettings.enabled
+                      ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/20"
+                      : "border-white/10 bg-slate-950 text-slate-200 hover:bg-white/10"
+                  }`}
+                  onClick={() => setIsAutoPostPanelOpen((isOpen) => !isOpen)}
+                  type="button"
+                >
+                  Auto posting: {autoPostSettings.enabled ? "On" : "Off"}
                 </button>
               </div>
 

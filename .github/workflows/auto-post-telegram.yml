@@ -1,0 +1,85 @@
+name: Auto-post shop to Telegram
+
+on:
+  schedule:
+    - cron: "0 4 * * *"
+  workflow_dispatch:
+    inputs:
+      force:
+        description: Post now even if the interval is not due
+        required: true
+        type: choice
+        default: "false"
+        options:
+          - "false"
+          - "true"
+
+permissions:
+  contents: write
+
+concurrency:
+  group: telegram-auto-post
+  cancel-in-progress: false
+
+jobs:
+  post:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Check posting interval
+        id: schedule
+        run: node scripts/check-auto-post.mjs
+
+      - name: Check Telegram configuration
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: |
+          if [ -z "$TELEGRAM_BOT_TOKEN" ] || [ -z "$TELEGRAM_CHAT_ID" ]; then
+            echo "Add TELEGRAM_BOT_TOKEN and TELEGRAM_CHAT_ID in repository Actions secrets."
+            exit 1
+          fi
+
+      - name: Setup Node
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        uses: actions/setup-node@v4
+        with:
+          node-version: 22
+          cache: npm
+
+      - name: Install dependencies
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        run: npm ci
+
+      - name: Install screenshot browser
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        run: npx playwright install --with-deps chromium
+
+      - name: Build today's shop
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        env:
+          GITHUB_PAGES: "true"
+          NEXT_PUBLIC_BASE_PATH: "/fortnite-item-shop-shot"
+        run: npm run build:github
+
+      - name: Generate and post category images
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        env:
+          TELEGRAM_BOT_TOKEN: ${{ secrets.TELEGRAM_BOT_TOKEN }}
+          TELEGRAM_CHAT_ID: ${{ secrets.TELEGRAM_CHAT_ID }}
+        run: node scripts/auto-post-telegram.mjs
+
+      - name: Save successful post time
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+          git add public/auto-post-config.json public/shop-data.json
+          if git diff --cached --quiet; then
+            exit 0
+          fi
+          git commit -m "Record Telegram auto-post"
+          git push
