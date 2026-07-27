@@ -26,9 +26,6 @@ type AutoPostSettings = {
 const POSTER_WIDTH = 1080;
 const POSTER_PADDING = 18;
 const SECTION_INSET = 10;
-const CARD_GAP = 6;
-const CARD_HEIGHT = 244;
-const CARD_IMAGE_HEIGHT = 132;
 const EXPORT_PIXEL_SCALE = 2;
 const MAX_CANVAS_DIMENSION = 30000;
 const POSTER_IMAGE_TIMEOUT = 12000;
@@ -43,6 +40,82 @@ const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
 
 function clampNumber(value: number, min: number, max: number) {
   return Math.min(Math.max(value, min), max);
+}
+
+function getPosterLayout(columns: number, screenshotFields: ScreenshotFields) {
+  const availableWidth = POSTER_WIDTH - POSTER_PADDING * 2 - SECTION_INSET * 2;
+  const estimatedCardWidth = availableWidth / columns;
+  const cardGap = clampNumber(estimatedCardWidth * 0.04, 2, 10);
+  const cardWidth = (availableWidth - cardGap * (columns - 1)) / columns;
+  const cardPadding = clampNumber(cardWidth * 0.045, 2, 12);
+  const imageSize = cardWidth - cardPadding * 2;
+  const imageInnerPadding = clampNumber(cardWidth * 0.018, 1, 7);
+  const contentGap = clampNumber(cardWidth * 0.025, 1, 7);
+  const metaFontSize = clampNumber(cardWidth * 0.055, 4.5, 12);
+  const metaLineHeight = metaFontSize * 1.25;
+  const nameFontSize = clampNumber(cardWidth * 0.082, 6, 20);
+  const nameLineHeight = nameFontSize * 1.12;
+  const descriptionFontSize = clampNumber(cardWidth * 0.055, 5, 12);
+  const descriptionLineHeight = descriptionFontSize * 1.2;
+  const priceFontSize = clampNumber(cardWidth * 0.064, 5, 15);
+  const priceLineHeight = priceFontSize * 1.18;
+  const pricePadding = clampNumber(cardWidth * 0.022, 1.5, 7);
+  const priceLines = Number(screenshotFields.vbucks) + Number(screenshotFields.birr);
+  let cursor = cardPadding + imageSize + contentGap;
+  const metaBaseline = cursor + metaFontSize;
+
+  cursor += metaLineHeight + contentGap * 0.65;
+  const nameBaseline = cursor + nameFontSize;
+  cursor += nameLineHeight * 2;
+
+  let descriptionBaseline = 0;
+  if (screenshotFields.description) {
+    cursor += contentGap * 0.6;
+    descriptionBaseline = cursor + descriptionFontSize;
+    cursor += descriptionLineHeight;
+  }
+
+  let priceBoxY = 0;
+  let priceBoxHeight = 0;
+  if (priceLines > 0) {
+    cursor += contentGap;
+    priceBoxY = cursor;
+    priceBoxHeight = pricePadding * 2 + priceLines * priceLineHeight;
+    cursor += priceBoxHeight;
+  }
+
+  const cardHeight = cursor + cardPadding;
+  const headerFontSize = clampNumber(cardWidth * 0.12, 10, 20);
+  const countFontSize = clampNumber(cardWidth * 0.075, 7, 13);
+  const sectionHeaderHeight = clampNumber(headerFontSize * 1.8, 24, 38);
+
+  return {
+    cardGap,
+    cardHeight,
+    cardPadding,
+    cardWidth,
+    contentGap,
+    countFontSize,
+    descriptionBaseline,
+    descriptionFontSize,
+    headerFontSize,
+    imageInnerPadding,
+    imageSize,
+    metaBaseline,
+    metaFontSize,
+    nameBaseline,
+    nameFontSize,
+    nameLineHeight,
+    priceBoxHeight,
+    priceBoxY,
+    priceFontSize,
+    priceLineHeight,
+    pricePadding,
+    sectionFooterGap: clampNumber(cardWidth * 0.055, 4, 12),
+    sectionHeaderHeight,
+    sectionRadius: clampNumber(cardWidth * 0.045, 4, 10),
+    interSectionGap: clampNumber(cardWidth * 0.06, 6, 14)
+  };
 }
 
 function getDefaultColumnsForViewport() {
@@ -289,13 +362,13 @@ function drawImageFallback(context: CanvasRenderingContext2D, itemName: string, 
   context.lineWidth = 1;
   context.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
   context.fillStyle = "#67e8f9";
-  context.font = "900 30px Arial, sans-serif";
+  context.font = `900 ${clampNumber(Math.min(width, height) * 0.28, 8, 30)}px Arial, sans-serif`;
   context.textAlign = "center";
   context.textBaseline = "middle";
-  context.fillText(initials || "ITEM", x + width / 2, y + height / 2 - 8);
+  context.fillText(initials || "ITEM", x + width / 2, y + height / 2 - height * 0.08, width * 0.85);
   context.fillStyle = "#94a3b8";
-  context.font = "800 9px Arial, sans-serif";
-  context.fillText("ITEM ART", x + width / 2, y + height / 2 + 22);
+  context.font = `800 ${clampNumber(Math.min(width, height) * 0.09, 4, 9)}px Arial, sans-serif`;
+  context.fillText("ITEM ART", x + width / 2, y + height / 2 + height * 0.2, width * 0.85);
   context.restore();
 }
 
@@ -314,7 +387,6 @@ export function ShopGenerator() {
   const [exportColumns, setExportColumns] = useState(DESKTOP_DEFAULT_COLUMNS);
   const [exportColumnInput, setExportColumnInput] = useState(String(DESKTOP_DEFAULT_COLUMNS));
   const [isEditingExportColumns, setIsEditingExportColumns] = useState(false);
-  const [isPhoneLayout, setIsPhoneLayout] = useState(false);
   const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
   const [isAutoPostPanelOpen, setIsAutoPostPanelOpen] = useState(false);
   const [autoPostSettings, setAutoPostSettings] = useState<AutoPostSettings>({
@@ -332,21 +404,9 @@ export function ShopGenerator() {
   useEffect(() => {
     const mediaQuery = window.matchMedia("(max-width: 767px)");
 
-    function syncPhoneLayout() {
-      setIsPhoneLayout(mediaQuery.matches);
-    }
-
-    syncPhoneLayout();
-
     if (mediaQuery.matches) {
       setExportColumns(MOBILE_DEFAULT_COLUMNS);
     }
-
-    mediaQuery.addEventListener("change", syncPhoneLayout);
-
-    return () => {
-      mediaQuery.removeEventListener("change", syncPhoneLayout);
-    };
   }, []);
 
   useEffect(() => {
@@ -473,9 +533,6 @@ export function ShopGenerator() {
       : selectedCategories.length === SHOP_CATEGORIES.length
         ? "All categories"
         : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
-  const isCompactExport = exportColumns >= 8 || isPhoneLayout;
-  const isCompactPreview = isCompactExport;
-
   function toggleCategory(category: ShopCategory) {
     setSelectedCategories((current) => {
       if (current.includes(category)) {
@@ -568,21 +625,21 @@ export function ShopGenerator() {
   }
 
   async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
-    const sectionHeaderHeight = isCompactExport ? 28 : 36;
-    const sectionFooterGap = isCompactExport ? 8 : 12;
-    const cardHeight = (isCompactExport ? 164 : CARD_HEIGHT) + (screenshotFields.description ? 16 : 0);
-    const imageHeight = isCompactExport ? 82 : CARD_IMAGE_HEIGHT;
+    const layout = getPosterLayout(exportColumns, screenshotFields);
     const posterWidth = POSTER_WIDTH;
-    const cardWidth = (posterWidth - POSTER_PADDING * 2 - SECTION_INSET * 2 - CARD_GAP * (exportColumns - 1)) / exportColumns;
-    const rows = groupsToCapture.reduce(
-      (sum, group) => sum + Math.ceil(group.items.length / exportColumns),
-      0
-    );
     const posterHeight =
       POSTER_PADDING * 2 +
-      groupsToCapture.length * (sectionHeaderHeight + sectionFooterGap) +
-      rows * cardHeight +
-      Math.max(rows - groupsToCapture.length, 0) * CARD_GAP;
+      groupsToCapture.reduce((height, group) => {
+        const rows = Math.ceil(group.items.length / exportColumns);
+        return (
+          height +
+          layout.sectionHeaderHeight +
+          rows * layout.cardHeight +
+          Math.max(rows - 1, 0) * layout.cardGap +
+          layout.sectionFooterGap
+        );
+      }, 0) +
+      Math.max(groupsToCapture.length - 1, 0) * layout.interSectionGap;
     const canvas = document.createElement("canvas");
     const context = canvas.getContext("2d");
 
@@ -613,25 +670,45 @@ export function ShopGenerator() {
 
     for (const group of groupsToCapture) {
       const sectionRows = Math.ceil(group.items.length / exportColumns);
-      const sectionHeight = sectionHeaderHeight + sectionRows * cardHeight + Math.max(sectionRows - 1, 0) * CARD_GAP + sectionFooterGap;
+      const sectionHeight =
+        layout.sectionHeaderHeight +
+        sectionRows * layout.cardHeight +
+        Math.max(sectionRows - 1, 0) * layout.cardGap +
+        layout.sectionFooterGap;
 
-      roundedRect(context, POSTER_PADDING, y, posterWidth - POSTER_PADDING * 2, sectionHeight, 10);
+      roundedRect(
+        context,
+        POSTER_PADDING,
+        y,
+        posterWidth - POSTER_PADDING * 2,
+        sectionHeight,
+        layout.sectionRadius
+      );
       context.fillStyle = "rgba(255,255,255,0.045)";
       context.fill();
       context.strokeStyle = "rgba(255,255,255,0.1)";
       context.stroke();
 
+      const headerBaseline =
+        y + (layout.sectionHeaderHeight + layout.headerFontSize * 0.72) / 2;
       context.fillStyle = "#67e8f9";
-      context.font = `900 ${isCompactExport ? 16 : 18}px Arial, sans-serif`;
-      fillReadableText(context, group.label.toUpperCase(), POSTER_PADDING + SECTION_INSET, y + (isCompactExport ? 20 : 26));
+      context.font = `900 ${layout.headerFontSize}px Arial, sans-serif`;
+      fillReadableText(
+        context,
+        group.label.toUpperCase(),
+        POSTER_PADDING + SECTION_INSET,
+        headerBaseline,
+        posterWidth * 0.6
+      );
       context.fillStyle = "#e2e8f0";
-      context.font = `800 ${isCompactExport ? 11 : 13}px Arial, sans-serif`;
+      context.font = `800 ${layout.countFontSize}px Arial, sans-serif`;
       context.textAlign = "right";
       fillReadableText(
         context,
         `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}`,
         posterWidth - POSTER_PADDING - SECTION_INSET,
-        y + (isCompactExport ? 20 : 26)
+        headerBaseline,
+        posterWidth * 0.25
       );
       context.textAlign = "left";
 
@@ -640,96 +717,152 @@ export function ShopGenerator() {
       group.items.forEach((item, index) => {
         const column = index % exportColumns;
         const row = Math.floor(index / exportColumns);
-        const x = POSTER_PADDING + SECTION_INSET + column * (cardWidth + CARD_GAP);
-        const cardY = y + sectionHeaderHeight + row * (cardHeight + CARD_GAP);
+        const x =
+          POSTER_PADDING + SECTION_INSET + column * (layout.cardWidth + layout.cardGap);
+        const cardY =
+          y +
+          layout.sectionHeaderHeight +
+          row * (layout.cardHeight + layout.cardGap);
 
-        roundedRect(context, x, cardY, cardWidth, cardHeight, 8);
+        roundedRect(
+          context,
+          x,
+          cardY,
+          layout.cardWidth,
+          layout.cardHeight,
+          clampNumber(layout.cardWidth * 0.04, 2, 8)
+        );
         context.fillStyle = "rgba(2,6,23,0.78)";
         context.fill();
         context.strokeStyle = "rgba(255,255,255,0.10)";
         context.stroke();
 
-        const imagePad = isCompactExport ? 5 : 8;
-        roundedRect(context, x + imagePad, cardY + imagePad, cardWidth - imagePad * 2, imageHeight, 7);
-        const imageBackground = context.createLinearGradient(x, cardY, x + cardWidth, cardY + imageHeight);
+        const imageX = x + layout.cardPadding;
+        const imageY = cardY + layout.cardPadding;
+        roundedRect(
+          context,
+          imageX,
+          imageY,
+          layout.imageSize,
+          layout.imageSize,
+          clampNumber(layout.cardWidth * 0.035, 2, 7)
+        );
+        const imageBackground = context.createLinearGradient(
+          imageX,
+          imageY,
+          imageX + layout.imageSize,
+          imageY + layout.imageSize
+        );
         imageBackground.addColorStop(0, "#0f172a");
         imageBackground.addColorStop(1, "#111827");
         context.fillStyle = imageBackground;
         context.fill();
 
         const image = images[index];
+        const artX = imageX + layout.imageInnerPadding;
+        const artY = imageY + layout.imageInnerPadding;
+        const artSize = layout.imageSize - layout.imageInnerPadding * 2;
         if (image) {
-          drawContainedImage(context, image, x + imagePad + 3, cardY + imagePad + 3, cardWidth - imagePad * 2 - 6, imageHeight - 6);
+          drawContainedImage(context, image, artX, artY, artSize, artSize);
         } else {
-          drawImageFallback(context, item.name, x + imagePad + 3, cardY + imagePad + 3, cardWidth - imagePad * 2 - 6, imageHeight - 6);
+          drawImageFallback(context, item.name, artX, artY, artSize, artSize);
         }
 
-        const metaY = cardY + (isCompactExport ? 101 : 160);
-        const tinyCard = cardWidth < 70;
-        const metaFontSize = isCompactExport ? (tinyCard ? 7 : 8) : 10;
-        const nameFontSize = isCompactExport ? (tinyCard ? 9 : 12) : 15;
-        const nameLineHeight = isCompactExport ? (tinyCard ? 10 : 13) : 17;
-        const descriptionFontSize = isCompactExport ? (tinyCard ? 8 : 9) : 10;
-        const priceFontSize = isCompactExport ? (tinyCard ? 8 : 10) : 13;
-
+        const textX = x + layout.cardPadding;
+        const textWidth = layout.cardWidth - layout.cardPadding * 2;
         context.fillStyle = "#94a3b8";
-        context.font = `${isCompactExport ? "800" : "800"} ${metaFontSize}px Arial, sans-serif`;
-        fillReadableText(context, item.type.toUpperCase(), x + 7, metaY, cardWidth * 0.54);
+        context.font = `800 ${layout.metaFontSize}px Arial, sans-serif`;
+        fillReadableText(
+          context,
+          item.type.toUpperCase(),
+          textX,
+          cardY + layout.metaBaseline,
+          textWidth * 0.54
+        );
         context.fillStyle = "#cffafe";
         context.textAlign = "right";
-        fillReadableText(context, item.rarity.toUpperCase(), x + cardWidth - 7, metaY, cardWidth * 0.42);
+        fillReadableText(
+          context,
+          item.rarity.toUpperCase(),
+          x + layout.cardWidth - layout.cardPadding,
+          cardY + layout.metaBaseline,
+          textWidth * 0.42
+        );
         context.textAlign = "left";
         context.fillStyle = "#ffffff";
-        context.font = `900 ${nameFontSize}px Arial, sans-serif`;
-        drawText(context, item.name, x + 7, cardY + (isCompactExport ? 116 : 181), cardWidth - 14, nameLineHeight, 2);
+        context.font = `900 ${layout.nameFontSize}px Arial, sans-serif`;
+        drawText(
+          context,
+          item.name,
+          textX,
+          cardY + layout.nameBaseline,
+          textWidth,
+          layout.nameLineHeight,
+          2
+        );
 
         if (screenshotFields.description) {
           context.fillStyle = "#94a3b8";
-          context.font = `800 ${descriptionFontSize}px Arial, sans-serif`;
-          drawText(context, item.season, x + 7, cardY + (isCompactExport ? 139 : 218), cardWidth - 14, isCompactExport ? 9 : 12, 1);
+          context.font = `800 ${layout.descriptionFontSize}px Arial, sans-serif`;
+          drawText(
+            context,
+            item.season,
+            textX,
+            cardY + layout.descriptionBaseline,
+            textWidth,
+            layout.descriptionFontSize * 1.2,
+            1
+          );
         }
 
-        const priceY = cardY + cardHeight - 7;
-        if (isCompactExport) {
-          context.font = `900 ${priceFontSize}px Arial, sans-serif`;
+        if (layout.priceBoxHeight > 0) {
+          roundedRect(
+            context,
+            textX,
+            cardY + layout.priceBoxY,
+            textWidth,
+            layout.priceBoxHeight,
+            clampNumber(layout.cardWidth * 0.02, 1, 5)
+          );
+          context.fillStyle = "rgba(255,255,255,0.06)";
+          context.fill();
+          context.font = `900 ${layout.priceFontSize}px Arial, sans-serif`;
+
+          let priceLine = 0;
           if (screenshotFields.vbucks) {
             context.fillStyle = "#bae6fd";
             fillReadableText(
               context,
               `${item.price.toLocaleString()} V-Bucks`,
-              x + 7,
-              screenshotFields.birr ? priceY - 10 : priceY,
-              cardWidth - 14
+              textX + layout.pricePadding,
+              cardY +
+                layout.priceBoxY +
+                layout.pricePadding +
+                layout.priceFontSize +
+                priceLine * layout.priceLineHeight,
+              textWidth - layout.pricePadding * 2
             );
+            priceLine += 1;
           }
 
           if (screenshotFields.birr) {
             context.fillStyle = "#fde68a";
-            fillReadableText(context, `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`, x + 7, priceY, cardWidth - 14);
-          }
-        } else {
-          if (screenshotFields.vbucks) {
-          context.fillStyle = "#bae6fd";
-          context.font = "900 13px Arial, sans-serif";
-          fillReadableText(context, `${item.price.toLocaleString()} V-Bucks`, x + 10, priceY);
-          }
-
-          if (screenshotFields.birr) {
-          context.fillStyle = "#fde68a";
-          context.font = "900 13px Arial, sans-serif";
-          context.textAlign = "right";
-          fillReadableText(
-            context,
-            `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
-            x + cardWidth - 10,
-            priceY
-          );
-          context.textAlign = "left";
+            fillReadableText(
+              context,
+              `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
+              textX + layout.pricePadding,
+              cardY +
+                layout.priceBoxY +
+                layout.pricePadding +
+                layout.priceFontSize +
+                priceLine * layout.priceLineHeight,
+              textWidth - layout.pricePadding * 2
+            );
           }
         }
       });
 
-      y += sectionHeight + 14;
+      y += sectionHeight + layout.interSectionGap;
     }
 
     await downloadCanvasPng(canvas, filename);
@@ -1150,7 +1283,6 @@ export function ShopGenerator() {
               <div data-testid="shop-canvas">
                 <ScreenshotCanvas
                   birrPerVbuck={birrPerVbuck}
-                  compact={isCompactPreview}
                   columns={exportColumns}
                   groups={groups}
                   screenshotFields={screenshotFields}

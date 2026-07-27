@@ -11,7 +11,6 @@ type ScreenshotCanvasProps = {
   groups: ShopGroup[];
   birrPerVbuck: number;
   columns: number;
-  compact: boolean;
   screenshotFields: {
     birr: boolean;
     vbucks: boolean;
@@ -23,7 +22,6 @@ export function ScreenshotCanvas({
   groups,
   birrPerVbuck,
   columns,
-  compact,
   screenshotFields
 }: ScreenshotCanvasProps) {
   return (
@@ -35,7 +33,6 @@ export function ScreenshotCanvas({
               <CategorySection
                 birrPerVbuck={birrPerVbuck}
                 category={group.category}
-                compact={compact}
                 columns={columns}
                 items={group.items}
                 key={group.category}

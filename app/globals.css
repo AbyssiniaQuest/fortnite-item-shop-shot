@@ -21,3 +21,42 @@ button,
 input {
   font: inherit;
 }
+
+.shop-card {
+  container-type: inline-size;
+}
+
+.shop-card__image {
+  padding: clamp(0.25px, 2.5cqw, 10px);
+}
+
+.shop-card__body {
+  gap: clamp(0.25px, 2.4cqw, 8px);
+  padding: clamp(0.4px, 4cqw, 14px);
+}
+
+.shop-card__meta {
+  gap: clamp(0.25px, 2cqw, 8px);
+  font-size: clamp(0.8px, 5.3cqw, 12px);
+  line-height: 1.2;
+}
+
+.shop-card__name {
+  min-height: 2.2em;
+  overflow-wrap: anywhere;
+  font-size: clamp(1.2px, 8.5cqw, 20px);
+  line-height: 1.1;
+}
+
+.shop-card__description {
+  margin-top: clamp(0.25px, 1.8cqw, 6px);
+  font-size: clamp(0.8px, 5.6cqw, 12px);
+  line-height: 1.2;
+}
+
+.shop-card__prices {
+  gap: clamp(0.25px, 1.4cqw, 5px);
+  padding: clamp(0.25px, 2.4cqw, 8px);
+  font-size: clamp(1px, 6.8cqw, 15px);
+  line-height: 1.15;
+}

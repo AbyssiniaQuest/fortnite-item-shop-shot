@@ -8,7 +8,6 @@ type CategorySectionProps = {
   items: ShopItem[];
   birrPerVbuck: number;
   columns: number;
-  compact: boolean;
   screenshotFields: {
     birr: boolean;
     vbucks: boolean;
@@ -29,7 +28,7 @@ const categoryAccent: Record<ShopCategory, string> = {
   uncategorized: "from-slate-300 to-slate-100"
 };
 
-export function CategorySection({ category, label, items, birrPerVbuck, columns, compact, screenshotFields }: CategorySectionProps) {
+export function CategorySection({ category, label, items, birrPerVbuck, columns, screenshotFields }: CategorySectionProps) {
   return (
     <section className="break-inside-avoid rounded-md border border-white/10 bg-white/[0.045] p-1.5 shadow-2xl shadow-black/20 sm:p-2">
       <div className="mb-1.5 flex items-center justify-between gap-2 sm:mb-2">
@@ -46,13 +45,12 @@ export function CategorySection({ category, label, items, birrPerVbuck, columns,
       </div>
 
       <div
-        className="grid gap-1 sm:gap-2 [grid-template-columns:repeat(var(--columns),minmax(0,1fr))] sm:[grid-template-columns:repeat(var(--columns),minmax(130px,1fr))]"
+        className="grid gap-1 sm:gap-1.5 [grid-template-columns:repeat(var(--columns),minmax(0,1fr))]"
         style={{ "--columns": String(columns) } as CSSProperties}
       >
         {items.map((item) => (
           <ShopCard
             birrPerVbuck={birrPerVbuck}
-            compact={compact}
             item={item}
             key={item.id}
             screenshotFields={screenshotFields}
