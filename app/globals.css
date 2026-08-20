@@ -142,7 +142,7 @@ body:has(.live-overlay-root) {
   container-type: inline-size;
   display: grid;
   width: 100%;
-  grid-template-columns: minmax(72px, 38%) minmax(0, 1fr);
+  grid-template-columns: minmax(44px, 38%) minmax(0, 1fr);
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;

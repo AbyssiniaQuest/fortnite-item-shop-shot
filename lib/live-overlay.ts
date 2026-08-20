@@ -55,7 +55,7 @@ export const LIVE_LIMITS = {
   birrRate: { min: 0.01, max: 1000 },
   speed: { min: 10, max: 120 },
   gap: { min: 4, max: 40 },
-  cardWidth: { min: 220, max: 520 }
+  cardWidth: { min: 120, max: 520 }
 } as const;
 
 function clamp(value: number, min: number, max: number) {

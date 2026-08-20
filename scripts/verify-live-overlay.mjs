@@ -102,6 +102,7 @@ try {
   assert.equal(await page.getByTestId("live-background-solid").isVisible(), true);
   assert.equal(await page.getByTestId("live-background-rarity").isVisible(), true);
   assert.equal(await page.getByTestId("live-background-shop").isVisible(), true);
+  assert.equal(await page.getByLabel("Card width", { exact: true }).getAttribute("min"), "120");
 
   await page.getByTestId("live-category-select").click();
   await page.getByRole("button", { name: "Mark all", exact: true }).click();
@@ -119,6 +120,9 @@ try {
   assert.match(imageOnlyGeneratedUrl ?? "", /orientation=horizontal/);
   assert.match(imageOnlyGeneratedUrl ?? "", /direction=left/);
   assert.match(imageOnlyGeneratedUrl ?? "", /background=transparent/);
+  await page.getByLabel("Card width", { exact: true }).fill("120");
+  const compactWidthGeneratedUrl = await page.getByTestId("generated-live-url").textContent();
+  assert.match(compactWidthGeneratedUrl ?? "", /cardWidth=120/);
 
   const shopPayload = JSON.parse(await readFile(path.resolve("public/shop-data.json"), "utf8"));
   const firstSkin = shopPayload.items.find((item) => item.category === "skins");
