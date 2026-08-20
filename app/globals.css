@@ -84,11 +84,10 @@ body:has(.live-overlay-root) {
   overflow: hidden;
 }
 
-.live-overlay--transparent {
-  background: transparent;
-}
-
-.live-overlay--solid {
+.live-overlay--transparent,
+.live-overlay--solid,
+.live-overlay--rarity,
+.live-overlay--shop {
   background: transparent;
 }
 
@@ -137,6 +136,9 @@ body:has(.live-overlay-root) {
 }
 
 .live-item-card {
+  --live-rarity-primary: #9ca3af;
+  --live-rarity-secondary: #374151;
+  --live-rarity-accent: #e5e7eb;
   container-type: inline-size;
   display: grid;
   width: 100%;
@@ -144,9 +146,93 @@ body:has(.live-overlay-root) {
   overflow: hidden;
   border: 1px solid rgba(255, 255, 255, 0.15);
   border-radius: 6px;
-  background: rgba(2, 6, 23, 0.94);
+  background: transparent;
   color: #f8fafc;
   box-shadow: 0 10px 28px rgba(0, 0, 0, 0.42);
+}
+
+.live-item-card[data-rarity-tone="uncommon"] {
+  --live-rarity-primary: #65b83e;
+  --live-rarity-secondary: #1e5d2b;
+  --live-rarity-accent: #b9f29d;
+}
+
+.live-item-card[data-rarity-tone="rare"] {
+  --live-rarity-primary: #38a4f8;
+  --live-rarity-secondary: #174ea6;
+  --live-rarity-accent: #b7e2ff;
+}
+
+.live-item-card[data-rarity-tone="epic"] {
+  --live-rarity-primary: #b05de6;
+  --live-rarity-secondary: #5b238f;
+  --live-rarity-accent: #e2b9ff;
+}
+
+.live-item-card[data-rarity-tone="legendary"] {
+  --live-rarity-primary: #f49a3f;
+  --live-rarity-secondary: #9a4d13;
+  --live-rarity-accent: #ffd5a5;
+}
+
+.live-item-card[data-rarity-tone="mythic"] {
+  --live-rarity-primary: #f3cf4e;
+  --live-rarity-secondary: #9a6f0c;
+  --live-rarity-accent: #fff0a6;
+}
+
+.live-item-card[data-rarity-tone="icon"] {
+  --live-rarity-primary: #43d9d0;
+  --live-rarity-secondary: #0b6f7a;
+  --live-rarity-accent: #affff8;
+}
+
+.live-item-card[data-rarity-tone="marvel"] {
+  --live-rarity-primary: #e44d58;
+  --live-rarity-secondary: #751b2b;
+  --live-rarity-accent: #ffc1c6;
+}
+
+.live-item-card[data-rarity-tone="dc"] {
+  --live-rarity-primary: #4aa3e8;
+  --live-rarity-secondary: #173f79;
+  --live-rarity-accent: #c5e7ff;
+}
+
+.live-item-card[data-rarity-tone="gaming"] {
+  --live-rarity-primary: #8b76ef;
+  --live-rarity-secondary: #312471;
+  --live-rarity-accent: #d7d0ff;
+}
+
+.live-item-card[data-rarity-tone="star-wars"] {
+  --live-rarity-primary: #d8dde7;
+  --live-rarity-secondary: #313745;
+  --live-rarity-accent: #ffffff;
+}
+
+.live-item-card[data-rarity-tone="lava"] {
+  --live-rarity-primary: #ff6a2a;
+  --live-rarity-secondary: #7a200d;
+  --live-rarity-accent: #ffc1a4;
+}
+
+.live-item-card[data-rarity-tone="shadow"] {
+  --live-rarity-primary: #b3b3c7;
+  --live-rarity-secondary: #383849;
+  --live-rarity-accent: #ededf8;
+}
+
+.live-item-card[data-rarity-tone="slurp"] {
+  --live-rarity-primary: #38d6db;
+  --live-rarity-secondary: #0d677e;
+  --live-rarity-accent: #b2fbff;
+}
+
+.live-item-card[data-rarity-tone="dark"] {
+  --live-rarity-primary: #bb62f1;
+  --live-rarity-secondary: #42146d;
+  --live-rarity-accent: #e9c0ff;
 }
 
 .live-item-card--image-only {
@@ -169,13 +255,6 @@ body:has(.live-overlay-root) {
   filter: drop-shadow(0 8px 14px rgba(0, 0, 0, 0.35));
 }
 
-.live-overlay--solid .live-item-card--image-only .live-item-card__art {
-  border: 1px solid rgba(255, 255, 255, 0.14);
-  border-radius: 6px;
-  background: #111827;
-  padding: clamp(3px, 2cqw, 9px);
-}
-
 .live-item-card--text-only {
   grid-template-columns: minmax(0, 1fr);
 }
@@ -187,7 +266,39 @@ body:has(.live-overlay-root) {
   place-items: center;
   overflow: hidden;
   border-right: 1px solid rgba(255, 255, 255, 0.1);
+  background: transparent;
+  padding: clamp(3px, 2cqw, 9px);
+}
+
+.live-overlay--solid .live-item-card__art {
   background: #111827;
+}
+
+.live-overlay--rarity .live-item-card__art {
+  background:
+    radial-gradient(circle at 50% 42%, color-mix(in srgb, var(--live-rarity-accent) 34%, transparent), transparent 52%),
+    linear-gradient(145deg, var(--live-rarity-primary), var(--live-rarity-secondary));
+}
+
+.live-overlay--shop .live-item-card__art {
+  background:
+    linear-gradient(155deg, rgba(255, 255, 255, 0.17) 0 11%, transparent 11% 63%, rgba(0, 0, 0, 0.13) 63%),
+    linear-gradient(145deg, #1688e8, #124bb7 58%, #082868);
+}
+
+.live-overlay--rarity .live-item-card {
+  border-color: color-mix(in srgb, var(--live-rarity-primary) 72%, white 28%);
+}
+
+.live-overlay--rarity .live-item-card__meta span:last-child {
+  color: var(--live-rarity-accent);
+}
+
+.live-overlay--solid .live-item-card--image-only .live-item-card__art,
+.live-overlay--rarity .live-item-card--image-only .live-item-card__art,
+.live-overlay--shop .live-item-card--image-only .live-item-card__art {
+  border: 1px solid rgba(255, 255, 255, 0.14);
+  border-radius: 6px;
   padding: clamp(3px, 2cqw, 9px);
 }
 
@@ -217,7 +328,22 @@ body:has(.live-overlay-root) {
   flex-direction: column;
   justify-content: center;
   gap: clamp(2px, 1.8cqw, 7px);
+  background: rgba(2, 6, 23, 0.94);
   padding: clamp(8px, 4cqw, 18px);
+}
+
+.live-item-card[data-orientation="horizontal"]:not(.live-item-card--image-only):not(.live-item-card--text-only) {
+  grid-template-columns: minmax(0, 1fr);
+}
+
+.live-item-card[data-orientation="horizontal"]:not(.live-item-card--image-only):not(.live-item-card--text-only) .live-item-card__art {
+  width: 100%;
+  border-right: 0;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.live-item-card[data-orientation="horizontal"] .live-item-card__content {
+  justify-content: flex-start;
 }
 
 .live-item-card__meta {

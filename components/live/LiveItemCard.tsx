@@ -23,6 +23,26 @@ function itemInitials(name: string) {
     .join("");
 }
 
+function rarityTone(rarity: string) {
+  const normalized = rarity.toLowerCase();
+
+  if (normalized.includes("uncommon")) return "uncommon";
+  if (normalized.includes("legendary")) return "legendary";
+  if (normalized.includes("mythic")) return "mythic";
+  if (normalized.includes("epic")) return "epic";
+  if (normalized.includes("rare")) return "rare";
+  if (normalized.includes("icon")) return "icon";
+  if (normalized.includes("marvel")) return "marvel";
+  if (normalized.includes("dc")) return "dc";
+  if (normalized.includes("gaming legends")) return "gaming";
+  if (normalized.includes("star wars")) return "star-wars";
+  if (normalized.includes("lava")) return "lava";
+  if (normalized.includes("shadow")) return "shadow";
+  if (normalized.includes("slurp")) return "slurp";
+  if (normalized.includes("dark")) return "dark";
+  return "common";
+}
+
 export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProps) {
   const [imageFailed, setImageFailed] = useState(false);
   const hasPrices = settings.showVbucks || settings.showBirr;
@@ -39,6 +59,8 @@ export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProp
       className={`live-item-card ${isImageOnly ? "live-item-card--image-only" : ""} ${!settings.showImage ? "live-item-card--text-only" : ""}`}
       data-category={item.category}
       data-live-item="true"
+      data-orientation={settings.orientation}
+      data-rarity-tone={rarityTone(item.rarity)}
     >
       {settings.showImage ? (
         <div className="live-item-card__art">

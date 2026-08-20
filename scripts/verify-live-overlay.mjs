@@ -98,6 +98,10 @@ try {
   assert.equal(await page.getByTestId("live-showVbucks").isChecked(), true);
   assert.equal(await page.getByTestId("live-showBirr").isChecked(), true);
   assert.equal(await page.getByTestId("live-showDescription").isChecked(), false);
+  assert.equal(await page.getByTestId("live-background-transparent").isVisible(), true);
+  assert.equal(await page.getByTestId("live-background-solid").isVisible(), true);
+  assert.equal(await page.getByTestId("live-background-rarity").isVisible(), true);
+  assert.equal(await page.getByTestId("live-background-shop").isVisible(), true);
 
   await page.getByTestId("live-category-select").click();
   await page.getByRole("button", { name: "Mark all", exact: true }).click();
@@ -149,6 +153,8 @@ try {
       const ticker = document.querySelector(".live-ticker");
       const firstCard = cards[0]?.getBoundingClientRect();
       const lastCard = cards.at(-1)?.getBoundingClientRect();
+      const firstArt = cards[0]?.querySelector(".live-item-card__art")?.getBoundingClientRect();
+      const firstContent = cards[0]?.querySelector(".live-item-card__content")?.getBoundingClientRect();
       return {
         cardCategories: cards.map((card) => card.getAttribute("data-category")),
         renderedCount: cards.length,
@@ -159,6 +165,8 @@ try {
         firstTop: firstCard?.top ?? 0,
         lastBottom: lastCard?.bottom ?? 0,
         tickerHeight: ticker?.getBoundingClientRect().height ?? 0,
+        artRight: firstArt?.right ?? 0,
+        contentLeft: firstContent?.left ?? 0,
         htmlBackground: getComputedStyle(document.documentElement).backgroundColor,
         bodyBackground: getComputedStyle(document.body).backgroundColor
       };
@@ -171,6 +179,7 @@ try {
     assert.ok(metrics.renderedCount <= metrics.expectedMaximum, "Ticker rendered beyond its viewport buffer");
     assert.ok(metrics.firstTop <= 0, "Ticker does not cover the top of the viewport");
     assert.ok(metrics.lastBottom >= metrics.tickerHeight, "Ticker leaves a blank area below the viewport");
+    assert.ok(metrics.contentLeft >= metrics.artRight - 1, "Vertical item details are not beside the image");
   }
 
   const cleanOverlay = page.getByTestId("clean-live-overlay");
@@ -257,6 +266,91 @@ try {
   assert.equal(solidBackgrounds.root, "rgba(0, 0, 0, 0)");
   assert.equal(solidBackgrounds.body, "rgba(0, 0, 0, 0)");
   assert.equal(solidBackgrounds.art, "rgb(17, 24, 39)");
+
+  const adaptiveParams = new URLSearchParams({
+    categories: "skins",
+    image: "1",
+    nameVisible: "1",
+    meta: "1",
+    vbucks: "1",
+    birr: "1",
+    description: "1",
+    birrRate: "1",
+    orientation: "horizontal",
+    direction: "left",
+    speed: "36",
+    gap: "16",
+    cardWidth: "260",
+    background: "rarity"
+  });
+  await page.setViewportSize({ width: 760, height: 620 });
+  await page.goto(`${rootUrl}live/overlay/?${adaptiveParams}`, { waitUntil: "domcontentloaded" });
+  await page.locator("[data-live-item='true']").first().waitFor();
+  const rarityLayout = await page.evaluate(() => {
+    const card = document.querySelector("[data-live-item='true']");
+    const art = card?.querySelector(".live-item-card__art");
+    const content = card?.querySelector(".live-item-card__content");
+    const prices = card?.querySelector(".live-item-card__prices");
+    const cardRect = card?.getBoundingClientRect();
+    const artRect = art?.getBoundingClientRect();
+    const contentRect = content?.getBoundingClientRect();
+    const pricesRect = prices?.getBoundingClientRect();
+
+    return {
+      cardHeight: cardRect?.height ?? 0,
+      artBottom: artRect?.bottom ?? 0,
+      contentTop: contentRect?.top ?? 0,
+      pricesTop: pricesRect?.top ?? 0,
+      descriptionCount: card?.querySelectorAll(".live-item-card__description").length ?? 0,
+      rarityTone: card?.getAttribute("data-rarity-tone") ?? "",
+      artBackgroundImage: art ? getComputedStyle(art).backgroundImage : "none",
+      contentBackground: content ? getComputedStyle(content).backgroundColor : "",
+      rootBackground: getComputedStyle(document.querySelector(".live-overlay-root")).backgroundColor,
+      bodyBackground: getComputedStyle(document.body).backgroundColor
+    };
+  });
+  assert.ok(rarityLayout.contentTop >= rarityLayout.artBottom - 1, "Horizontal details are not below the image");
+  assert.ok(rarityLayout.pricesTop >= rarityLayout.artBottom - 1, "Horizontal prices are not below the image");
+  assert.equal(rarityLayout.descriptionCount, 1);
+  assert.notEqual(rarityLayout.rarityTone, "");
+  assert.notEqual(rarityLayout.artBackgroundImage, "none");
+  assert.equal(rarityLayout.contentBackground, "rgba(2, 6, 23, 0.94)");
+  assert.equal(rarityLayout.rootBackground, "rgba(0, 0, 0, 0)");
+  assert.equal(rarityLayout.bodyBackground, "rgba(0, 0, 0, 0)");
+
+  adaptiveParams.set("description", "0");
+  await page.goto(`${rootUrl}live/overlay/?${adaptiveParams}`, { waitUntil: "domcontentloaded" });
+  await page.locator("[data-live-item='true']").first().waitFor();
+  const compactLayout = await page.evaluate(() => {
+    const card = document.querySelector("[data-live-item='true']");
+    return {
+      cardHeight: card?.getBoundingClientRect().height ?? 0,
+      descriptionCount: card?.querySelectorAll(".live-item-card__description").length ?? 0
+    };
+  });
+  assert.equal(compactLayout.descriptionCount, 0);
+  assert.ok(compactLayout.cardHeight < rarityLayout.cardHeight, "Disabled description still reserves space");
+
+  adaptiveParams.set("vbucks", "0");
+  adaptiveParams.set("birr", "0");
+  adaptiveParams.set("background", "shop");
+  await page.goto(`${rootUrl}live/overlay/?${adaptiveParams}`, { waitUntil: "domcontentloaded" });
+  await page.locator("[data-live-item='true']").first().waitFor();
+  const shopLayout = await page.evaluate(() => {
+    const card = document.querySelector("[data-live-item='true']");
+    const art = card?.querySelector(".live-item-card__art");
+    return {
+      cardHeight: card?.getBoundingClientRect().height ?? 0,
+      priceCount: card?.querySelectorAll(".live-item-card__prices").length ?? 0,
+      artBackgroundImage: art ? getComputedStyle(art).backgroundImage : "none",
+      bodyBackground: getComputedStyle(document.body).backgroundColor
+    };
+  });
+  assert.equal(shopLayout.priceCount, 0);
+  assert.ok(shopLayout.cardHeight < compactLayout.cardHeight, "Disabled prices still reserve space");
+  assert.notEqual(shopLayout.artBackgroundImage, "none");
+  assert.notEqual(shopLayout.artBackgroundImage, rarityLayout.artBackgroundImage);
+  assert.equal(shopLayout.bodyBackground, "rgba(0, 0, 0, 0)");
 
   const singleItemParams = new URLSearchParams(overlayParams);
   singleItemParams.set("name", firstSkin.name);

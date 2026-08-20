@@ -6,7 +6,7 @@ import {
 
 export type LiveOrientation = "vertical" | "horizontal";
 export type LiveDirection = "up" | "down" | "left" | "right";
-export type LiveBackground = "transparent" | "solid";
+export type LiveBackground = "transparent" | "solid" | "rarity" | "shop";
 
 export type LiveOverlaySettings = {
   categories: ShopCategory[];
@@ -98,6 +98,10 @@ function queryBoolean(value: string | null, fallback: boolean) {
   return fallback;
 }
 
+function validBackground(value: unknown): LiveBackground {
+  return value === "solid" || value === "rarity" || value === "shop" ? value : "transparent";
+}
+
 export function normalizeLiveOverlaySettings(value: unknown): LiveOverlaySettings {
   const source = value && typeof value === "object" ? (value as Partial<LiveOverlaySettings>) : {};
   const defaults = DEFAULT_LIVE_OVERLAY_SETTINGS;
@@ -139,7 +143,7 @@ export function normalizeLiveOverlaySettings(value: unknown): LiveOverlaySetting
       LIVE_LIMITS.cardWidth.min,
       LIVE_LIMITS.cardWidth.max
     ),
-    background: source.background === "solid" ? "solid" : "transparent"
+    background: validBackground(source.background)
   };
 }
 
@@ -178,7 +182,7 @@ export function parseLiveOverlaySearch(search: string): LiveOverlaySettings {
     speed: params.get("speed") ?? defaults.speed,
     gap: params.get("gap") ?? defaults.gap,
     cardWidth: params.get("cardWidth") ?? defaults.cardWidth,
-    background: params.get("background") === "solid" ? "solid" : "transparent"
+    background: validBackground(params.get("background"))
   });
 }
 

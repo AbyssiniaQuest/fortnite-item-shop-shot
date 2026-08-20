@@ -419,16 +419,21 @@ export function LiveOverlayBuilder() {
               <fieldset className="grid gap-2">
                 <legend className={labelClass}>Item background</legend>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["transparent", "solid"] as const).map((background) => (
+                  {([
+                    ["transparent", "Transparent"],
+                    ["solid", "Solid"],
+                    ["rarity", "Rarity"],
+                    ["shop", "Fortnite Shop"]
+                  ] as const).map(([background, label]) => (
                     <button
                       aria-pressed={settings.background === background}
-                      className={`h-11 rounded-md border text-sm font-black capitalize ${settings.background === background ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/10 bg-white/[0.04] text-white"}`}
+                      className={`min-h-11 rounded-md border px-2 py-2 text-sm font-black ${settings.background === background ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/10 bg-white/[0.04] text-white"}`}
                       data-testid={`live-background-${background}`}
                       key={background}
                       onClick={() => updateSettings({ background })}
                       type="button"
                     >
-                      {background}
+                      {label}
                     </button>
                   ))}
                 </div>

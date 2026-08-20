@@ -28,9 +28,7 @@ export function LiveOverlayView({
     settings.showVbucks ||
     settings.showBirr ||
     settings.showDescription;
-  const className = `${standalone ? "live-overlay-root" : "live-overlay-preview"} ${
-    settings.background === "solid" ? "live-overlay--solid" : "live-overlay--transparent"
-  }`;
+  const className = `${standalone ? "live-overlay-root" : "live-overlay-preview"} live-overlay--${settings.background}`;
 
   return (
     <main className={className} data-testid={standalone ? "clean-live-overlay" : "live-preview"}>
