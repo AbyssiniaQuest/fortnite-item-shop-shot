@@ -8,7 +8,8 @@
     "build": "next build",
     "build:github": "node scripts/update-shop-data.mjs && next build",
     "start": "next start",
-    "lint": "next lint"
+    "lint": "next lint",
+    "test:live": "node scripts/verify-live-overlay.mjs"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",

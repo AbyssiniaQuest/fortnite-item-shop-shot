@@ -1,5 +1,6 @@
 "use client";
 
+import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
 import { ScreenshotCanvas } from "@/components/ScreenshotCanvas";
 import {
@@ -890,13 +891,22 @@ export function ShopGenerator() {
     <main className="min-h-screen bg-[#05070d] text-white">
       <section className="border-b border-white/10 bg-[linear-gradient(180deg,#07111f,#05070d)] px-3 py-3 sm:px-5">
         <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="min-w-0">
-            <p className="text-[11px] font-black uppercase tracking-normal text-cyan-200">
-              Item screenshot workspace
-            </p>
-            <h1 className="text-2xl font-black tracking-normal sm:text-3xl">
-              Fortnite Item Shop Generator
-            </h1>
+          <div className="flex min-w-0 flex-wrap items-end gap-3">
+            <div className="min-w-0">
+              <p className="text-[11px] font-black uppercase tracking-normal text-cyan-200">
+                Item screenshot workspace
+              </p>
+              <h1 className="text-2xl font-black tracking-normal sm:text-3xl">
+                Fortnite Item Shop Generator
+              </h1>
+            </div>
+            <Link
+              className="mb-0.5 rounded-md border border-white/15 bg-white/[0.06] px-3 py-2 text-xs font-black text-white transition hover:bg-white/[0.1]"
+              href="/live/"
+              prefetch={false}
+            >
+              Live Overlay
+            </Link>
           </div>
 
           <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.05] p-3 shadow-xl shadow-black/20 sm:min-w-[420px]">
