@@ -90,7 +90,11 @@ try {
   await page.goto(`${rootUrl}live/`, { waitUntil: "domcontentloaded" });
   await page.getByTestId("live-match-count").waitFor();
   assert.equal(await page.getByRole("heading", { name: "Fortnite Item Shop Live Overlay" }).isVisible(), true);
+  assert.equal(await page.getByTestId("live-orientation-vertical").getAttribute("aria-pressed"), "true");
   assert.equal(await page.getByTestId("live-direction-up").getAttribute("aria-pressed"), "true");
+  assert.equal(await page.getByTestId("live-showImage").isChecked(), true);
+  assert.equal(await page.getByTestId("live-showName").isChecked(), true);
+  assert.equal(await page.getByTestId("live-showMeta").isChecked(), true);
   assert.equal(await page.getByTestId("live-showVbucks").isChecked(), true);
   assert.equal(await page.getByTestId("live-showBirr").isChecked(), true);
   assert.equal(await page.getByTestId("live-showDescription").isChecked(), false);
@@ -101,6 +105,16 @@ try {
   const generatedUrl = await page.getByTestId("generated-live-url").textContent();
   assert.match(generatedUrl ?? "", /categories=skins%2Cemotes%2Cpickaxes/);
   assert.match(generatedUrl ?? "", /birr=0/);
+  await page.getByTestId("live-image-only").click();
+  await page.getByTestId("live-orientation-horizontal").click();
+  const imageOnlyGeneratedUrl = await page.getByTestId("generated-live-url").textContent();
+  assert.match(imageOnlyGeneratedUrl ?? "", /image=1/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /nameVisible=0/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /meta=0/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /vbucks=0/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /orientation=horizontal/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /direction=left/);
+  assert.match(imageOnlyGeneratedUrl ?? "", /background=transparent/);
 
   const shopPayload = JSON.parse(await readFile(path.resolve("public/shop-data.json"), "utf8"));
   const firstSkin = shopPayload.items.find((item) => item.category === "skins");
@@ -172,6 +186,77 @@ try {
   await page.waitForTimeout(300);
   const transformAfter = await track.evaluate((element) => getComputedStyle(element).transform);
   assert.notEqual(transformAfter, transformBefore, "Ticker transform did not advance");
+
+  const imageOnlyParams = new URLSearchParams({
+    categories: "skins",
+    image: "1",
+    nameVisible: "0",
+    meta: "0",
+    vbucks: "0",
+    birr: "0",
+    description: "0",
+    birrRate: "1",
+    orientation: "horizontal",
+    direction: "left",
+    speed: "120",
+    gap: "12",
+    cardWidth: "220",
+    background: "transparent"
+  });
+  await page.setViewportSize({ width: 540, height: 320 });
+  await page.goto(`${rootUrl}live/overlay/?${imageOnlyParams}`, { waitUntil: "domcontentloaded" });
+  const imageOnlyCards = page.locator(".live-item-card--image-only");
+  await imageOnlyCards.first().waitFor();
+  await page.waitForTimeout(250);
+  const imageOnlyMetrics = await page.evaluate(() => {
+    const cards = Array.from(document.querySelectorAll(".live-item-card--image-only"));
+    const first = cards[0]?.getBoundingClientRect();
+    const last = cards.at(-1)?.getBoundingClientRect();
+    const articleStyle = cards[0] ? getComputedStyle(cards[0]) : null;
+    const art = cards[0]?.querySelector(".live-item-card__art");
+    return {
+      count: cards.length,
+      maximum: first ? Math.ceil(window.innerWidth / (first.width + 12)) + 5 : 0,
+      contentBlocks: document.querySelectorAll(".live-item-card__content").length,
+      firstLeft: first?.left ?? 0,
+      lastRight: last?.right ?? 0,
+      articleBackground: articleStyle?.backgroundColor,
+      articleBorder: articleStyle?.borderTopWidth,
+      articleShadow: articleStyle?.boxShadow,
+      artBackground: art ? getComputedStyle(art).backgroundColor : "",
+      trackDirection: getComputedStyle(document.querySelector("[data-testid='live-ticker-track']")).flexDirection,
+      bodyBackground: getComputedStyle(document.body).backgroundColor,
+      overflowX: document.documentElement.scrollWidth > window.innerWidth
+    };
+  });
+  assert.equal(imageOnlyMetrics.contentBlocks, 0);
+  assert.equal(imageOnlyMetrics.articleBackground, "rgba(0, 0, 0, 0)");
+  assert.equal(imageOnlyMetrics.artBackground, "rgba(0, 0, 0, 0)");
+  assert.equal(imageOnlyMetrics.articleBorder, "0px");
+  assert.equal(imageOnlyMetrics.articleShadow, "none");
+  assert.equal(imageOnlyMetrics.trackDirection, "row");
+  assert.equal(imageOnlyMetrics.bodyBackground, "rgba(0, 0, 0, 0)");
+  assert.equal(imageOnlyMetrics.overflowX, false);
+  assert.ok(imageOnlyMetrics.count <= imageOnlyMetrics.maximum);
+  assert.ok(imageOnlyMetrics.firstLeft <= 0);
+  assert.ok(imageOnlyMetrics.lastRight >= 540);
+  const horizontalTrack = page.getByTestId("live-ticker-track");
+  const horizontalBefore = await horizontalTrack.evaluate((element) => getComputedStyle(element).transform);
+  await page.waitForTimeout(300);
+  const horizontalAfter = await horizontalTrack.evaluate((element) => getComputedStyle(element).transform);
+  assert.notEqual(horizontalAfter, horizontalBefore, "Horizontal ticker transform did not advance");
+
+  imageOnlyParams.set("background", "solid");
+  await page.goto(`${rootUrl}live/overlay/?${imageOnlyParams}`, { waitUntil: "domcontentloaded" });
+  await page.locator(".live-item-card--image-only").first().waitFor();
+  const solidBackgrounds = await page.evaluate(() => ({
+    root: getComputedStyle(document.querySelector(".live-overlay-root")).backgroundColor,
+    body: getComputedStyle(document.body).backgroundColor,
+    art: getComputedStyle(document.querySelector(".live-item-card__art")).backgroundColor
+  }));
+  assert.equal(solidBackgrounds.root, "rgba(0, 0, 0, 0)");
+  assert.equal(solidBackgrounds.body, "rgba(0, 0, 0, 0)");
+  assert.equal(solidBackgrounds.art, "rgb(17, 24, 39)");
 
   const singleItemParams = new URLSearchParams(overlayParams);
   singleItemParams.set("name", firstSkin.name);

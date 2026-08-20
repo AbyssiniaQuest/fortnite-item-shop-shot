@@ -21,19 +21,26 @@ export function LiveOverlayView({
   unavailable = false
 }: LiveOverlayViewProps) {
   const matchingItems = useMemo(() => filterLiveItems(items, settings), [items, settings]);
+  const hasVisibleFields =
+    settings.showImage ||
+    settings.showName ||
+    settings.showMeta ||
+    settings.showVbucks ||
+    settings.showBirr ||
+    settings.showDescription;
   const className = `${standalone ? "live-overlay-root" : "live-overlay-preview"} ${
     settings.background === "solid" ? "live-overlay--solid" : "live-overlay--transparent"
   }`;
 
   return (
     <main className={className} data-testid={standalone ? "clean-live-overlay" : "live-preview"}>
-      {matchingItems.length > 0 ? (
+      {matchingItems.length > 0 && hasVisibleFields ? (
         <VerticalTicker items={matchingItems} paused={paused} settings={settings} />
-      ) : (
+      ) : hasVisibleFields ? (
         <div className="live-overlay-status" role="status">
           {unavailable ? "Shop data unavailable - retrying" : "No matching shop items"}
         </div>
-      )}
+      ) : null}
     </main>
   );
 }

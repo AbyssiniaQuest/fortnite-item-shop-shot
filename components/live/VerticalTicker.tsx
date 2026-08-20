@@ -27,12 +27,14 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
   const offsetRef = useRef(0);
   const previousItemsRef = useRef(items);
   const [startIndex, setStartIndex] = useState(0);
-  const [viewportHeight, setViewportHeight] = useState(900);
-  const [cardHeight, setCardHeight] = useState(160);
-  const cardStep = Math.max(1, cardHeight + settings.gap);
+  const [viewportExtent, setViewportExtent] = useState(900);
+  const [cardExtent, setCardExtent] = useState(160);
+  const isHorizontal = settings.orientation === "horizontal";
+  const isReverse = settings.direction === "down" || settings.direction === "right";
+  const cardStep = Math.max(1, cardExtent + settings.gap);
   const renderedCardCount = Math.min(
     MAX_RENDERED_CARDS,
-    Math.max(BUFFER_CARDS + 1, Math.ceil(viewportHeight / cardStep) + BUFFER_CARDS)
+    Math.max(BUFFER_CARDS + 1, Math.ceil(viewportExtent / cardStep) + BUFFER_CARDS)
   );
 
   useLayoutEffect(() => {
@@ -43,8 +45,10 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     }
 
     const updateMeasurements = () => {
-      setViewportHeight(Math.max(1, container.getBoundingClientRect().height));
-      setCardHeight(Math.max(1, measuredCard.getBoundingClientRect().height));
+      const containerRect = container.getBoundingClientRect();
+      const cardRect = measuredCard.getBoundingClientRect();
+      setViewportExtent(Math.max(1, isHorizontal ? containerRect.width : containerRect.height));
+      setCardExtent(Math.max(1, isHorizontal ? cardRect.width : cardRect.height));
     };
     const observer = new ResizeObserver(updateMeasurements);
 
@@ -53,11 +57,21 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     updateMeasurements();
 
     return () => observer.disconnect();
-  }, [settings.cardWidth, settings.showDescription, settings.showVbucks, settings.showBirr, items.length]);
+  }, [
+    isHorizontal,
+    settings.cardWidth,
+    settings.showImage,
+    settings.showName,
+    settings.showMeta,
+    settings.showDescription,
+    settings.showVbucks,
+    settings.showBirr,
+    items.length
+  ]);
 
   useLayoutEffect(() => {
     const previousItems = previousItemsRef.current;
-    const previousVisibleOffset = settings.direction === "down" ? 1 : 0;
+    const previousVisibleOffset = isReverse ? 1 : 0;
     const previousVisibleItem =
       previousItems.length > 0
         ? previousItems[modulo(startIndexRef.current + previousVisibleOffset, previousItems.length)]
@@ -75,7 +89,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     previousItemsRef.current = items;
     startIndexRef.current = nextStartIndex;
     setStartIndex(nextStartIndex);
-  }, [items, settings.direction]);
+  }, [isReverse, items]);
 
   useEffect(() => {
     const track = trackRef.current;
@@ -88,11 +102,10 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     offsetRef.current = modulo(offsetRef.current, cardStep);
 
     const renderTransform = () => {
-      const y =
-        settings.direction === "up"
-          ? -offsetRef.current
-          : -cardStep + offsetRef.current;
-      track.style.transform = `translate3d(0, ${y.toFixed(3)}px, 0)`;
+      const position = isReverse ? -cardStep + offsetRef.current : -offsetRef.current;
+      const x = isHorizontal ? position : 0;
+      const y = isHorizontal ? 0 : position;
+      track.style.transform = `translate3d(${x.toFixed(3)}px, ${y.toFixed(3)}px, 0)`;
     };
 
     const animate = (time: number) => {
@@ -105,7 +118,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
         if (offsetRef.current >= cardStep) {
           const crossedCards = Math.floor(offsetRef.current / cardStep);
           offsetRef.current %= cardStep;
-          const directionDelta = settings.direction === "up" ? crossedCards : -crossedCards;
+          const directionDelta = isReverse ? -crossedCards : crossedCards;
           const nextStartIndex = modulo(startIndexRef.current + directionDelta, items.length);
 
           startIndexRef.current = nextStartIndex;
@@ -124,7 +137,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
       window.cancelAnimationFrame(animationFrame);
       track.style.transform = "";
     };
-  }, [cardStep, items, paused, settings.direction, settings.speed]);
+  }, [cardStep, isHorizontal, isReverse, items, paused, settings.speed]);
 
   const sequence = useMemo(
     () =>
@@ -138,17 +151,30 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
   return (
     <div className="live-ticker" data-rendered-count={sequence.length} ref={containerRef}>
       <div
-        className="live-ticker__column"
-        style={{ width: `min(${settings.cardWidth}px, calc(100vw - 16px))` }}
+        className={`live-ticker__lane ${isHorizontal ? "live-ticker__lane--horizontal" : "live-ticker__lane--vertical"}`}
+        style={
+          isHorizontal
+            ? undefined
+            : { width: `min(${settings.cardWidth}px, calc(100vw - 16px))` }
+        }
       >
         <div
-          className="live-ticker__track"
+          className={`live-ticker__track ${isHorizontal ? "live-ticker__track--horizontal" : ""}`}
           data-testid="live-ticker-track"
           ref={trackRef}
           style={{ gap: `${settings.gap}px` }}
         >
           {sequence.map(({ item, slot }) => (
-            <div key={`live-slot-${slot}`} ref={slot === 0 ? measureRef : undefined}>
+            <div
+              className="live-ticker__slot"
+              key={`live-slot-${slot}`}
+              ref={slot === 0 ? measureRef : undefined}
+              style={
+                isHorizontal
+                  ? { width: `min(${settings.cardWidth}px, calc(100vw - 16px))` }
+                  : undefined
+              }
+            >
               <LiveItemCard eager={slot < 4} item={item} settings={settings} />
             </div>
           ))}

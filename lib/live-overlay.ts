@@ -4,7 +4,8 @@ import {
   type ShopItem
 } from "@/lib/shop";
 
-export type LiveDirection = "up" | "down";
+export type LiveOrientation = "vertical" | "horizontal";
+export type LiveDirection = "up" | "down" | "left" | "right";
 export type LiveBackground = "transparent" | "solid";
 
 export type LiveOverlaySettings = {
@@ -13,9 +14,13 @@ export type LiveOverlaySettings = {
   rarityFilter: string;
   seasonFilter: string;
   birrRate: number;
+  showImage: boolean;
+  showName: boolean;
+  showMeta: boolean;
   showVbucks: boolean;
   showBirr: boolean;
   showDescription: boolean;
+  orientation: LiveOrientation;
   direction: LiveDirection;
   speed: number;
   gap: number;
@@ -32,9 +37,13 @@ export const DEFAULT_LIVE_OVERLAY_SETTINGS: LiveOverlaySettings = {
   rarityFilter: "all",
   seasonFilter: "all",
   birrRate: 1,
+  showImage: true,
+  showName: true,
+  showMeta: true,
   showVbucks: true,
   showBirr: true,
   showDescription: false,
+  orientation: "vertical",
   direction: "up",
   speed: 36,
   gap: 16,
@@ -92,6 +101,15 @@ function queryBoolean(value: string | null, fallback: boolean) {
 export function normalizeLiveOverlaySettings(value: unknown): LiveOverlaySettings {
   const source = value && typeof value === "object" ? (value as Partial<LiveOverlaySettings>) : {};
   const defaults = DEFAULT_LIVE_OVERLAY_SETTINGS;
+  const orientation: LiveOrientation = source.orientation === "horizontal" ? "horizontal" : "vertical";
+  const direction: LiveDirection =
+    orientation === "horizontal"
+      ? source.direction === "right"
+        ? "right"
+        : "left"
+      : source.direction === "down"
+        ? "down"
+        : "up";
 
   return {
     categories: validCategories(source.categories, defaults.categories),
@@ -104,11 +122,15 @@ export function normalizeLiveOverlaySettings(value: unknown): LiveOverlaySetting
       LIVE_LIMITS.birrRate.min,
       LIVE_LIMITS.birrRate.max
     ),
+    showImage: typeof source.showImage === "boolean" ? source.showImage : defaults.showImage,
+    showName: typeof source.showName === "boolean" ? source.showName : defaults.showName,
+    showMeta: typeof source.showMeta === "boolean" ? source.showMeta : defaults.showMeta,
     showVbucks: typeof source.showVbucks === "boolean" ? source.showVbucks : defaults.showVbucks,
     showBirr: typeof source.showBirr === "boolean" ? source.showBirr : defaults.showBirr,
     showDescription:
       typeof source.showDescription === "boolean" ? source.showDescription : defaults.showDescription,
-    direction: source.direction === "down" ? "down" : "up",
+    orientation,
+    direction,
     speed: finiteNumber(source.speed, defaults.speed, LIVE_LIMITS.speed.min, LIVE_LIMITS.speed.max),
     gap: finiteNumber(source.gap, defaults.gap, LIVE_LIMITS.gap.min, LIVE_LIMITS.gap.max),
     cardWidth: finiteNumber(
@@ -129,6 +151,15 @@ export function parseLiveOverlaySearch(search: string): LiveOverlaySettings {
     categoryParam === null
       ? defaults.categories
       : validCategories(categoryParam.split(",").filter(Boolean), []);
+  const orientation: LiveOrientation = params.get("orientation") === "horizontal" ? "horizontal" : "vertical";
+  const direction =
+    orientation === "horizontal"
+      ? params.get("direction") === "right"
+        ? "right"
+        : "left"
+      : params.get("direction") === "down"
+        ? "down"
+        : "up";
 
   return normalizeLiveOverlaySettings({
     categories,
@@ -136,10 +167,14 @@ export function parseLiveOverlaySearch(search: string): LiveOverlaySettings {
     rarityFilter: params.get("rarity") ?? defaults.rarityFilter,
     seasonFilter: params.get("season") ?? defaults.seasonFilter,
     birrRate: params.get("birrRate") ?? defaults.birrRate,
+    showImage: queryBoolean(params.get("image"), defaults.showImage),
+    showName: queryBoolean(params.get("nameVisible"), defaults.showName),
+    showMeta: queryBoolean(params.get("meta"), defaults.showMeta),
     showVbucks: queryBoolean(params.get("vbucks"), defaults.showVbucks),
     showBirr: queryBoolean(params.get("birr"), defaults.showBirr),
     showDescription: queryBoolean(params.get("description"), defaults.showDescription),
-    direction: params.get("direction") === "down" ? "down" : "up",
+    orientation,
+    direction,
     speed: params.get("speed") ?? defaults.speed,
     gap: params.get("gap") ?? defaults.gap,
     cardWidth: params.get("cardWidth") ?? defaults.cardWidth,
@@ -152,10 +187,14 @@ export function buildLiveOverlaySearch(settings: LiveOverlaySettings) {
   const params = new URLSearchParams();
 
   params.set("categories", normalized.categories.join(","));
+  params.set("image", normalized.showImage ? "1" : "0");
+  params.set("nameVisible", normalized.showName ? "1" : "0");
+  params.set("meta", normalized.showMeta ? "1" : "0");
   params.set("vbucks", normalized.showVbucks ? "1" : "0");
   params.set("birr", normalized.showBirr ? "1" : "0");
   params.set("description", normalized.showDescription ? "1" : "0");
   params.set("birrRate", String(normalized.birrRate));
+  params.set("orientation", normalized.orientation);
   params.set("direction", normalized.direction);
   params.set("speed", String(normalized.speed));
   params.set("gap", String(normalized.gap));

@@ -147,6 +147,10 @@ export function LiveOverlayBuilder() {
     () => (origin ? new URL(overlayPath, origin).toString() : overlayPath),
     [origin, overlayPath]
   );
+  const directionOptions =
+    settings.orientation === "horizontal"
+      ? (["left", "right"] as const)
+      : (["up", "down"] as const);
 
   function updateSettings(patch: Partial<LiveOverlaySettings>) {
     setSettings((current) => normalizeLiveOverlaySettings({ ...current, ...patch }));
@@ -167,6 +171,26 @@ export function LiveOverlayBuilder() {
   function toggleAllCategories() {
     updateSettings({
       categories: settings.categories.length === SHOP_CATEGORIES.length ? [] : [...SHOP_CATEGORIES]
+    });
+  }
+
+  function setOrientation(orientation: LiveOverlaySettings["orientation"]) {
+    const isReverse = settings.direction === "down" || settings.direction === "right";
+    updateSettings({
+      orientation,
+      direction: orientation === "horizontal" ? (isReverse ? "right" : "left") : (isReverse ? "down" : "up")
+    });
+  }
+
+  function useImageOnlyPreset() {
+    updateSettings({
+      showImage: true,
+      showName: false,
+      showMeta: false,
+      showVbucks: false,
+      showBirr: false,
+      showDescription: false,
+      background: "transparent"
     });
   }
 
@@ -302,7 +326,7 @@ export function LiveOverlayBuilder() {
           </section>
 
           <section className="border-b border-white/10 p-4 sm:p-6">
-            <p className="mb-4 text-xs font-black uppercase text-cyan-200">Price and information</p>
+            <p className="mb-4 text-xs font-black uppercase text-cyan-200">Item content</p>
             <div className="grid gap-4 lg:grid-cols-[minmax(12rem,0.7fr)_minmax(0,1.3fr)]">
               <label className="grid gap-2">
                 <span className={labelClass}>Birr per V-Buck</span>
@@ -317,24 +341,39 @@ export function LiveOverlayBuilder() {
                   value={settings.birrRate}
                 />
               </label>
-              <fieldset className="grid grid-cols-3 gap-2">
-                <legend className={`${labelClass} mb-2`}>Visible details</legend>
-                {([
-                  ["showVbucks", "V-Bucks"],
-                  ["showBirr", "Birr"],
-                  ["showDescription", "Description"]
-                ] as const).map(([field, label]) => (
-                  <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-2 text-xs font-black sm:text-sm" key={field}>
-                    <input
-                      checked={settings[field]}
-                      data-testid={`live-${field}`}
-                      onChange={(event) => updateSettings({ [field]: event.target.checked })}
-                      type="checkbox"
-                    />
-                    {label}
-                  </label>
-                ))}
-              </fieldset>
+              <div>
+                <div className="mb-2 flex items-center justify-between gap-3">
+                  <span className={labelClass}>Visible elements</span>
+                  <button
+                    className="h-8 rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950"
+                    data-testid="live-image-only"
+                    onClick={useImageOnlyPreset}
+                    type="button"
+                  >
+                    Image only
+                  </button>
+                </div>
+                <div className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {([
+                    ["showImage", "Item image"],
+                    ["showName", "Name"],
+                    ["showMeta", "Type & rarity"],
+                    ["showVbucks", "V-Bucks"],
+                    ["showBirr", "Birr"],
+                    ["showDescription", "Description"]
+                  ] as const).map(([field, label]) => (
+                    <label className="flex min-h-11 cursor-pointer items-center justify-center gap-2 rounded-md border border-white/10 bg-white/[0.04] px-2 text-xs font-black sm:text-sm" key={field}>
+                      <input
+                        checked={settings[field]}
+                        data-testid={`live-${field}`}
+                        onChange={(event) => updateSettings({ [field]: event.target.checked })}
+                        type="checkbox"
+                      />
+                      {label}
+                    </label>
+                  ))}
+                </div>
+              </div>
             </div>
           </section>
 
@@ -342,9 +381,27 @@ export function LiveOverlayBuilder() {
             <p className="mb-4 text-xs font-black uppercase text-cyan-200">Motion and layout</p>
             <div className="grid gap-5 lg:grid-cols-2">
               <fieldset className="grid gap-2">
+                <legend className={labelClass}>Orientation</legend>
+                <div className="grid grid-cols-2 gap-2">
+                  {(["vertical", "horizontal"] as const).map((orientation) => (
+                    <button
+                      aria-pressed={settings.orientation === orientation}
+                      className={`h-11 rounded-md border text-sm font-black capitalize ${settings.orientation === orientation ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/10 bg-white/[0.04] text-white"}`}
+                      data-testid={`live-orientation-${orientation}`}
+                      key={orientation}
+                      onClick={() => setOrientation(orientation)}
+                      type="button"
+                    >
+                      {orientation}
+                    </button>
+                  ))}
+                </div>
+              </fieldset>
+
+              <fieldset className="grid gap-2">
                 <legend className={labelClass}>Direction</legend>
                 <div className="grid grid-cols-2 gap-2">
-                  {(["up", "down"] as const).map((direction) => (
+                  {directionOptions.map((direction) => (
                     <button
                       aria-pressed={settings.direction === direction}
                       className={`h-11 rounded-md border text-sm font-black capitalize ${settings.direction === direction ? "border-cyan-300 bg-cyan-300 text-slate-950" : "border-white/10 bg-white/[0.04] text-white"}`}
@@ -360,7 +417,7 @@ export function LiveOverlayBuilder() {
               </fieldset>
 
               <fieldset className="grid gap-2">
-                <legend className={labelClass}>Background</legend>
+                <legend className={labelClass}>Item background</legend>
                 <div className="grid grid-cols-2 gap-2">
                   {(["transparent", "solid"] as const).map((background) => (
                     <button
