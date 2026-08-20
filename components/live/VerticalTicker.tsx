@@ -12,8 +12,8 @@ type VerticalTickerProps = {
   paused?: boolean;
 };
 
-const BUFFER_CARDS = 4;
-const MAX_RENDERED_CARDS = 64;
+const BUFFER_CARDS = 2;
+const MAX_RENDERED_CARDS = 48;
 
 function modulo(value: number, divisor: number) {
   return ((value % divisor) + divisor) % divisor;
@@ -32,10 +32,16 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
   const isHorizontal = settings.orientation === "horizontal";
   const isReverse = settings.direction === "down" || settings.direction === "right";
   const cardStep = Math.max(1, cardExtent + settings.gap);
-  const renderedCardCount = Math.min(
-    MAX_RENDERED_CARDS,
-    Math.max(BUFFER_CARDS + 1, Math.ceil(viewportExtent / cardStep) + BUFFER_CARDS)
-  );
+  const sequenceExtent =
+    items.length * cardExtent + Math.max(0, items.length - 1) * settings.gap;
+  const isStatic = items.length <= 1 || sequenceExtent <= viewportExtent;
+  const renderedCardCount = isStatic
+    ? items.length
+    : Math.min(
+        MAX_RENDERED_CARDS,
+        items.length + 1,
+        Math.max(BUFFER_CARDS + 1, Math.ceil(viewportExtent / cardStep) + BUFFER_CARDS)
+      );
 
   useLayoutEffect(() => {
     const container = containerRef.current;
@@ -97,6 +103,14 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
       return;
     }
 
+    if (isStatic) {
+      offsetRef.current = 0;
+      track.style.transform = "translate3d(0, 0, 0)";
+      return () => {
+        track.style.transform = "";
+      };
+    }
+
     let animationFrame = 0;
     let lastTime = performance.now();
     offsetRef.current = modulo(offsetRef.current, cardStep);
@@ -131,25 +145,37 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     };
 
     renderTransform();
+    if (paused) {
+      return () => {
+        track.style.transform = "";
+      };
+    }
     animationFrame = window.requestAnimationFrame(animate);
 
     return () => {
       window.cancelAnimationFrame(animationFrame);
       track.style.transform = "";
     };
-  }, [cardStep, isHorizontal, isReverse, items, paused, settings.speed]);
+  }, [cardStep, isHorizontal, isReverse, isStatic, items, paused, settings.speed]);
 
   const sequence = useMemo(
-    () =>
-      Array.from({ length: renderedCardCount }, (_, slot) => ({
-        item: items[modulo(startIndex + slot, items.length)],
+    () => {
+      const sequenceStart = isStatic ? 0 : startIndex;
+      return Array.from({ length: renderedCardCount }, (_, slot) => ({
+        item: items[modulo(sequenceStart + slot, items.length)],
         slot
-      })),
-    [items, renderedCardCount, startIndex]
+      }));
+    },
+    [isStatic, items, renderedCardCount, startIndex]
   );
 
   return (
-    <div className="live-ticker" data-rendered-count={sequence.length} ref={containerRef}>
+    <div
+      className="live-ticker"
+      data-rendered-count={sequence.length}
+      data-static={isStatic ? "true" : "false"}
+      ref={containerRef}
+    >
       <div
         className={`live-ticker__lane ${isHorizontal ? "live-ticker__lane--horizontal" : "live-ticker__lane--vertical"}`}
         style={

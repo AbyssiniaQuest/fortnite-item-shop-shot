@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import type { LiveOverlaySettings } from "@/lib/live-overlay";
 import { proxiedImageUrl, type ShopItem } from "@/lib/shop";
 
@@ -10,8 +10,10 @@ type LiveItemCardProps = {
   eager?: boolean;
 };
 
+const numberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
+
 function formatNumber(value: number) {
-  return new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 }).format(value);
+  return numberFormatter.format(value);
 }
 
 function itemInitials(name: string) {
@@ -44,20 +46,18 @@ function rarityTone(rarity: string) {
 }
 
 export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProps) {
-  const [imageFailed, setImageFailed] = useState(false);
+  const [failedImage, setFailedImage] = useState<string | null>(null);
+  const imageFailed = failedImage === item.image;
   const hasPrices = settings.showVbucks || settings.showBirr;
   const hasInformation =
     settings.showName || settings.showMeta || settings.showDescription || hasPrices;
   const isImageOnly = settings.showImage && !hasInformation;
 
-  useEffect(() => {
-    setImageFailed(false);
-  }, [item.image]);
-
   return (
     <article
       className={`live-item-card ${isImageOnly ? "live-item-card--image-only" : ""} ${!settings.showImage ? "live-item-card--text-only" : ""}`}
       data-category={item.category}
+      data-item-id={item.id}
       data-live-item="true"
       data-orientation={settings.orientation}
       data-rarity-tone={rarityTone(item.rarity)}
@@ -76,7 +76,7 @@ export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProp
               decoding="async"
               fetchPriority={eager ? "high" : "auto"}
               loading={eager ? "eager" : "lazy"}
-              onError={() => setImageFailed(true)}
+              onError={() => setFailedImage(item.image)}
               src={proxiedImageUrl(item.image)}
             />
           )}

@@ -1,5 +1,5 @@
 import { NextResponse } from "next/server";
-import { mapShopEntry, SHOP_URL, type ShopResponse } from "@/lib/shop";
+import { dedupeShopItems, mapShopEntry, SHOP_URL, type ShopResponse } from "@/lib/shop";
 
 export const revalidate = 900;
 
@@ -17,9 +17,11 @@ export async function GET() {
     }
 
     const payload = (await response.json()) as ShopResponse;
-    const items = (payload.data?.entries ?? [])
-      .map(mapShopEntry)
-      .filter((item): item is NonNullable<ReturnType<typeof mapShopEntry>> => Boolean(item));
+    const items = dedupeShopItems(
+      (payload.data?.entries ?? [])
+        .map(mapShopEntry)
+        .filter((item): item is NonNullable<ReturnType<typeof mapShopEntry>> => Boolean(item))
+    );
 
     return NextResponse.json(
       {

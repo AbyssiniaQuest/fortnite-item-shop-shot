@@ -1,4 +1,5 @@
 import {
+  dedupeShopItems,
   SHOP_CATEGORIES,
   type ShopCategory,
   type ShopItem
@@ -224,19 +225,21 @@ export function filterLiveItems(items: ShopItem[], settings: LiveOverlaySettings
   const selectedCategories = new Set(settings.categories);
   const normalizedName = settings.nameFilter.trim().toLowerCase();
 
-  return items.filter((item) => {
-    const matchesName =
-      !normalizedName ||
-      item.name.toLowerCase().includes(normalizedName) ||
-      item.type.toLowerCase().includes(normalizedName);
+  return dedupeShopItems(
+    items.filter((item) => {
+      const matchesName =
+        !normalizedName ||
+        item.name.toLowerCase().includes(normalizedName) ||
+        item.type.toLowerCase().includes(normalizedName);
 
-    return (
-      selectedCategories.has(item.category) &&
-      matchesName &&
-      (settings.rarityFilter === "all" || item.rarity === settings.rarityFilter) &&
-      (settings.seasonFilter === "all" || item.season === settings.seasonFilter)
-    );
-  });
+      return (
+        selectedCategories.has(item.category) &&
+        matchesName &&
+        (settings.rarityFilter === "all" || item.rarity === settings.rarityFilter) &&
+        (settings.seasonFilter === "all" || item.season === settings.seasonFilter)
+      );
+    })
+  );
 }
 
 export function uniqueLiveOptions(values: string[]) {

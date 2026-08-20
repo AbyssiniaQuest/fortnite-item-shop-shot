@@ -87,6 +87,31 @@ function mapShopEntry(entry) {
   };
 }
 
+function dedupeShopItems(items) {
+  const uniqueItems = [];
+  const positions = new Map();
+
+  for (const item of items) {
+    const identity = [item.category, item.name, item.type]
+      .map((value) => value.trim().replace(/\s+/g, " ").toLowerCase())
+      .join("|");
+    const existingPosition = positions.get(identity);
+
+    if (existingPosition === undefined) {
+      positions.set(identity, uniqueItems.length);
+      uniqueItems.push(item);
+      continue;
+    }
+
+    const existing = uniqueItems[existingPosition];
+    if (item.price > 0 && (existing.price <= 0 || item.price < existing.price)) {
+      uniqueItems[existingPosition] = item;
+    }
+  }
+
+  return uniqueItems;
+}
+
 const response = await fetch(shopUrl, {
   headers: {
     Accept: "application/json"
@@ -98,7 +123,7 @@ if (!response.ok) {
 }
 
 const payload = await response.json();
-const items = (payload.data?.entries ?? []).map(mapShopEntry).filter(Boolean);
+const items = dedupeShopItems((payload.data?.entries ?? []).map(mapShopEntry).filter(Boolean));
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(
@@ -107,7 +132,7 @@ await writeFile(
     {
       source: shopUrl,
       updatedAt: payload.data?.date ?? new Date().toISOString(),
-      cacheSeconds: 0,
+      cacheSeconds: 900,
       generatedAt: new Date().toISOString(),
       items
     },

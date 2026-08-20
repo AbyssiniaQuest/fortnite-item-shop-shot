@@ -5,6 +5,7 @@ import { useEffect, useMemo, useRef, useState } from "react";
 import { ScreenshotCanvas } from "@/components/ScreenshotCanvas";
 import {
   categoryLabels,
+  dedupeShopItems,
   groupShopItems,
   SHOP_CATEGORIES,
   type ShopCategory,
@@ -429,7 +430,7 @@ export function ShopGenerator() {
       })
       .then((payload) => {
         if (mounted) {
-          setShop(payload);
+          setShop({ ...payload, items: dedupeShopItems(payload.items) });
         }
       })
       .catch((reason: unknown) => {

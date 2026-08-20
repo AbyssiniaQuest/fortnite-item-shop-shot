@@ -247,6 +247,36 @@ export function mapShopEntry(entry: ApiEntry): ShopItem | null {
   };
 }
 
+function normalizedItemIdentity(value: string) {
+  return value.trim().replace(/\s+/g, " ").toLowerCase();
+}
+
+export function dedupeShopItems(items: ShopItem[]) {
+  const uniqueItems: ShopItem[] = [];
+  const positions = new Map<string, number>();
+
+  items.forEach((item) => {
+    const identity = [item.category, item.name, item.type]
+      .map(normalizedItemIdentity)
+      .join("|");
+    const existingPosition = positions.get(identity);
+
+    if (existingPosition === undefined) {
+      positions.set(identity, uniqueItems.length);
+      uniqueItems.push(item);
+      return;
+    }
+
+    const existing = uniqueItems[existingPosition];
+    const itemHasBetterPrice = item.price > 0 && (existing.price <= 0 || item.price < existing.price);
+    if (itemHasBetterPrice) {
+      uniqueItems[existingPosition] = item;
+    }
+  });
+
+  return uniqueItems;
+}
+
 export function groupShopItems(items: ShopItem[]) {
   return SHOP_CATEGORIES.map((category) => ({
     category,

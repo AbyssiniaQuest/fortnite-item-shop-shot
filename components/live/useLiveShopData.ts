@@ -1,10 +1,10 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { LIVE_SHOP_CACHE_KEY } from "@/lib/live-overlay";
-import type { ShopPayload } from "@/lib/shop";
+import { dedupeShopItems, type ShopPayload } from "@/lib/shop";
 
-const REFRESH_INTERVAL_MS = 5 * 60 * 1000;
+const REFRESH_INTERVAL_MS = 15 * 60 * 1000;
 const INITIAL_RETRY_MS = 5000;
 const MAX_RETRY_MS = 60_000;
 const MAX_CACHE_AGE_MS = 36 * 60 * 60 * 1000;
@@ -66,9 +66,19 @@ function cachePayload(payload: ShopPayload) {
   }
 }
 
+function normalizePayload(payload: ShopPayload): ShopPayload {
+  const items = dedupeShopItems(payload.items);
+  return items.length === payload.items.length ? payload : { ...payload, items };
+}
+
+function payloadVersion(payload: ShopPayload) {
+  return `${payload.updatedAt}|${payload.items.map((item) => `${item.id}:${item.price}`).join(",")}`;
+}
+
 export function useLiveShopData() {
   const [payload, setPayload] = useState<ShopPayload | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
+  const payloadVersionRef = useRef("");
 
   useEffect(() => {
     let isMounted = true;
@@ -78,7 +88,9 @@ export function useLiveShopData() {
     const cached = readCachedPayload();
 
     if (cached) {
-      setPayload(cached);
+      const normalizedCached = normalizePayload(cached);
+      payloadVersionRef.current = payloadVersion(normalizedCached);
+      setPayload(normalizedCached);
     }
 
     async function refresh() {
@@ -87,9 +99,9 @@ export function useLiveShopData() {
       try {
         const basePath = process.env.NEXT_PUBLIC_BASE_PATH ?? "";
         const url = new URL(`${basePath}/shop-data.json`, window.location.origin);
-        url.searchParams.set("liveRefresh", String(Date.now()));
         const response = await fetch(url, {
-          cache: "no-store",
+          cache: "no-cache",
+          headers: { Accept: "application/json" },
           signal: controller.signal
         });
 
@@ -106,9 +118,14 @@ export function useLiveShopData() {
           return;
         }
 
-        setPayload(nextPayload);
+        const normalizedPayload = normalizePayload(nextPayload);
+        const nextVersion = payloadVersion(normalizedPayload);
+        if (nextVersion !== payloadVersionRef.current) {
+          payloadVersionRef.current = nextVersion;
+          setPayload(normalizedPayload);
+          cachePayload(normalizedPayload);
+        }
         setIsRetrying(false);
-        cachePayload(nextPayload);
         retryDelay = INITIAL_RETRY_MS;
         timer = window.setTimeout(refresh, REFRESH_INTERVAL_MS);
       } catch (error) {

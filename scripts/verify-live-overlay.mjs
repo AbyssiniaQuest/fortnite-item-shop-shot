@@ -67,6 +67,7 @@ await new Promise((resolve) => server.listen(port, "127.0.0.1", resolve));
 const browser = await chromium.launch({ headless: true });
 const page = await browser.newPage({ viewport: { width: 1280, height: 900 } });
 const browserErrors = [];
+const shopDataRequests = [];
 
 page.on("console", (message) => {
   if (message.type() === "error") {
@@ -74,6 +75,11 @@ page.on("console", (message) => {
   }
 });
 page.on("pageerror", (error) => browserErrors.push(error.message));
+page.on("request", (request) => {
+  if (new URL(request.url()).pathname.endsWith("/shop-data.json")) {
+    shopDataRequests.push(request.url());
+  }
+});
 
 try {
   const rootUrl = `http://127.0.0.1:${port}${basePath}/`;
@@ -125,6 +131,18 @@ try {
   assert.match(compactWidthGeneratedUrl ?? "", /cardWidth=120/);
 
   const shopPayload = JSON.parse(await readFile(path.resolve("public/shop-data.json"), "utf8"));
+  const uniqueShopItemCount = new Set(
+    shopPayload.items.map((item) =>
+      [item.category, item.name, item.type]
+        .map((value) => value.trim().replace(/\s+/g, " ").toLowerCase())
+        .join("|")
+    )
+  ).size;
+  assert.equal(
+    await page.getByTestId("live-match-count").textContent(),
+    `${uniqueShopItemCount} matching`,
+    "The live data pipeline did not remove duplicate shop items"
+  );
   const firstSkin = shopPayload.items.find((item) => item.category === "skins");
   assert.ok(firstSkin, "Expected at least one skin in shop-data.json");
   const overlayParams = new URLSearchParams({
@@ -161,9 +179,10 @@ try {
       const firstContent = cards[0]?.querySelector(".live-item-card__content")?.getBoundingClientRect();
       return {
         cardCategories: cards.map((card) => card.getAttribute("data-category")),
+        cardItemIds: cards.map((card) => card.getAttribute("data-item-id")),
         renderedCount: cards.length,
         expectedMaximum: firstCard
-          ? Math.ceil(window.innerHeight / (firstCard.height + 16)) + 5
+          ? Math.ceil(window.innerHeight / (firstCard.height + 16)) + 3
           : 0,
         hasHorizontalOverflow: document.documentElement.scrollWidth > window.innerWidth,
         firstTop: firstCard?.top ?? 0,
@@ -177,6 +196,7 @@ try {
     });
 
     assert.equal(metrics.cardCategories.every((category) => category === "skins"), true);
+    assert.equal(new Set(metrics.cardItemIds).size, metrics.renderedCount, "Ticker repeated an item inside its active window");
     assert.equal(metrics.hasHorizontalOverflow, false);
     assert.equal(metrics.htmlBackground, "rgba(0, 0, 0, 0)");
     assert.equal(metrics.bodyBackground, "rgba(0, 0, 0, 0)");
@@ -229,7 +249,7 @@ try {
     const art = cards[0]?.querySelector(".live-item-card__art");
     return {
       count: cards.length,
-      maximum: first ? Math.ceil(window.innerWidth / (first.width + 12)) + 5 : 0,
+      maximum: first ? Math.ceil(window.innerWidth / (first.width + 12)) + 3 : 0,
       contentBlocks: document.querySelectorAll(".live-item-card__content").length,
       firstLeft: first?.left ?? 0,
       lastRight: last?.right ?? 0,
@@ -361,10 +381,16 @@ try {
   await page.setViewportSize({ width: 320, height: 900 });
   await page.goto(`${rootUrl}live/overlay/?${singleItemParams}`, { waitUntil: "domcontentloaded" });
   await page.locator("[data-live-item='true']").first().waitFor();
-  const repeatedNames = await page.locator("[data-live-item='true'] .live-item-card__name").allTextContents();
-  assert.ok(repeatedNames.length > 1);
-  assert.equal(repeatedNames.every((name) => name === firstSkin.name), true);
+  const singleNames = await page.locator("[data-live-item='true'] .live-item-card__name").allTextContents();
+  assert.deepEqual(singleNames, [firstSkin.name]);
+  assert.equal(await page.locator(".live-ticker").getAttribute("data-static"), "true");
+  const staticTrack = page.getByTestId("live-ticker-track");
+  const staticTransformBefore = await staticTrack.evaluate((element) => getComputedStyle(element).transform);
+  await page.waitForTimeout(300);
+  const staticTransformAfter = await staticTrack.evaluate((element) => getComputedStyle(element).transform);
+  assert.equal(staticTransformAfter, staticTransformBefore, "A single-item ticker still consumes animation frames");
 
+  assert.equal(shopDataRequests.every((url) => !url.includes("liveRefresh=")), true);
   assert.deepEqual(browserErrors, []);
   console.log("Live overlay verification passed.");
 } finally {
