@@ -15,6 +15,7 @@ export type LiveOverlaySettings = {
   rarityFilter: string;
   seasonFilter: string;
   birrRate: number;
+  birrTextSize: number;
   showImage: boolean;
   showName: boolean;
   showMeta: boolean;
@@ -38,6 +39,7 @@ export const DEFAULT_LIVE_OVERLAY_SETTINGS: LiveOverlaySettings = {
   rarityFilter: "all",
   seasonFilter: "all",
   birrRate: 1,
+  birrTextSize: 100,
   showImage: true,
   showName: true,
   showMeta: true,
@@ -54,6 +56,7 @@ export const DEFAULT_LIVE_OVERLAY_SETTINGS: LiveOverlaySettings = {
 
 export const LIVE_LIMITS = {
   birrRate: { min: 0.01, max: 1000 },
+  birrTextSize: { min: 75, max: 250 },
   speed: { min: 10, max: 120 },
   gap: { min: 4, max: 40 },
   cardWidth: { min: 120, max: 520 }
@@ -127,6 +130,12 @@ export function normalizeLiveOverlaySettings(value: unknown): LiveOverlaySetting
       LIVE_LIMITS.birrRate.min,
       LIVE_LIMITS.birrRate.max
     ),
+    birrTextSize: finiteNumber(
+      source.birrTextSize,
+      defaults.birrTextSize,
+      LIVE_LIMITS.birrTextSize.min,
+      LIVE_LIMITS.birrTextSize.max
+    ),
     showImage: typeof source.showImage === "boolean" ? source.showImage : defaults.showImage,
     showName: typeof source.showName === "boolean" ? source.showName : defaults.showName,
     showMeta: typeof source.showMeta === "boolean" ? source.showMeta : defaults.showMeta,
@@ -172,6 +181,7 @@ export function parseLiveOverlaySearch(search: string): LiveOverlaySettings {
     rarityFilter: params.get("rarity") ?? defaults.rarityFilter,
     seasonFilter: params.get("season") ?? defaults.seasonFilter,
     birrRate: params.get("birrRate") ?? defaults.birrRate,
+    birrTextSize: params.get("birrSize") ?? defaults.birrTextSize,
     showImage: queryBoolean(params.get("image"), defaults.showImage),
     showName: queryBoolean(params.get("nameVisible"), defaults.showName),
     showMeta: queryBoolean(params.get("meta"), defaults.showMeta),
@@ -199,6 +209,7 @@ export function buildLiveOverlaySearch(settings: LiveOverlaySettings) {
   params.set("birr", normalized.showBirr ? "1" : "0");
   params.set("description", normalized.showDescription ? "1" : "0");
   params.set("birrRate", String(normalized.birrRate));
+  params.set("birrSize", String(normalized.birrTextSize));
   params.set("orientation", normalized.orientation);
   params.set("direction", normalized.direction);
   params.set("speed", String(normalized.speed));

@@ -83,6 +83,23 @@ page.on("request", (request) => {
 
 try {
   const rootUrl = `http://127.0.0.1:${port}${basePath}/`;
+  const liveDataSource = await readFile(path.resolve("components/live/useLiveShopData.ts"), "utf8");
+  const itemCardSource = await readFile(path.resolve("components/live/LiveItemCard.tsx"), "utf8");
+  const tickerSource = await readFile(path.resolve("components/live/VerticalTicker.tsx"), "utf8");
+  const shopRouteSource = await readFile(path.resolve("app/api/shop/route.ts"), "utf8");
+  const shopUpdateSource = await readFile(path.resolve("scripts/update-shop-data.mjs"), "utf8");
+  const pagesWorkflow = await readFile(path.resolve(".github/workflows/pages.yml"), "utf8");
+  assert.match(liveDataSource, /SHOP_REFRESH_MINUTE_UTC = 20/);
+  assert.doesNotMatch(liveDataSource, /REFRESH_INTERVAL_MS/);
+  assert.match(itemCardSource, /LiveItemCard = memo/);
+  assert.match(itemCardSource, /loading="eager"/);
+  assert.match(tickerSource, /key=\{key\}/);
+  assert.equal(tickerSource.includes("key={`live-slot-"), false);
+  assert.match(tickerSource, /isHorizontal,\s*startIndex,/);
+  assert.match(tickerSource, /nextCardExtent > 1/);
+  assert.match(shopRouteSource, /revalidate = 86400/);
+  assert.match(shopUpdateSource, /cacheSeconds: 86400/);
+  assert.match(pagesWorkflow, /cron: "5 0 \* \* \*"/);
   await page.goto(rootUrl, { waitUntil: "domcontentloaded" });
   await assert.doesNotReject(() => page.getByRole("heading", { name: "Fortnite Item Shop Generator" }).waitFor());
   assert.equal(await page.getByTestId("category-select").textContent().then((text) => text?.includes("1 selected")), true);
@@ -109,13 +126,16 @@ try {
   assert.equal(await page.getByTestId("live-background-rarity").isVisible(), true);
   assert.equal(await page.getByTestId("live-background-shop").isVisible(), true);
   assert.equal(await page.getByLabel("Card width", { exact: true }).getAttribute("min"), "120");
+  assert.equal(await page.getByLabel("Birr text size", { exact: true }).inputValue(), "100");
 
+  await page.getByLabel("Birr text size", { exact: true }).fill("180");
   await page.getByTestId("live-category-select").click();
   await page.getByRole("button", { name: "Mark all", exact: true }).click();
   await page.getByTestId("live-showBirr").uncheck();
   const generatedUrl = await page.getByTestId("generated-live-url").textContent();
   assert.match(generatedUrl ?? "", /categories=skins%2Cemotes%2Cpickaxes/);
   assert.match(generatedUrl ?? "", /birr=0/);
+  assert.match(generatedUrl ?? "", /birrSize=180/);
   await page.getByTestId("live-image-only").click();
   await page.getByTestId("live-orientation-horizontal").click();
   const imageOnlyGeneratedUrl = await page.getByTestId("generated-live-url").textContent();
@@ -151,6 +171,7 @@ try {
     birr: "1",
     description: "0",
     birrRate: "2",
+    birrSize: "180",
     direction: "up",
     speed: "120",
     gap: "16",
@@ -213,13 +234,17 @@ try {
   assert.match(firstCardText ?? "", new RegExp(firstSkin.name.replace(/[.*+?^${}()|[\]\\]/g, "\\$&")));
   assert.match(firstCardText ?? "", new RegExp(`${firstSkin.price.toLocaleString("en-US")} V-Bucks`));
   assert.match(firstCardText ?? "", new RegExp(`${(firstSkin.price * 2).toLocaleString("en-US")} Birr`));
+  const priceFontSizes = await page.locator("[data-live-item='true']").first().evaluate((card) => ({
+    birr: Number.parseFloat(getComputedStyle(card.querySelector(".live-item-card__birr")).fontSize),
+    vbucks: Number.parseFloat(getComputedStyle(card.querySelector(".live-item-card__vbucks")).fontSize)
+  }));
+  assert.ok(priceFontSizes.birr > priceFontSizes.vbucks * 1.7, "Birr text size setting was not applied");
 
   const track = page.getByTestId("live-ticker-track");
   const transformBefore = await track.evaluate((element) => getComputedStyle(element).transform);
   await page.waitForTimeout(300);
   const transformAfter = await track.evaluate((element) => getComputedStyle(element).transform);
   assert.notEqual(transformAfter, transformBefore, "Ticker transform did not advance");
-
   const imageOnlyParams = new URLSearchParams({
     categories: "skins",
     image: "1",

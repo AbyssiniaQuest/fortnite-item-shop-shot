@@ -328,19 +328,29 @@ export function LiveOverlayBuilder() {
           <section className="border-b border-white/10 p-4 sm:p-6">
             <p className="mb-4 text-xs font-black uppercase text-cyan-200">Item content</p>
             <div className="grid gap-4 lg:grid-cols-[minmax(12rem,0.7fr)_minmax(0,1.3fr)]">
-              <label className="grid gap-2">
-                <span className={labelClass}>Birr per V-Buck</span>
-                <input
-                  className={controlClass}
-                  data-testid="live-birr-rate"
-                  max={LIVE_LIMITS.birrRate.max}
-                  min={LIVE_LIMITS.birrRate.min}
-                  onChange={(event) => updateSettings({ birrRate: Number(event.target.value) })}
-                  step="0.01"
-                  type="number"
-                  value={settings.birrRate}
+              <div className="grid gap-4">
+                <label className="grid gap-2">
+                  <span className={labelClass}>Birr per V-Buck</span>
+                  <input
+                    className={controlClass}
+                    data-testid="live-birr-rate"
+                    max={LIVE_LIMITS.birrRate.max}
+                    min={LIVE_LIMITS.birrRate.min}
+                    onChange={(event) => updateSettings({ birrRate: Number(event.target.value) })}
+                    step="0.01"
+                    type="number"
+                    value={settings.birrRate}
+                  />
+                </label>
+                <NumberControl
+                  label="Birr text size"
+                  max={LIVE_LIMITS.birrTextSize.max}
+                  min={LIVE_LIMITS.birrTextSize.min}
+                  onChange={(birrTextSize) => updateSettings({ birrTextSize })}
+                  suffix="%"
+                  value={settings.birrTextSize}
                 />
-              </label>
+              </div>
               <div>
                 <div className="mb-2 flex items-center justify-between gap-3">
                   <span className={labelClass}>Visible elements</span>

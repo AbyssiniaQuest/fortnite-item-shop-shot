@@ -403,6 +403,15 @@ body:has(.live-overlay-root) {
   line-height: 1.12;
 }
 
+.live-item-card__prices strong {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.live-item-card__birr {
+  line-height: 1;
+}
+
 .live-overlay-status {
   position: absolute;
   top: 50%;

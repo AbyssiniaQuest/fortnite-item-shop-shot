@@ -4,7 +4,8 @@ import { useEffect, useRef, useState } from "react";
 import { LIVE_SHOP_CACHE_KEY } from "@/lib/live-overlay";
 import { dedupeShopItems, type ShopPayload } from "@/lib/shop";
 
-const REFRESH_INTERVAL_MS = 15 * 60 * 1000;
+const DAY_MS = 24 * 60 * 60 * 1000;
+const SHOP_REFRESH_MINUTE_UTC = 20;
 const INITIAL_RETRY_MS = 5000;
 const MAX_RETRY_MS = 60_000;
 const MAX_CACHE_AGE_MS = 36 * 60 * 60 * 1000;
@@ -46,7 +47,7 @@ function readCachedPayload() {
       Date.now() - cached.savedAt <= MAX_CACHE_AGE_MS &&
       isShopPayload(cached.payload)
     ) {
-      return cached.payload;
+      return { savedAt: cached.savedAt, payload: cached.payload };
     }
   } catch {
     // Storage can be unavailable in a locked-down browser source.
@@ -75,6 +76,24 @@ function payloadVersion(payload: ShopPayload) {
   return `${payload.updatedAt}|${payload.items.map((item) => `${item.id}:${item.price}`).join(",")}`;
 }
 
+function latestScheduledRefresh(now = Date.now()) {
+  const date = new Date(now);
+  const todayRefresh = Date.UTC(
+    date.getUTCFullYear(),
+    date.getUTCMonth(),
+    date.getUTCDate(),
+    0,
+    SHOP_REFRESH_MINUTE_UTC
+  );
+
+  return todayRefresh <= now ? todayRefresh : todayRefresh - DAY_MS;
+}
+
+function nextScheduledRefreshDelay(now = Date.now()) {
+  const latestRefresh = latestScheduledRefresh(now);
+  return Math.max(1000, latestRefresh + DAY_MS - now);
+}
+
 export function useLiveShopData() {
   const [payload, setPayload] = useState<ShopPayload | null>(null);
   const [isRetrying, setIsRetrying] = useState(false);
@@ -88,9 +107,13 @@ export function useLiveShopData() {
     const cached = readCachedPayload();
 
     if (cached) {
-      const normalizedCached = normalizePayload(cached);
+      const normalizedCached = normalizePayload(cached.payload);
       payloadVersionRef.current = payloadVersion(normalizedCached);
       setPayload(normalizedCached);
+    }
+
+    function scheduleNextRefresh() {
+      timer = window.setTimeout(refresh, nextScheduledRefreshDelay());
     }
 
     async function refresh() {
@@ -123,11 +146,11 @@ export function useLiveShopData() {
         if (nextVersion !== payloadVersionRef.current) {
           payloadVersionRef.current = nextVersion;
           setPayload(normalizedPayload);
-          cachePayload(normalizedPayload);
         }
+        cachePayload(normalizedPayload);
         setIsRetrying(false);
         retryDelay = INITIAL_RETRY_MS;
-        timer = window.setTimeout(refresh, REFRESH_INTERVAL_MS);
+        scheduleNextRefresh();
       } catch (error) {
         if (!isMounted || (error instanceof DOMException && error.name === "AbortError")) {
           return;
@@ -139,7 +162,11 @@ export function useLiveShopData() {
       }
     }
 
-    void refresh();
+    if (cached && cached.savedAt >= latestScheduledRefresh()) {
+      scheduleNextRefresh();
+    } else {
+      void refresh();
+    }
 
     return () => {
       isMounted = false;

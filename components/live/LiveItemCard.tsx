@@ -1,13 +1,12 @@
 "use client";
 
-import { useState } from "react";
+import { memo, useState } from "react";
 import type { LiveOverlaySettings } from "@/lib/live-overlay";
 import { proxiedImageUrl, type ShopItem } from "@/lib/shop";
 
 type LiveItemCardProps = {
   item: ShopItem;
   settings: LiveOverlaySettings;
-  eager?: boolean;
 };
 
 const numberFormatter = new Intl.NumberFormat("en-US", { maximumFractionDigits: 0 });
@@ -45,7 +44,7 @@ function rarityTone(rarity: string) {
   return "common";
 }
 
-export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProps) {
+export const LiveItemCard = memo(function LiveItemCard({ item, settings }: LiveItemCardProps) {
   const [failedImage, setFailedImage] = useState<string | null>(null);
   const imageFailed = failedImage === item.image;
   const hasPrices = settings.showVbucks || settings.showBirr;
@@ -74,8 +73,8 @@ export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProp
               alt={item.name}
               className="h-full w-full object-contain"
               decoding="async"
-              fetchPriority={eager ? "high" : "auto"}
-              loading={eager ? "eager" : "lazy"}
+              fetchPriority="auto"
+              loading="eager"
               onError={() => setFailedImage(item.image)}
               src={proxiedImageUrl(item.image)}
             />
@@ -100,10 +99,15 @@ export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProp
           {hasPrices ? (
             <div className="live-item-card__prices">
               {settings.showVbucks ? (
-                <strong className="text-cyan-200">{formatNumber(item.price)} V-Bucks</strong>
+                <strong className="live-item-card__vbucks text-cyan-200">
+                  {formatNumber(item.price)} V-Bucks
+                </strong>
               ) : null}
               {settings.showBirr ? (
-                <strong className="text-amber-200">
+                <strong
+                  className="live-item-card__birr text-amber-200"
+                  style={{ fontSize: `${settings.birrTextSize}%` }}
+                >
                   {formatNumber(Math.round(item.price * settings.birrRate))} Birr
                 </strong>
               ) : null}
@@ -113,4 +117,4 @@ export function LiveItemCard({ item, settings, eager = false }: LiveItemCardProp
       ) : null}
     </article>
   );
-}
+});

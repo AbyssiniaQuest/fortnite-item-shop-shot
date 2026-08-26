@@ -1,7 +1,7 @@
 import { NextResponse } from "next/server";
 import { dedupeShopItems, mapShopEntry, SHOP_URL, type ShopResponse } from "@/lib/shop";
 
-export const revalidate = 900;
+export const revalidate = 86400;
 
 export async function GET() {
   try {
@@ -32,7 +32,7 @@ export async function GET() {
       },
       {
         headers: {
-          "Cache-Control": "public, s-maxage=900, stale-while-revalidate=3600"
+          "Cache-Control": "public, s-maxage=86400, stale-while-revalidate=604800"
         }
       }
     );

@@ -53,8 +53,12 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     const updateMeasurements = () => {
       const containerRect = container.getBoundingClientRect();
       const cardRect = measuredCard.getBoundingClientRect();
+      const nextCardExtent = isHorizontal ? cardRect.width : cardRect.height;
       setViewportExtent(Math.max(1, isHorizontal ? containerRect.width : containerRect.height));
-      setCardExtent(Math.max(1, isHorizontal ? cardRect.width : cardRect.height));
+
+      if (nextCardExtent > 1) {
+        setCardExtent(nextCardExtent);
+      }
     };
     const observer = new ResizeObserver(updateMeasurements);
 
@@ -65,6 +69,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     return () => observer.disconnect();
   }, [
     isHorizontal,
+    startIndex,
     settings.cardWidth,
     settings.showImage,
     settings.showName,
@@ -72,6 +77,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     settings.showDescription,
     settings.showVbucks,
     settings.showBirr,
+    settings.birrTextSize,
     items.length
   ]);
 
@@ -161,10 +167,19 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
   const sequence = useMemo(
     () => {
       const sequenceStart = isStatic ? 0 : startIndex;
-      return Array.from({ length: renderedCardCount }, (_, slot) => ({
-        item: items[modulo(sequenceStart + slot, items.length)],
-        slot
-      }));
+      const occurrences = new Map<string, number>();
+
+      return Array.from({ length: renderedCardCount }, (_, slot) => {
+        const item = items[modulo(sequenceStart + slot, items.length)];
+        const occurrence = occurrences.get(item.id) ?? 0;
+        occurrences.set(item.id, occurrence + 1);
+
+        return {
+          item,
+          key: occurrence === 0 ? item.id : `${item.id}--${occurrence}`,
+          slot
+        };
+      });
     },
     [isStatic, items, renderedCardCount, startIndex]
   );
@@ -173,6 +188,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
     <div
       className="live-ticker"
       data-rendered-count={sequence.length}
+      data-start-index={isStatic ? 0 : startIndex}
       data-static={isStatic ? "true" : "false"}
       ref={containerRef}
     >
@@ -190,10 +206,10 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
           ref={trackRef}
           style={{ gap: `${settings.gap}px` }}
         >
-          {sequence.map(({ item, slot }) => (
+          {sequence.map(({ item, key, slot }) => (
             <div
               className="live-ticker__slot"
-              key={`live-slot-${slot}`}
+              key={key}
               ref={slot === 0 ? measureRef : undefined}
               style={
                 isHorizontal
@@ -201,7 +217,7 @@ export function VerticalTicker({ items, settings, paused = false }: VerticalTick
                   : undefined
               }
             >
-              <LiveItemCard eager={slot < 4} item={item} settings={settings} />
+              <LiveItemCard item={item} settings={settings} />
             </div>
           ))}
         </div>

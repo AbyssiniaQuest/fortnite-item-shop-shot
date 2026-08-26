@@ -132,7 +132,7 @@ await writeFile(
     {
       source: shopUrl,
       updatedAt: payload.data?.date ?? new Date().toISOString(),
-      cacheSeconds: 900,
+      cacheSeconds: 86400,
       generatedAt: new Date().toISOString(),
       items
     },
