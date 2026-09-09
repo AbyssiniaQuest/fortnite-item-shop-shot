@@ -106,6 +106,9 @@ export type ShopItem = {
   name: string;
   type: string;
   image: string;
+  previewImage?: string;
+  exportImage?: string;
+  imageSources?: string[];
   rarity: string;
   season: string;
   price: number;
@@ -116,6 +119,7 @@ export type ShopPayload = {
   source: string;
   updatedAt: string;
   cacheSeconds: number;
+  generatedAt?: string;
   items: ShopItem[];
 };
 

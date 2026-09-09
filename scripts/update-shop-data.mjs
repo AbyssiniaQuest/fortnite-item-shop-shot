@@ -1,6 +1,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { dirname, join } from "node:path";
 import { fileURLToPath } from "node:url";
+import { readDailyShop, prepareShopAssets } from "./shop-assets.mjs";
 
 const rootDir = dirname(dirname(fileURLToPath(import.meta.url)));
 const outputPath = join(rootDir, "public", "shop-data.json");
@@ -71,6 +72,17 @@ function mapShopEntry(entry) {
     name,
     type,
     image,
+    imageSources: [...new Set([
+      entry.bundle?.image,
+      primaryItem?.images?.featured,
+      primaryItem?.images?.icon,
+      primaryItem?.images?.smallIcon,
+      primaryInstrument?.images?.large,
+      primaryInstrument?.images?.small,
+      primaryTrack?.albumArt,
+      primaryLegoKit?.image,
+      firstDisplayImage(entry)
+    ].filter(Boolean))],
     rarity:
       primaryItem?.rarity?.displayValue ??
       primaryInstrument?.rarity?.displayValue ??
@@ -112,18 +124,10 @@ function dedupeShopItems(items) {
   return uniqueItems;
 }
 
-const response = await fetch(shopUrl, {
-  headers: {
-    Accept: "application/json"
-  }
-});
-
-if (!response.ok) {
-  throw new Error(`Fortnite-API responded with ${response.status}`);
-}
-
-const payload = await response.json();
+const payload = await readDailyShop(rootDir, shopUrl);
 const items = dedupeShopItems((payload.data?.entries ?? []).map(mapShopEntry).filter(Boolean));
+if (!items.length) throw new Error("The daily shop is empty; preserving the published shop.");
+await prepareShopAssets(rootDir, items);
 
 await mkdir(dirname(outputPath), { recursive: true });
 await writeFile(

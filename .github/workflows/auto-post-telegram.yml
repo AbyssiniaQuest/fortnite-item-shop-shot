@@ -58,6 +58,21 @@ jobs:
         if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
         run: npx playwright install --with-deps chromium
 
+      - name: Daily shop cache key
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+        id: shop-day
+
+      - name: Reuse daily shop and artwork
+        if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
+        uses: actions/cache@v4
+        with:
+          path: |
+            .shop-cache
+            public/shop-assets
+          key: shop-art-v1-${{ steps.shop-day.outputs.day }}
+          restore-keys: shop-art-v1-
+
       - name: Build today's shop
         if: steps.schedule.outputs.due == 'true' || inputs.force == 'true'
         env:

@@ -3,6 +3,9 @@ node_modules
 out
 dist
 .auto-post-output
+.shop-cache
+public/shop-assets
+.test-output
 .env*.local
 npm-debug.log*
 yarn-debug.log*

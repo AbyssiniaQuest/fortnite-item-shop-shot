@@ -1,4 +1,5 @@
 import { CategorySection } from "@/components/CategorySection";
+import { memo } from "react";
 import type { ShopCategory, ShopItem } from "@/lib/shop";
 
 type ShopGroup = {
@@ -18,17 +19,17 @@ type ScreenshotCanvasProps = {
   };
 };
 
-export function ScreenshotCanvas({
+export const ScreenshotCanvas = memo(function ScreenshotCanvas({
   groups,
   birrPerVbuck,
   columns,
-  screenshotFields
+  screenshotFields,
 }: ScreenshotCanvasProps) {
   return (
-    <div className="w-full bg-slate-950 text-white">
-      <div className="relative bg-[linear-gradient(135deg,#020617_0%,#111827_44%,#171717_100%)] p-1.5 sm:p-3">
+    <div className="w-full text-white">
+      <div>
         {groups.length > 0 ? (
-          <div className="grid gap-2">
+          <div className="shop-category-list">
             {groups.map((group) => (
               <CategorySection
                 birrPerVbuck={birrPerVbuck}
@@ -42,11 +43,11 @@ export function ScreenshotCanvas({
             ))}
           </div>
         ) : (
-          <div className="rounded-xl border border-white/10 bg-white/[0.045] p-8 text-center text-slate-300">
+          <div className="shop-empty">
             No matching shop items for the selected filters.
           </div>
         )}
       </div>
     </div>
   );
-}
+});

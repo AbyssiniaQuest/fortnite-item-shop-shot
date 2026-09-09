@@ -2,1307 +2,618 @@
 
 import Link from "next/link";
 import { useEffect, useMemo, useRef, useState } from "react";
+import {
+  ArrowDownToLine,
+  Check,
+  ChevronDown,
+  Grid2X2,
+  LoaderCircle,
+  Radio,
+  RotateCcw,
+  Search,
+  Send,
+  Settings2,
+  X,
+} from "lucide-react";
+import { AutoPostSettings } from "@/components/AutoPostSettings";
 import { ScreenshotCanvas } from "@/components/ScreenshotCanvas";
+import { useDailyShopData } from "@/components/useDailyShopData";
 import {
   categoryLabels,
-  dedupeShopItems,
   groupShopItems,
   SHOP_CATEGORIES,
   type ShopCategory,
-  type ShopPayload
 } from "@/lib/shop";
+import {
+  renderPoster,
+  saveExport,
+  splitPosterGroups,
+  type ExportFile,
+  type ScreenshotFields,
+} from "@/lib/poster";
 
-type ShopGroup = ReturnType<typeof groupShopItems>[number];
-export type ScreenshotFields = {
-  birr: boolean;
-  vbucks: boolean;
-  description: boolean;
+export type { ScreenshotFields } from "@/lib/poster";
+const DEFAULT_COLUMNS = 6;
+const defaultFields: ScreenshotFields = {
+  birr: true,
+  vbucks: true,
+  description: false,
 };
-
-type AutoPostSettings = {
-  enabled: boolean;
-  intervalDays: number;
-  caption: string;
-};
-
-const POSTER_WIDTH = 1080;
-const POSTER_PADDING = 18;
-const SECTION_INSET = 10;
-const EXPORT_PIXEL_SCALE = 2;
-const MAX_CANVAS_DIMENSION = 30000;
-const POSTER_IMAGE_TIMEOUT = 12000;
-const POSTER_IMAGE_CONCURRENCY = 16;
-const MIN_EXPORT_COLUMNS = 2;
-const MAX_EXPORT_COLUMNS = 20;
-const DESKTOP_DEFAULT_COLUMNS = 6;
-const MOBILE_DEFAULT_COLUMNS = 6;
-const DEFAULT_AUTO_POST_CAPTION = "Today's item shop {date} 🔥";
-const AUTO_POST_ISSUE_URL = "https://github.com/AbyssiniaQuest/fortnite-item-shop-shot/issues/new";
-const posterImageCache = new Map<string, Promise<HTMLImageElement | null>>();
-
-function clampNumber(value: number, min: number, max: number) {
-  return Math.min(Math.max(value, min), max);
-}
-
-function getPosterLayout(columns: number, screenshotFields: ScreenshotFields) {
-  const availableWidth = POSTER_WIDTH - POSTER_PADDING * 2 - SECTION_INSET * 2;
-  const estimatedCardWidth = availableWidth / columns;
-  const cardGap = clampNumber(estimatedCardWidth * 0.04, 2, 10);
-  const cardWidth = (availableWidth - cardGap * (columns - 1)) / columns;
-  const cardPadding = clampNumber(cardWidth * 0.045, 2, 12);
-  const imageSize = cardWidth - cardPadding * 2;
-  const imageInnerPadding = clampNumber(cardWidth * 0.018, 1, 7);
-  const contentGap = clampNumber(cardWidth * 0.025, 1, 7);
-  const metaFontSize = clampNumber(cardWidth * 0.055, 4.5, 12);
-  const metaLineHeight = metaFontSize * 1.25;
-  const nameFontSize = clampNumber(cardWidth * 0.082, 6, 20);
-  const nameLineHeight = nameFontSize * 1.12;
-  const descriptionFontSize = clampNumber(cardWidth * 0.055, 5, 12);
-  const descriptionLineHeight = descriptionFontSize * 1.2;
-  const priceFontSize = clampNumber(cardWidth * 0.064, 5, 15);
-  const priceLineHeight = priceFontSize * 1.18;
-  const pricePadding = clampNumber(cardWidth * 0.022, 1.5, 7);
-  const priceLines = Number(screenshotFields.vbucks) + Number(screenshotFields.birr);
-  let cursor = cardPadding + imageSize + contentGap;
-  const metaBaseline = cursor + metaFontSize;
-
-  cursor += metaLineHeight + contentGap * 0.65;
-  const nameBaseline = cursor + nameFontSize;
-  cursor += nameLineHeight * 2;
-
-  let descriptionBaseline = 0;
-  if (screenshotFields.description) {
-    cursor += contentGap * 0.6;
-    descriptionBaseline = cursor + descriptionFontSize;
-    cursor += descriptionLineHeight;
-  }
-
-  let priceBoxY = 0;
-  let priceBoxHeight = 0;
-  if (priceLines > 0) {
-    cursor += contentGap;
-    priceBoxY = cursor;
-    priceBoxHeight = pricePadding * 2 + priceLines * priceLineHeight;
-    cursor += priceBoxHeight;
-  }
-
-  const cardHeight = cursor + cardPadding;
-  const headerFontSize = clampNumber(cardWidth * 0.12, 10, 20);
-  const countFontSize = clampNumber(cardWidth * 0.075, 7, 13);
-  const sectionHeaderHeight = clampNumber(headerFontSize * 1.8, 24, 38);
-
-  return {
-    cardGap,
-    cardHeight,
-    cardPadding,
-    cardWidth,
-    contentGap,
-    countFontSize,
-    descriptionBaseline,
-    descriptionFontSize,
-    headerFontSize,
-    imageInnerPadding,
-    imageSize,
-    metaBaseline,
-    metaFontSize,
-    nameBaseline,
-    nameFontSize,
-    nameLineHeight,
-    priceBoxHeight,
-    priceBoxY,
-    priceFontSize,
-    priceLineHeight,
-    pricePadding,
-    sectionFooterGap: clampNumber(cardWidth * 0.055, 4, 12),
-    sectionHeaderHeight,
-    sectionRadius: clampNumber(cardWidth * 0.045, 4, 10),
-    interSectionGap: clampNumber(cardWidth * 0.06, 6, 14)
-  };
-}
-
-function getDefaultColumnsForViewport() {
-  if (typeof window !== "undefined" && window.matchMedia("(max-width: 767px)").matches) {
-    return MOBILE_DEFAULT_COLUMNS;
-  }
-
-  return DESKTOP_DEFAULT_COLUMNS;
-}
-
-async function downloadCanvasPng(canvas: HTMLCanvasElement, filename: string) {
-  const blob = await new Promise<Blob>((resolve, reject) => {
-    canvas.toBlob((result) => {
-      if (result) {
-        resolve(result);
-        return;
-      }
-
-      reject(new Error("Unable to create PNG file."));
-    }, "image/png");
-  });
-  const url = URL.createObjectURL(blob);
-  const link = document.createElement("a");
-
-  link.download = filename;
-  link.href = url;
-  link.click();
-  window.setTimeout(() => URL.revokeObjectURL(url), 1000);
-}
-
-function formatDateTime(value?: string) {
-  if (!value) {
-    return "Loading...";
-  }
-
-  return new Intl.DateTimeFormat("en", {
-    dateStyle: "medium",
-    timeStyle: "short"
-  }).format(new Date(value));
-}
-
-function formatAutoPostDate(date = new Date()) {
-  return new Intl.DateTimeFormat("en", {
-    day: "numeric",
-    month: "long",
-    year: "numeric"
-  }).format(date);
-}
-
-function renderAutoPostCaption(caption: string) {
-  return caption.replaceAll("{date}", formatAutoPostDate());
-}
-
-function uniqueSorted(values: string[]) {
-  return Array.from(new Set(values.filter(Boolean))).sort((a, b) => a.localeCompare(b));
-}
-
-function roundedRect(
-  context: CanvasRenderingContext2D,
-  x: number,
-  y: number,
-  width: number,
-  height: number,
-  radius: number
-) {
-  context.beginPath();
-  context.moveTo(x + radius, y);
-  context.arcTo(x + width, y, x + width, y + height, radius);
-  context.arcTo(x + width, y + height, x, y + height, radius);
-  context.arcTo(x, y + height, x, y, radius);
-  context.arcTo(x, y, x + width, y, radius);
-  context.closePath();
-}
-
-function drawText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth: number,
-  lineHeight: number,
-  maxLines: number
-) {
-  const words = text.split(" ");
-  const lines: string[] = [];
-  let activeLine = "";
-
-  for (const word of words) {
-    const testLine = activeLine ? `${activeLine} ${word}` : word;
-
-    if (context.measureText(testLine).width <= maxWidth || !activeLine) {
-      activeLine = testLine;
-      continue;
-    }
-
-    lines.push(activeLine);
-    activeLine = word;
-
-    if (lines.length === maxLines) {
-      break;
-    }
-  }
-
-  if (activeLine && lines.length < maxLines) {
-    lines.push(activeLine);
-  }
-
-  lines.slice(0, maxLines).forEach((line, index) => {
-    const renderedLine =
-      index === maxLines - 1 && lines.length === maxLines && words.join(" ") !== lines.join(" ")
-        ? `${line.replace(/\W?\w*$/, "")}...`
-        : line;
-    const fillStyle = context.fillStyle;
-
-    context.save();
-    context.lineJoin = "round";
-    context.lineWidth = 2;
-    context.strokeStyle = "rgba(0,0,0,0.78)";
-    context.strokeText(renderedLine, x, y + index * lineHeight, maxWidth);
-    context.restore();
-    context.fillStyle = fillStyle;
-    context.fillText(renderedLine, x, y + index * lineHeight);
-  });
-}
-
-function fillReadableText(
-  context: CanvasRenderingContext2D,
-  text: string,
-  x: number,
-  y: number,
-  maxWidth?: number
-) {
-  const fillStyle = context.fillStyle;
-
-  context.save();
-  context.lineJoin = "round";
-  context.lineWidth = 2;
-  context.strokeStyle = "rgba(0,0,0,0.78)";
-  if (maxWidth) {
-    context.strokeText(text, x, y, maxWidth);
-  } else {
-    context.strokeText(text, x, y);
-  }
-  context.restore();
-  context.fillStyle = fillStyle;
-
-  if (maxWidth) {
-    context.fillText(text, x, y, maxWidth);
-    return;
-  }
-
-  context.fillText(text, x, y);
-}
-
-function loadPosterImage(src: string) {
-  const cachedImage = posterImageCache.get(src);
-
-  if (cachedImage) {
-    return cachedImage;
-  }
-
-  const promise = new Promise<HTMLImageElement | null>((resolve) => {
-    let isDone = false;
-    const image = new Image();
-    const timeout = window.setTimeout(() => {
-      if (!isDone) {
-        isDone = true;
-        resolve(null);
-      }
-    }, POSTER_IMAGE_TIMEOUT);
-
-    image.crossOrigin = "anonymous";
-    image.decoding = "async";
-    image.onload = () => {
-      if (!isDone) {
-        isDone = true;
-        window.clearTimeout(timeout);
-        resolve(image);
-      }
-    };
-    image.onerror = () => {
-      if (!isDone) {
-        isDone = true;
-        window.clearTimeout(timeout);
-        resolve(null);
-      }
-    };
-    image.src = src;
-  });
-
-  posterImageCache.set(src, promise);
-
-  return promise;
-}
-
-async function loadPosterImages(sources: string[]) {
-  const images: (HTMLImageElement | null)[] = Array(sources.length).fill(null);
-  let nextIndex = 0;
-
-  async function worker() {
-    while (nextIndex < sources.length) {
-      const index = nextIndex;
-      nextIndex += 1;
-      images[index] = await loadPosterImage(sources[index]);
-    }
-  }
-
-  await Promise.all(
-    Array.from({ length: Math.min(POSTER_IMAGE_CONCURRENCY, sources.length) }, () => worker())
-  );
-
-  return images;
-}
-
-function drawContainedImage(
-  context: CanvasRenderingContext2D,
-  image: HTMLImageElement,
-  x: number,
-  y: number,
-  width: number,
-  height: number
-) {
-  const scale = Math.min(width / image.naturalWidth, height / image.naturalHeight);
-  const renderedWidth = image.naturalWidth * scale;
-  const renderedHeight = image.naturalHeight * scale;
-  const renderedX = x + (width - renderedWidth) / 2;
-  const renderedY = y + (height - renderedHeight) / 2;
-
-  context.drawImage(image, renderedX, renderedY, renderedWidth, renderedHeight);
-}
-
-function drawImageFallback(context: CanvasRenderingContext2D, itemName: string, x: number, y: number, width: number, height: number) {
-  const initials = itemName
-    .split(/\s+/)
-    .filter(Boolean)
-    .slice(0, 2)
-    .map((word) => word[0]?.toUpperCase())
-    .join("");
-
-  context.save();
-  context.fillStyle = "#111827";
-  context.fillRect(x, y, width, height);
-  context.strokeStyle = "rgba(125, 211, 252, 0.22)";
-  context.lineWidth = 1;
-  context.strokeRect(x + 0.5, y + 0.5, width - 1, height - 1);
-  context.fillStyle = "#67e8f9";
-  context.font = `900 ${clampNumber(Math.min(width, height) * 0.28, 8, 30)}px Arial, sans-serif`;
-  context.textAlign = "center";
-  context.textBaseline = "middle";
-  context.fillText(initials || "ITEM", x + width / 2, y + height / 2 - height * 0.08, width * 0.85);
-  context.fillStyle = "#94a3b8";
-  context.font = `800 ${clampNumber(Math.min(width, height) * 0.09, 4, 9)}px Arial, sans-serif`;
-  context.fillText("ITEM ART", x + width / 2, y + height / 2 + height * 0.2, width * 0.85);
-  context.restore();
-}
 
 export function ShopGenerator() {
-  const [shop, setShop] = useState<ShopPayload | null>(null);
-  const [error, setError] = useState("");
+  const { shop, error, isRefreshing, retry } = useDailyShopData();
   const [birrPerVbuck, setBirrPerVbuck] = useState(1);
-  const [isScreenshotMode, setIsScreenshotMode] = useState(true);
-  const [isDownloading, setIsDownloading] = useState(false);
-  const [downloadMessage, setDownloadMessage] = useState("");
-  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>(["skins"]);
-  const [isCategoryMenuOpen, setIsCategoryMenuOpen] = useState(false);
+  const [rateInput, setRateInput] = useState("1");
+  const [selectedCategories, setSelectedCategories] = useState<ShopCategory[]>([
+    "skins",
+  ]);
   const [nameFilter, setNameFilter] = useState("");
   const [rarityFilter, setRarityFilter] = useState("all");
   const [seasonFilter, setSeasonFilter] = useState("all");
-  const [exportColumns, setExportColumns] = useState(DESKTOP_DEFAULT_COLUMNS);
-  const [exportColumnInput, setExportColumnInput] = useState(String(DESKTOP_DEFAULT_COLUMNS));
-  const [isEditingExportColumns, setIsEditingExportColumns] = useState(false);
-  const [isMobileControlsOpen, setIsMobileControlsOpen] = useState(false);
-  const [isAutoPostPanelOpen, setIsAutoPostPanelOpen] = useState(false);
-  const [autoPostSettings, setAutoPostSettings] = useState<AutoPostSettings>({
-    enabled: false,
-    intervalDays: 1,
-    caption: DEFAULT_AUTO_POST_CAPTION
-  });
-  const [screenshotFields, setScreenshotFields] = useState<ScreenshotFields>({
-    birr: true,
-    vbucks: true,
-    description: false
-  });
-  const categoryMenuRef = useRef<HTMLDivElement>(null);
+  const [columns, setColumns] = useState(DEFAULT_COLUMNS);
+  const [columnInput, setColumnInput] = useState(String(DEFAULT_COLUMNS));
+  const [fields, setFields] = useState<ScreenshotFields>(defaultFields);
+  const [parts, setParts] = useState(1);
+  const [exportWidth, setExportWidth] = useState(2160);
+  const [isCategoryOpen, setIsCategoryOpen] = useState(false);
+  const [isMobileOpen, setIsMobileOpen] = useState(false);
+  const [isAutoPostOpen, setIsAutoPostOpen] = useState(false);
+  const [isDownloading, setIsDownloading] = useState(false);
+  const [downloadMessage, setDownloadMessage] = useState("");
+  const [downloadError, setDownloadError] = useState(false);
+  const [progress, setProgress] = useState(0);
+  const [files, setFiles] = useState<ExportFile[]>([]);
+  const categoryRef = useRef<HTMLDivElement>(null);
+  const optionsRef = useRef<HTMLDivElement>(null);
+  const optionsButtonRef = useRef<HTMLButtonElement>(null);
+  const filesRef = useRef<ExportFile[]>([]);
+  const downloadLock = useRef(false);
 
+  useEffect(
+    () => () => {
+      filesRef.current.forEach((file) => URL.revokeObjectURL(file.url));
+    },
+    [],
+  );
   useEffect(() => {
-    const mediaQuery = window.matchMedia("(max-width: 767px)");
-
-    if (mediaQuery.matches) {
-      setExportColumns(MOBILE_DEFAULT_COLUMNS);
+    function outside(event: PointerEvent) {
+      if (!categoryRef.current?.contains(event.target as Node))
+        setIsCategoryOpen(false);
     }
-  }, []);
-
-  useEffect(() => {
-    if (!isEditingExportColumns) {
-      setExportColumnInput(String(exportColumns));
-    }
-  }, [exportColumns, isEditingExportColumns]);
-
-  useEffect(() => {
-    let mounted = true;
-
-    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/shop-data.json`)
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Unable to load today's shop.");
+    function escape(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        setIsCategoryOpen(false);
+        setIsMobileOpen(false);
+        optionsButtonRef.current?.focus();
+      }
+      if (
+        event.key === "Tab" &&
+        isMobileOpen &&
+        window.matchMedia("(max-width: 767px)").matches
+      ) {
+        const focusable = optionsRef.current?.querySelectorAll<HTMLElement>(
+          "button:not(:disabled), input, select, a[href]",
+        );
+        const first = focusable?.[0];
+        const last = focusable?.[focusable.length - 1];
+        if (event.shiftKey && document.activeElement === first) {
+          event.preventDefault();
+          last?.focus();
+        } else if (!event.shiftKey && document.activeElement === last) {
+          event.preventDefault();
+          first?.focus();
         }
-
-        return response.json() as Promise<ShopPayload>;
-      })
-      .then((payload) => {
-        if (mounted) {
-          setShop({ ...payload, items: dedupeShopItems(payload.items) });
-        }
-      })
-      .catch((reason: unknown) => {
-        if (mounted) {
-          setError(reason instanceof Error ? reason.message : "Unable to load today's shop.");
-        }
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    let mounted = true;
-
-    fetch(`${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/auto-post-config.json`, {
-      cache: "no-store"
-    })
-      .then(async (response) => {
-        if (!response.ok) {
-          throw new Error("Unable to load auto-post settings.");
-        }
-
-        return response.json() as Promise<AutoPostSettings>;
-      })
-      .then((settings) => {
-        if (mounted) {
-          setAutoPostSettings({
-            enabled: Boolean(settings.enabled),
-            intervalDays: clampNumber(Number(settings.intervalDays) || 1, 1, 30),
-            caption: settings.caption?.trim() || DEFAULT_AUTO_POST_CAPTION
-          });
-        }
-      })
-      .catch(() => {
-        // The defaults keep the form usable before automation is configured.
-      });
-
-    return () => {
-      mounted = false;
-    };
-  }, []);
-
-  useEffect(() => {
-    function handlePointerDown(event: PointerEvent) {
-      if (!categoryMenuRef.current?.contains(event.target as Node)) {
-        setIsCategoryMenuOpen(false);
       }
     }
-
-    if (isCategoryMenuOpen) {
-      document.addEventListener("pointerdown", handlePointerDown);
-    }
-
+    document.addEventListener("pointerdown", outside);
+    document.addEventListener("keydown", escape);
     return () => {
-      document.removeEventListener("pointerdown", handlePointerDown);
+      document.removeEventListener("pointerdown", outside);
+      document.removeEventListener("keydown", escape);
     };
-  }, [isCategoryMenuOpen]);
+  }, [isMobileOpen]);
+  useEffect(() => {
+    if (!isMobileOpen || !window.matchMedia("(max-width: 767px)").matches)
+      return;
+    const previous = document.body.style.overflow;
+    document.body.style.overflow = "hidden";
+    optionsRef.current?.querySelector<HTMLButtonElement>("button")?.focus();
+    return () => {
+      document.body.style.overflow = previous;
+    };
+  }, [isMobileOpen]);
 
-  const rarityOptions = useMemo(() => uniqueSorted(shop?.items.map((item) => item.rarity) ?? []), [shop]);
-  const seasonOptions = useMemo(() => uniqueSorted(shop?.items.map((item) => item.season) ?? []), [shop]);
-  const categoryCounts = useMemo(() => {
-    const counts = new Map<ShopCategory, number>();
-
-    for (const category of SHOP_CATEGORIES) {
-      counts.set(category, 0);
-    }
-
-    for (const item of shop?.items ?? []) {
-      counts.set(item.category, (counts.get(item.category) ?? 0) + 1);
-    }
-
-    return counts;
-  }, [shop]);
-
+  const items = shop?.items;
   const filteredItems = useMemo(() => {
-    const normalizedName = nameFilter.trim().toLowerCase();
-    const selectedCategorySet = new Set(selectedCategories);
-
-    return (shop?.items ?? []).filter((item) => {
-      const matchesCategory = selectedCategorySet.has(item.category);
-      const matchesName =
-        !normalizedName ||
-        item.name.toLowerCase().includes(normalizedName) ||
-        item.type.toLowerCase().includes(normalizedName);
-      const matchesRarity = rarityFilter === "all" || item.rarity === rarityFilter;
-      const matchesSeason = seasonFilter === "all" || item.season === seasonFilter;
-
-      return matchesCategory && matchesName && matchesRarity && matchesSeason;
-    });
-  }, [nameFilter, rarityFilter, seasonFilter, selectedCategories, shop]);
-
+    const name = nameFilter.trim().toLowerCase();
+    return (items ?? []).filter(
+      (item) =>
+        selectedCategories.includes(item.category) &&
+        (!name ||
+          item.name.toLowerCase().includes(name) ||
+          item.type.toLowerCase().includes(name)) &&
+        (rarityFilter === "all" || item.rarity === rarityFilter) &&
+        (seasonFilter === "all" || item.season === seasonFilter),
+    );
+  }, [items, selectedCategories, nameFilter, rarityFilter, seasonFilter]);
   const groups = useMemo(() => groupShopItems(filteredItems), [filteredItems]);
-  const totalShopCount = shop?.items.length ?? 0;
-  const filteredCount = filteredItems.length;
-  const totalVbucks = filteredItems.reduce((sum, item) => sum + item.price, 0);
-  const visibleCategorySummary = groups.map((group) => group.label).join(", ");
-  const categorySummary =
-    selectedCategories.length === 0
-      ? "No categories"
-      : selectedCategories.length === SHOP_CATEGORIES.length
-        ? "All categories"
-        : visibleCategorySummary || selectedCategories.map((category) => categoryLabels[category]).join(", ");
+  const rarities = useMemo(
+    () => [...new Set(items?.map((item) => item.rarity))].sort(),
+    [items],
+  );
+  const seasons = useMemo(
+    () => [...new Set(items?.map((item) => item.season))].sort(),
+    [items],
+  );
+  const counts = useMemo(() => {
+    const result = new Map<ShopCategory, number>();
+    items?.forEach((item) =>
+      result.set(item.category, (result.get(item.category) ?? 0) + 1),
+    );
+    return result;
+  }, [items]);
+  const shopDate = shop
+    ? new Intl.DateTimeFormat("en", {
+        day: "numeric",
+        month: "long",
+        year: "numeric",
+        timeZone: "UTC",
+      }).format(new Date(shop.updatedAt))
+    : "Loading today's shop";
+  const selectionName =
+    selectedCategories.length === SHOP_CATEGORIES.length
+      ? "All categories"
+      : selectedCategories.length === 1
+        ? categoryLabels[selectedCategories[0]]
+        : `${selectedCategories.length} categories`;
+
   function toggleCategory(category: ShopCategory) {
-    setSelectedCategories((current) => {
-      if (current.includes(category)) {
-        return current.filter((selectedCategory) => selectedCategory !== category);
-      }
-
-      return [...current, category];
-    });
-  }
-
-  function toggleAllCategories() {
     setSelectedCategories((current) =>
-      current.length === SHOP_CATEGORIES.length ? [] : [...SHOP_CATEGORIES]
+      current.includes(category)
+        ? current.filter((value) => value !== category)
+        : [...current, category],
     );
   }
-
-  function resetFilters() {
-    const defaultColumns = getDefaultColumnsForViewport();
-
+  function reset() {
     setSelectedCategories(["skins"]);
     setNameFilter("");
     setRarityFilter("all");
     setSeasonFilter("all");
-    setExportColumns(defaultColumns);
-    setExportColumnInput(String(defaultColumns));
-    setScreenshotFields({
-      birr: true,
-      vbucks: true,
-      description: false
-    });
-    setDownloadMessage("");
+    setColumns(DEFAULT_COLUMNS);
+    setColumnInput(String(DEFAULT_COLUMNS));
+    setFields(defaultFields);
   }
-
-  function toggleScreenshotField(field: keyof ScreenshotFields) {
-    setScreenshotFields((current) => ({
-      ...current,
-      [field]: !current[field]
-    }));
+  function editColumns(value: string) {
+    const text = value.replace(/\D/g, "");
+    setColumnInput(text);
+    const number = Number(text);
+    if (number >= 2 && number <= 20) setColumns(number);
   }
-
-  function openAutoPostSettingsIssue() {
-    const safeCaption = autoPostSettings.caption
-      .trim()
-      .replaceAll("```", "'''") || DEFAULT_AUTO_POST_CAPTION;
-    const issueBody = [
-      "<!-- auto-post-settings -->",
-      `Enabled: ${autoPostSettings.enabled}`,
-      `Interval-Days: ${autoPostSettings.intervalDays}`,
-      "Caption:",
-      "```text",
-      safeCaption,
-      "```",
-      "",
-      "Submitting this issue applies these auto-post settings and closes the issue automatically."
-    ].join("\n");
-    const params = new URLSearchParams({
-      title: "Configure auto-posting",
-      body: issueBody
-    });
-
-    window.open(`${AUTO_POST_ISSUE_URL}?${params.toString()}`, "_blank", "noopener,noreferrer");
+  function commitColumns() {
+    const next = columnInput.trim()
+      ? Math.min(20, Math.max(2, Number(columnInput)))
+      : columns;
+    setColumns(next);
+    setColumnInput(String(next));
   }
-
-  function handleExportColumnInput(value: string) {
-    const numericValue = value.replace(/\D/g, "");
-
-    setExportColumnInput(numericValue);
-
-    if (!numericValue) {
-      return;
-    }
-
-    const nextColumns = Number(numericValue);
-
-    if (Number.isFinite(nextColumns) && nextColumns >= MIN_EXPORT_COLUMNS && nextColumns <= MAX_EXPORT_COLUMNS) {
-      setExportColumns(nextColumns);
-    }
-  }
-
-  function commitExportColumnInput() {
-    const nextColumns = Number(exportColumnInput);
-    const clampedColumns =
-      Number.isFinite(nextColumns)
-        ? clampNumber(nextColumns, MIN_EXPORT_COLUMNS, MAX_EXPORT_COLUMNS)
-        : exportColumns;
-
-    setIsEditingExportColumns(false);
-    setExportColumns(clampedColumns);
-    setExportColumnInput(String(clampedColumns));
-  }
-
-  async function captureGroups(groupsToCapture: ShopGroup[], filename: string) {
-    const layout = getPosterLayout(exportColumns, screenshotFields);
-    const posterWidth = POSTER_WIDTH;
-    const posterHeight =
-      POSTER_PADDING * 2 +
-      groupsToCapture.reduce((height, group) => {
-        const rows = Math.ceil(group.items.length / exportColumns);
-        return (
-          height +
-          layout.sectionHeaderHeight +
-          rows * layout.cardHeight +
-          Math.max(rows - 1, 0) * layout.cardGap +
-          layout.sectionFooterGap
-        );
-      }, 0) +
-      Math.max(groupsToCapture.length - 1, 0) * layout.interSectionGap;
-    const canvas = document.createElement("canvas");
-    const context = canvas.getContext("2d");
-
-    if (!context) {
-      throw new Error("Canvas is not supported in this browser.");
-    }
-
-    const logicalPosterHeight = Math.max(320, posterHeight);
-    const exportScale = Math.max(
-      1,
-      Math.min(EXPORT_PIXEL_SCALE, MAX_CANVAS_DIMENSION / Math.max(posterWidth, logicalPosterHeight))
-    );
-
-    canvas.width = Math.ceil(posterWidth * exportScale);
-    canvas.height = Math.ceil(logicalPosterHeight * exportScale);
-    context.scale(exportScale, exportScale);
-    context.imageSmoothingEnabled = true;
-    context.imageSmoothingQuality = "high";
-
-    const background = context.createLinearGradient(0, 0, posterWidth, logicalPosterHeight);
-    background.addColorStop(0, "#020617");
-    background.addColorStop(0.55, "#101827");
-    background.addColorStop(1, "#171717");
-    context.fillStyle = background;
-    context.fillRect(0, 0, posterWidth, logicalPosterHeight);
-
-    let y = POSTER_PADDING;
-
-    for (const group of groupsToCapture) {
-      const sectionRows = Math.ceil(group.items.length / exportColumns);
-      const sectionHeight =
-        layout.sectionHeaderHeight +
-        sectionRows * layout.cardHeight +
-        Math.max(sectionRows - 1, 0) * layout.cardGap +
-        layout.sectionFooterGap;
-
-      roundedRect(
-        context,
-        POSTER_PADDING,
-        y,
-        posterWidth - POSTER_PADDING * 2,
-        sectionHeight,
-        layout.sectionRadius
-      );
-      context.fillStyle = "rgba(255,255,255,0.045)";
-      context.fill();
-      context.strokeStyle = "rgba(255,255,255,0.1)";
-      context.stroke();
-
-      const headerBaseline =
-        y + (layout.sectionHeaderHeight + layout.headerFontSize * 0.72) / 2;
-      context.fillStyle = "#67e8f9";
-      context.font = `900 ${layout.headerFontSize}px Arial, sans-serif`;
-      fillReadableText(
-        context,
-        group.label.toUpperCase(),
-        POSTER_PADDING + SECTION_INSET,
-        headerBaseline,
-        posterWidth * 0.6
-      );
-      context.fillStyle = "#e2e8f0";
-      context.font = `800 ${layout.countFontSize}px Arial, sans-serif`;
-      context.textAlign = "right";
-      fillReadableText(
-        context,
-        `${group.items.length.toLocaleString()} item${group.items.length === 1 ? "" : "s"}`,
-        posterWidth - POSTER_PADDING - SECTION_INSET,
-        headerBaseline,
-        posterWidth * 0.25
-      );
-      context.textAlign = "left";
-
-      const images = await loadPosterImages(group.items.map((item) => item.image));
-
-      group.items.forEach((item, index) => {
-        const column = index % exportColumns;
-        const row = Math.floor(index / exportColumns);
-        const x =
-          POSTER_PADDING + SECTION_INSET + column * (layout.cardWidth + layout.cardGap);
-        const cardY =
-          y +
-          layout.sectionHeaderHeight +
-          row * (layout.cardHeight + layout.cardGap);
-
-        roundedRect(
-          context,
-          x,
-          cardY,
-          layout.cardWidth,
-          layout.cardHeight,
-          clampNumber(layout.cardWidth * 0.04, 2, 8)
-        );
-        context.fillStyle = "rgba(2,6,23,0.78)";
-        context.fill();
-        context.strokeStyle = "rgba(255,255,255,0.10)";
-        context.stroke();
-
-        const imageX = x + layout.cardPadding;
-        const imageY = cardY + layout.cardPadding;
-        roundedRect(
-          context,
-          imageX,
-          imageY,
-          layout.imageSize,
-          layout.imageSize,
-          clampNumber(layout.cardWidth * 0.035, 2, 7)
-        );
-        const imageBackground = context.createLinearGradient(
-          imageX,
-          imageY,
-          imageX + layout.imageSize,
-          imageY + layout.imageSize
-        );
-        imageBackground.addColorStop(0, "#0f172a");
-        imageBackground.addColorStop(1, "#111827");
-        context.fillStyle = imageBackground;
-        context.fill();
-
-        const image = images[index];
-        const artX = imageX + layout.imageInnerPadding;
-        const artY = imageY + layout.imageInnerPadding;
-        const artSize = layout.imageSize - layout.imageInnerPadding * 2;
-        if (image) {
-          drawContainedImage(context, image, artX, artY, artSize, artSize);
-        } else {
-          drawImageFallback(context, item.name, artX, artY, artSize, artSize);
-        }
-
-        const textX = x + layout.cardPadding;
-        const textWidth = layout.cardWidth - layout.cardPadding * 2;
-        context.fillStyle = "#94a3b8";
-        context.font = `800 ${layout.metaFontSize}px Arial, sans-serif`;
-        fillReadableText(
-          context,
-          item.type.toUpperCase(),
-          textX,
-          cardY + layout.metaBaseline,
-          textWidth * 0.54
-        );
-        context.fillStyle = "#cffafe";
-        context.textAlign = "right";
-        fillReadableText(
-          context,
-          item.rarity.toUpperCase(),
-          x + layout.cardWidth - layout.cardPadding,
-          cardY + layout.metaBaseline,
-          textWidth * 0.42
-        );
-        context.textAlign = "left";
-        context.fillStyle = "#ffffff";
-        context.font = `900 ${layout.nameFontSize}px Arial, sans-serif`;
-        drawText(
-          context,
-          item.name,
-          textX,
-          cardY + layout.nameBaseline,
-          textWidth,
-          layout.nameLineHeight,
-          2
-        );
-
-        if (screenshotFields.description) {
-          context.fillStyle = "#94a3b8";
-          context.font = `800 ${layout.descriptionFontSize}px Arial, sans-serif`;
-          drawText(
-            context,
-            item.season,
-            textX,
-            cardY + layout.descriptionBaseline,
-            textWidth,
-            layout.descriptionFontSize * 1.2,
-            1
-          );
-        }
-
-        if (layout.priceBoxHeight > 0) {
-          roundedRect(
-            context,
-            textX,
-            cardY + layout.priceBoxY,
-            textWidth,
-            layout.priceBoxHeight,
-            clampNumber(layout.cardWidth * 0.02, 1, 5)
-          );
-          context.fillStyle = "rgba(255,255,255,0.06)";
-          context.fill();
-          context.font = `900 ${layout.priceFontSize}px Arial, sans-serif`;
-
-          let priceLine = 0;
-          if (screenshotFields.vbucks) {
-            context.fillStyle = "#bae6fd";
-            fillReadableText(
-              context,
-              `${item.price.toLocaleString()} V-Bucks`,
-              textX + layout.pricePadding,
-              cardY +
-                layout.priceBoxY +
-                layout.pricePadding +
-                layout.priceFontSize +
-                priceLine * layout.priceLineHeight,
-              textWidth - layout.pricePadding * 2
-            );
-            priceLine += 1;
-          }
-
-          if (screenshotFields.birr) {
-            context.fillStyle = "#fde68a";
-            fillReadableText(
-              context,
-              `${Math.round(item.price * birrPerVbuck).toLocaleString()} Birr`,
-              textX + layout.pricePadding,
-              cardY +
-                layout.priceBoxY +
-                layout.pricePadding +
-                layout.priceFontSize +
-                priceLine * layout.priceLineHeight,
-              textWidth - layout.pricePadding * 2
-            );
-          }
-        }
-      });
-
-      y += sectionHeight + layout.interSectionGap;
-    }
-
-    await downloadCanvasPng(canvas, filename);
-  }
-
-  async function downloadPngs() {
+  async function download() {
+    if (downloadLock.current || !filteredItems.length) return;
+    downloadLock.current = true;
     setIsDownloading(true);
-    setDownloadMessage("Preparing your PNG...");
-
+    setDownloadError(false);
+    setProgress(0);
+    setDownloadMessage("Preparing artwork...");
+    const nextFiles: ExportFile[] = [];
     try {
-      await captureGroups(groups, "fortnite-items-selected.png");
-      setDownloadMessage("PNG generated. Check your downloads or file manager.");
+      const pages = splitPosterGroups(groups, columns, parts);
+      let completed = 0;
+      for (let i = 0; i < pages.length; i++) {
+        const blob = await renderPoster(
+          pages[i],
+          { columns, fields, birrRate: birrPerVbuck, width: exportWidth },
+          (count) => {
+            setProgress(
+              Math.round(((completed + count) / filteredItems.length) * 100),
+            );
+            setDownloadMessage(
+              `Preparing artwork ${completed + count} of ${filteredItems.length}`,
+            );
+          },
+        );
+        completed += pages[i].reduce(
+          (total, group) => total + group.items.length,
+          0,
+        );
+        nextFiles.push({
+          url: URL.createObjectURL(blob),
+          filename: `fortnite-${shop?.updatedAt.slice(0, 10)}-${pages.length > 1 ? `${i + 1}-of-${pages.length}` : "items"}.png`,
+          size: blob.size,
+        });
+      }
+      filesRef.current.forEach((file) => URL.revokeObjectURL(file.url));
+      filesRef.current = nextFiles;
+      setFiles(nextFiles);
+      nextFiles.forEach(saveExport);
+      setDownloadMessage(
+        `${nextFiles.length === 1 ? "PNG ready" : `${nextFiles.length} PNGs ready`} · ${filteredItems.length} items with verified artwork`,
+      );
     } catch (reason) {
+      nextFiles.forEach((file) => URL.revokeObjectURL(file.url));
+      setDownloadError(true);
       setDownloadMessage(
         reason instanceof Error
-          ? `PNG export failed: ${reason.message}`
-          : "PNG export failed. Please try again."
+          ? reason.message
+          : "Unable to create PNG. Please retry.",
       );
     } finally {
+      downloadLock.current = false;
       setIsDownloading(false);
     }
   }
 
   return (
-    <main className="min-h-screen bg-[#05070d] text-white">
-      <section className="border-b border-white/10 bg-[linear-gradient(180deg,#07111f,#05070d)] px-3 py-3 sm:px-5">
-        <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
-          <div className="flex min-w-0 flex-wrap items-end gap-3">
-            <div className="min-w-0">
-              <p className="text-[11px] font-black uppercase tracking-normal text-cyan-200">
-                Item screenshot workspace
-              </p>
-              <h1 className="text-2xl font-black tracking-normal sm:text-3xl">
-                Fortnite Item Shop Generator
-              </h1>
-            </div>
-            <Link
-              className="mb-0.5 rounded-md border border-white/15 bg-white/[0.06] px-3 py-2 text-xs font-black text-white transition hover:bg-white/[0.1]"
-              href="/live/"
-              prefetch={false}
-            >
-              Live Overlay
-            </Link>
-          </div>
-
-          <div className="grid gap-3 rounded-lg border border-white/10 bg-white/[0.05] p-3 shadow-xl shadow-black/20 sm:min-w-[420px]">
-            <div className="flex items-center justify-between gap-3">
-              <span className="text-sm text-slate-300">Latest shop</span>
-              <strong className="text-right text-sm text-white">{formatDateTime(shop?.updatedAt)}</strong>
-            </div>
-            <div className="grid grid-cols-3 gap-2 text-center">
-              <div className="rounded-md bg-black/30 p-3">
-                <span className="block text-xs text-slate-400">Showing</span>
-                <strong>
-                  {filteredCount}/{totalShopCount}
-                </strong>
-              </div>
-              <div className="rounded-md bg-black/30 p-3">
-                <span className="block text-xs text-slate-400">V-Bucks</span>
-                <strong>{totalVbucks.toLocaleString()}</strong>
-              </div>
-              <div className="rounded-md bg-black/30 p-3">
-                <span className="block text-xs text-slate-400">Birr</span>
-                <strong>{Math.round(totalVbucks * birrPerVbuck).toLocaleString()}</strong>
-              </div>
-            </div>
+    <main className="shop-generator">
+      <header className="generator-header">
+        <div className="generator-brand">
+          <Grid2X2 size={25} aria-hidden="true" />
+          <div>
+            <p>Abyssinia Quest</p>
+            <h1>Fortnite Item Shop Generator</h1>
           </div>
         </div>
-      </section>
+        <div className="header-meta">
+          <span className="shop-date">{shopDate}</span>
+          <Link href="/live/" prefetch={false} className="secondary-button">
+            <Radio size={16} />
+            Live Overlay
+          </Link>
+        </div>
+      </header>
 
-      <section className="min-h-[calc(100vh-108px)]">
-        <div className="sticky top-0 z-20 border-b border-white/10 bg-[#08101d]/95 p-3 shadow-2xl shadow-black/20 backdrop-blur">
-          <div className="flex items-center justify-between gap-3 md:hidden">
-            <button
-              className="flex h-11 items-center gap-3 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-black text-white"
-              onClick={() => setIsMobileControlsOpen((isOpen) => !isOpen)}
-              type="button"
-            >
-              <span aria-hidden="true" className="grid gap-1">
-                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
-                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
-                <span className="block h-0.5 w-5 rounded bg-cyan-200" />
-              </span>
-              Options
-            </button>
-            <button
-              className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 disabled:cursor-wait disabled:opacity-60"
-              disabled={!shop || isDownloading || filteredCount === 0}
-              onClick={downloadPngs}
-              type="button"
-            >
-              {isDownloading ? "Rendering..." : "Download"}
-            </button>
-          </div>
-
-          <div className={`${isMobileControlsOpen ? "grid" : "hidden"} gap-4 pt-3 md:grid md:pt-0`}>
-            <div className="grid gap-3 md:flex md:flex-wrap md:items-end">
-              <label className="grid min-w-0 flex-1 gap-2 md:min-w-[220px]">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Screenshot categories
+      <div className="mobile-action-bar">
+        <button
+          ref={optionsButtonRef}
+          className="secondary-button"
+          onClick={() => setIsMobileOpen(true)}
+          aria-expanded={isMobileOpen}
+          aria-controls="shop-options"
+        >
+          <Settings2 size={17} />
+          Options
+        </button>
+        <span>{filteredItems.length} items</span>
+        <button
+          className="primary-button"
+          disabled={!filteredItems.length || isDownloading}
+          onClick={download}
+        >
+          {isDownloading ? (
+            <LoaderCircle className="spin" size={17} />
+          ) : (
+            <ArrowDownToLine size={17} />
+          )}
+          {isDownloading ? `${progress}%` : "Download"}
+        </button>
+      </div>
+      {isMobileOpen && (
+        <button
+          className="options-backdrop"
+          aria-label="Close options"
+          onClick={() => setIsMobileOpen(false)}
+        />
+      )}
+      <div
+        id="shop-options"
+        ref={optionsRef}
+        className={`generator-options ${isMobileOpen ? "is-open" : ""}`}
+      >
+        <div className="mobile-options-heading">
+          <h2>Shop & export options</h2>
+          <button
+            className="icon-button"
+            aria-label="Close options"
+            onClick={() => setIsMobileOpen(false)}
+          >
+            <X size={20} />
+          </button>
+        </div>
+        <div className="filter-row">
+          <div className="field category-field">
+            <span>Screenshot categories</span>
+            <div className="category-control" ref={categoryRef}>
+              <button
+                data-testid="category-select"
+                className="select-button"
+                aria-expanded={isCategoryOpen}
+                aria-controls="category-options"
+                onClick={() => setIsCategoryOpen(!isCategoryOpen)}
+              >
+                <span>
+                  {selectedCategories.length === SHOP_CATEGORIES.length
+                    ? "All categories"
+                    : `${selectionName} · ${selectedCategories.length} selected`}
                 </span>
-                <div className="relative" ref={categoryMenuRef}>
+                <ChevronDown size={16} />
+              </button>
+              {isCategoryOpen && (
+                <div className="category-menu" id="category-options">
                   <button
-                    className="flex h-11 w-full items-center justify-between gap-3 rounded-md border border-white/10 bg-slate-950 px-3 text-left text-sm font-bold text-white outline-none ring-cyan-300/30 transition hover:bg-white/[0.06] focus:ring-4"
-                    data-testid="category-select"
-                    onClick={() => setIsCategoryMenuOpen((isOpen) => !isOpen)}
-                    type="button"
+                    className="select-all-button"
+                    onClick={() =>
+                      setSelectedCategories(
+                        selectedCategories.length === SHOP_CATEGORIES.length
+                          ? []
+                          : [...SHOP_CATEGORIES],
+                      )
+                    }
                   >
-                    <span className="truncate">
-                      {selectedCategories.length === 0
-                        ? "No categories selected"
-                        : selectedCategories.length === SHOP_CATEGORIES.length
-                        ? `All categories (${totalShopCount})`
-                        : `${selectedCategories.length} selected`}
-                    </span>
-                    <span aria-hidden="true" className="text-cyan-200">
-                      v
-                    </span>
+                    <Check size={15} />
+                    {selectedCategories.length === SHOP_CATEGORIES.length
+                      ? "Unmark all"
+                      : "Mark all"}
                   </button>
-
-                  {isCategoryMenuOpen ? (
-                    <div className="absolute left-0 right-0 z-30 mt-2 max-h-[min(24rem,70vh)] overflow-auto rounded-lg border border-white/10 bg-slate-950 p-2 shadow-2xl shadow-black/50">
-                      <div className="mb-2">
-                        <button
-                          className="h-9 w-full rounded-md bg-cyan-300 px-3 text-xs font-black text-slate-950 transition hover:bg-cyan-200"
-                          onClick={toggleAllCategories}
-                          type="button"
-                        >
-                          {selectedCategories.length === SHOP_CATEGORIES.length ? "Unmark all" : "Mark all"}
-                        </button>
-                      </div>
-
-                      <div className="grid gap-1">
-                        {SHOP_CATEGORIES.map((category) => {
-                          const isSelected = selectedCategories.includes(category);
-
-                          return (
-                            <label
-                              className="flex min-h-10 cursor-pointer items-center justify-between gap-3 rounded-md px-2 text-sm font-bold text-slate-100 hover:bg-white/[0.06]"
-                              key={category}
-                            >
-                              <span className="flex items-center gap-3">
-                                <input
-                                  checked={isSelected}
-                                  className="h-4 w-4 accent-cyan-300"
-                                  data-testid={`category-check-${category}`}
-                                  onChange={() => toggleCategory(category)}
-                                  type="checkbox"
-                                />
-                                <span>{categoryLabels[category]}</span>
-                              </span>
-                              <span className="text-xs text-slate-400">{categoryCounts.get(category) ?? 0}</span>
-                            </label>
-                          );
-                        })}
-                      </div>
-                    </div>
-                  ) : null}
-                </div>
-              </label>
-
-              <label className="grid min-w-0 flex-[1.4] gap-2 md:min-w-[240px]">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Filter by name or type
-                </span>
-                <input
-                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
-                  onChange={(event) => setNameFilter(event.target.value)}
-                  placeholder="Outfit name, pickaxe, wrap..."
-                  value={nameFilter}
-                />
-              </label>
-
-              <label className="grid min-w-0 flex-1 gap-2 md:min-w-[170px]">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Rarity
-                </span>
-                <select
-                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
-                  onChange={(event) => setRarityFilter(event.target.value)}
-                  value={rarityFilter}
-                >
-                  <option value="all">All rarities</option>
-                  {rarityOptions.map((rarity) => (
-                    <option key={rarity} value={rarity}>
-                      {rarity}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <label className="grid min-w-0 flex-[1.2] gap-2 md:min-w-[220px]">
-                <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Season
-                </span>
-                <select
-                  className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
-                  onChange={(event) => setSeasonFilter(event.target.value)}
-                  value={seasonFilter}
-                >
-                  <option value="all">All seasons</option>
-                  {seasonOptions.map((season) => (
-                    <option key={season} value={season}>
-                      {season}
-                    </option>
-                  ))}
-                </select>
-              </label>
-
-              <div className="grid min-w-0 grid-cols-2 gap-3 md:min-w-[260px]">
-                <label className="grid gap-2">
-                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                    Columns
-                  </span>
-                  <input
-                    className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
-                    data-testid="export-columns"
-                    inputMode="numeric"
-                    max={MAX_EXPORT_COLUMNS}
-                    min={MIN_EXPORT_COLUMNS}
-                    onBlur={commitExportColumnInput}
-                    onChange={(event) => handleExportColumnInput(event.target.value)}
-                    onFocus={() => setIsEditingExportColumns(true)}
-                    pattern="[0-9]*"
-                    type="text"
-                    value={exportColumnInput}
-                  />
-                </label>
-
-                <label className="grid gap-2">
-                  <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                    Birr rate
-                  </span>
-                  <input
-                    className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-black text-white outline-none ring-cyan-300/30 focus:ring-4"
-                    min="0"
-                    onChange={(event) => setBirrPerVbuck(Number(event.target.value) || 0)}
-                    step="0.01"
-                    type="number"
-                    value={birrPerVbuck}
-                  />
-                </label>
-              </div>
-
-              <fieldset className="grid min-w-0 flex-1 gap-2 md:min-w-[260px]">
-                <legend className="text-xs font-black uppercase tracking-normal text-slate-300">
-                  Screenshot details
-                </legend>
-                <div className="grid grid-cols-3 gap-2 rounded-md border border-white/10 bg-slate-950 p-2">
-                  {[
-                    ["vbucks", "V-Bucks"],
-                    ["birr", "Birr"],
-                    ["description", "Description"]
-                  ].map(([field, label]) => (
-                    <label className="flex min-h-9 items-center justify-center gap-2 rounded bg-white/[0.04] px-2 text-xs font-black text-slate-200" key={field}>
+                  {SHOP_CATEGORIES.map((category) => (
+                    <label key={category}>
                       <input
-                        checked={screenshotFields[field as keyof ScreenshotFields]}
-                        className="h-4 w-4 accent-cyan-300"
-                        onChange={() => toggleScreenshotField(field as keyof ScreenshotFields)}
+                        data-testid={`category-check-${category}`}
                         type="checkbox"
+                        checked={selectedCategories.includes(category)}
+                        onChange={() => toggleCategory(category)}
                       />
-                      <span>{label}</span>
+                      <span>{categoryLabels[category]}</span>
+                      <small>{counts.get(category) ?? 0}</small>
                     </label>
                   ))}
                 </div>
-              </fieldset>
-            </div>
-
-            {isAutoPostPanelOpen ? (
-              <fieldset className="grid gap-3 rounded-md border border-cyan-300/20 bg-black/25 p-3">
-                <div className="flex flex-wrap items-center justify-between gap-3">
-                  <legend className="text-xs font-black uppercase tracking-normal text-cyan-100">
-                    Telegram auto posting
-                  </legend>
-                  <label className="flex min-h-10 cursor-pointer items-center gap-3 rounded-md border border-white/10 bg-slate-950 px-3">
-                    <input
-                      checked={autoPostSettings.enabled}
-                      className="h-5 w-5 accent-cyan-300"
-                      onChange={(event) =>
-                        setAutoPostSettings((current) => ({
-                          ...current,
-                          enabled: event.target.checked
-                        }))
-                      }
-                      type="checkbox"
-                    />
-                    <span className="text-sm font-black text-white">
-                      {autoPostSettings.enabled ? "Enabled" : "Disabled"}
-                    </span>
-                  </label>
-                </div>
-
-                <div className="grid gap-3 md:grid-cols-[180px_minmax(0,1fr)_auto] md:items-end">
-                  <label className="grid gap-2">
-                    <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                      Post every
-                    </span>
-                    <select
-                      className="h-11 w-full rounded-md border border-white/10 bg-slate-950 px-3 text-sm font-bold text-white outline-none ring-cyan-300/30 focus:ring-4"
-                      onChange={(event) =>
-                        setAutoPostSettings((current) => ({
-                          ...current,
-                          intervalDays: Number(event.target.value)
-                        }))
-                      }
-                      value={autoPostSettings.intervalDays}
-                    >
-                      {Array.from({ length: 30 }, (_, index) => index + 1).map((days) => (
-                        <option key={days} value={days}>
-                          {days} {days === 1 ? "day" : "days"}
-                        </option>
-                      ))}
-                    </select>
-                  </label>
-
-                  <label className="grid min-w-0 gap-2">
-                    <span className="text-xs font-black uppercase tracking-normal text-slate-300">
-                      Caption
-                    </span>
-                    <input
-                      className="h-11 w-full min-w-0 rounded-md border border-white/10 bg-slate-950 px-3 text-sm text-white outline-none ring-cyan-300/30 focus:ring-4"
-                      maxLength={800}
-                      onChange={(event) =>
-                        setAutoPostSettings((current) => ({
-                          ...current,
-                          caption: event.target.value
-                        }))
-                      }
-                      value={autoPostSettings.caption}
-                    />
-                  </label>
-
-                  <button
-                    className="h-11 rounded-md bg-cyan-300 px-4 text-sm font-black text-slate-950 transition hover:bg-cyan-200"
-                    onClick={openAutoPostSettingsIssue}
-                    type="button"
-                  >
-                    Save settings
-                  </button>
-                </div>
-
-                <p className="truncate text-xs font-bold text-slate-400">
-                  {renderAutoPostCaption(autoPostSettings.caption || DEFAULT_AUTO_POST_CAPTION)}
-                </p>
-              </fieldset>
-            ) : null}
-
-            <div className="flex flex-wrap items-center justify-between gap-3 border-t border-white/10 pt-4">
-              <div className="flex flex-wrap items-center gap-3">
-                <label className="flex min-h-10 items-center gap-3 rounded-md border border-white/10 bg-black/25 px-3">
-                  <input
-                    checked={isScreenshotMode}
-                    className="h-5 w-5 accent-cyan-300"
-                    onChange={(event) => setIsScreenshotMode(event.target.checked)}
-                    type="checkbox"
-                  />
-                  <span className="text-sm font-bold text-slate-200">Screenshot preview</span>
-                </label>
-
-                <button
-                  className="h-10 rounded-md border border-white/10 bg-slate-950 px-4 text-sm font-bold text-slate-200 transition hover:bg-white/10"
-                  onClick={resetFilters}
-                  type="button"
-                >
-                  Reset
-                </button>
-
-                <button
-                  className={`h-10 rounded-md border px-4 text-sm font-black transition ${
-                    autoPostSettings.enabled
-                      ? "border-cyan-300/30 bg-cyan-300/10 text-cyan-100 hover:bg-cyan-300/20"
-                      : "border-white/10 bg-slate-950 text-slate-200 hover:bg-white/10"
-                  }`}
-                  onClick={() => setIsAutoPostPanelOpen((isOpen) => !isOpen)}
-                  type="button"
-                >
-                  Auto posting: {autoPostSettings.enabled ? "On" : "Off"}
-                </button>
-              </div>
-
-              <button
-                className="hidden h-12 w-full rounded-md bg-cyan-300 px-5 text-sm font-black text-slate-950 transition hover:bg-cyan-200 disabled:cursor-wait disabled:opacity-60 sm:w-auto md:block"
-                data-testid="download-pngs"
-                disabled={!shop || isDownloading || filteredCount === 0}
-                onClick={downloadPngs}
-                type="button"
-              >
-                {isDownloading ? "Rendering..." : "Download PNG"}
-              </button>
-            </div>
-
-            <div className="grid gap-2 rounded-lg bg-black/20 p-3 text-sm text-slate-300 sm:flex sm:items-center sm:justify-between">
-              <span>
-                Showing <strong className="text-white">{filteredCount}</strong> of{" "}
-                <strong className="text-white">{totalShopCount}</strong> items for{" "}
-                <strong className="text-cyan-200">{categorySummary}</strong>.
-                <span className="block pt-1 text-xs text-slate-400">
-                  Layout: {exportColumns} columns per PNG.
-                </span>
-              </span>
-              <span className={downloadMessage.includes("failed") ? "text-red-200" : "text-amber-100"}>
-                {downloadMessage || "Downloads save to your browser downloads/file manager."}
-              </span>
+              )}
             </div>
           </div>
+          <label className="field search-field">
+            <span>Name or type</span>
+            <div className="search-control">
+              <Search size={16} aria-hidden="true" />
+              <input
+                type="search"
+                placeholder="Search items..."
+                value={nameFilter}
+                onChange={(event) => setNameFilter(event.target.value)}
+              />
+            </div>
+          </label>
+          <label className="field">
+            <span>Rarity</span>
+            <select
+              value={rarityFilter}
+              onChange={(event) => setRarityFilter(event.target.value)}
+            >
+              <option value="all">All rarities</option>
+              {rarities.map((rarity) => (
+                <option key={rarity}>{rarity}</option>
+              ))}
+            </select>
+          </label>
+          <label className="field">
+            <span>Season</span>
+            <select
+              value={seasonFilter}
+              onChange={(event) => setSeasonFilter(event.target.value)}
+            >
+              <option value="all">All seasons</option>
+              {seasons.map((season) => (
+                <option key={season}>{season}</option>
+              ))}
+            </select>
+          </label>
+          <button
+            className="icon-button reset-button"
+            aria-label="Reset filters"
+            title="Reset filters"
+            onClick={reset}
+          >
+            <RotateCcw size={17} />
+          </button>
         </div>
-
-        <div className="min-w-0 bg-[#05070d] p-3 sm:p-5">
-          {error ? (
-            <div className="rounded-lg border border-red-300/30 bg-red-950/50 p-4 text-red-100">{error}</div>
-          ) : null}
-
-          {!shop ? (
-            <div className="grid gap-3">
-              {Array.from({ length: 5 }, (_, index) => (
-                <div className="h-32 animate-pulse rounded-lg bg-white/[0.06]" key={index} />
+        <div className="export-row">
+          <label className="field number-field">
+            <span>Columns</span>
+            <input
+              data-testid="export-columns"
+              type="text"
+              inputMode="numeric"
+              pattern="[0-9]*"
+              min="2"
+              max="20"
+              value={columnInput}
+              onChange={(event) => editColumns(event.target.value)}
+              onBlur={commitColumns}
+              onKeyDown={(event) => {
+                if (event.key === "Enter") event.currentTarget.blur();
+              }}
+            />
+          </label>
+          <label className="field number-field">
+            <span>Birr rate</span>
+            <input
+              type="text"
+              inputMode="decimal"
+              value={rateInput}
+              onChange={(event) => {
+                const value = event.target.value;
+                if (/^\d*\.?\d*$/.test(value)) {
+                  setRateInput(value);
+                  const rate = Number(value);
+                  if (value && Number.isFinite(rate) && rate <= 100000)
+                    setBirrPerVbuck(rate);
+                }
+              }}
+              onBlur={() => setRateInput(String(birrPerVbuck))}
+            />
+          </label>
+          <fieldset className="detail-fields">
+            <legend>Item details</legend>
+            <div>
+              {(["vbucks", "birr", "description"] as const).map((field) => (
+                <label className="check-control" key={field}>
+                  <input
+                    type="checkbox"
+                    checked={fields[field]}
+                    onChange={() =>
+                      setFields({ ...fields, [field]: !fields[field] })
+                    }
+                  />
+                  {field === "vbucks"
+                    ? "V-Bucks"
+                    : field === "birr"
+                      ? "Birr"
+                      : "Description"}
+                </label>
               ))}
             </div>
-          ) : (
-            <div
-              className={
-                isScreenshotMode
-                  ? "min-h-full overflow-hidden rounded-lg border border-white/10 bg-black/35 p-2 shadow-2xl shadow-black/30 md:overflow-x-auto"
-                  : "min-h-full overflow-hidden md:overflow-x-auto"
-              }
+          </fieldset>
+          <label className="field quality-field">
+            <span>PNG quality</span>
+            <select
+              value={exportWidth}
+              onChange={(event) => setExportWidth(Number(event.target.value))}
             >
-              <div data-testid="shop-canvas">
-                <ScreenshotCanvas
-                  birrPerVbuck={birrPerVbuck}
-                  columns={exportColumns}
-                  groups={groups}
-                  screenshotFields={screenshotFields}
-                />
-              </div>
-            </div>
-          )}
+              <option value={2160}>High · up to 2160 px</option>
+              <option value={3240}>Ultra · up to 3240 px</option>
+            </select>
+          </label>
+          <label className="field parts-field">
+            <span>Split export</span>
+            <select
+              value={parts}
+              onChange={(event) => setParts(Number(event.target.value))}
+            >
+              <option value={1}>1 PNG</option>
+              <option value={2}>2 PNGs</option>
+              <option value={3}>3 PNGs</option>
+            </select>
+          </label>
+          <div className="export-actions">
+            <button
+              className="icon-button"
+              aria-label="Telegram auto posting"
+              title="Telegram auto posting"
+              aria-expanded={isAutoPostOpen}
+              onClick={() => setIsAutoPostOpen(!isAutoPostOpen)}
+            >
+              <Send size={17} />
+            </button>
+            <button
+              className="primary-button desktop-download"
+              data-testid="download-pngs"
+              disabled={!filteredItems.length || isDownloading}
+              onClick={download}
+            >
+              {isDownloading ? (
+                <LoaderCircle className="spin" size={17} />
+              ) : (
+                <ArrowDownToLine size={17} />
+              )}
+              {isDownloading ? `Preparing ${progress}%` : "Download PNG"}
+            </button>
+          </div>
         </div>
+        {isAutoPostOpen && (
+          <AutoPostSettings onClose={() => setIsAutoPostOpen(false)} />
+        )}
+        <button
+          className="primary-button mobile-apply"
+          onClick={() => setIsMobileOpen(false)}
+        >
+          <Check size={16} />
+          Show {filteredItems.length} items
+        </button>
+      </div>
+
+      <section className="generator-content">
+        <div className="selection-summary">
+          <div>
+            <h2>{selectionName}</h2>
+            <span>
+              {filteredItems.length} of {items?.length ?? 0} items
+            </span>
+          </div>
+          <span>
+            {columns} columns · Up to {exportWidth}px
+          </span>
+        </div>
+        {error && (
+          <div className="shop-notice" role="alert">
+            <span>{error}</span>
+            <button
+              className="secondary-button"
+              disabled={isRefreshing}
+              onClick={retry}
+            >
+              {isRefreshing ? "Checking..." : "Retry"}
+            </button>
+          </div>
+        )}
+        {downloadMessage && (
+          <div
+            className={`export-status ${downloadError ? "has-error" : ""}`}
+            role="status"
+            aria-live="polite"
+          >
+            <div>
+              {isDownloading ? (
+                <LoaderCircle className="spin" size={18} />
+              ) : (
+                !downloadError && <Check size={18} />
+              )}
+              <span>{downloadMessage}</span>
+            </div>
+            {isDownloading && (
+              <progress
+                max="100"
+                value={progress}
+                aria-label="PNG export progress"
+              />
+            )}
+            {!isDownloading && !downloadError && (
+              <div className="download-links">
+                {files.map((file, index) => (
+                  <a key={file.url} href={file.url} download={file.filename}>
+                    <ArrowDownToLine size={14} />
+                    {files.length > 1 ? `Save PNG ${index + 1}` : "Save again"}
+                    <small>{(file.size / 1024 / 1024).toFixed(1)} MB</small>
+                  </a>
+                ))}
+              </div>
+            )}
+          </div>
+        )}
+        {!shop ? (
+          <div
+            className="shop-loading"
+            aria-label="Loading shop"
+            aria-busy="true"
+          >
+            {Array.from({ length: 18 }, (_, index) => (
+              <div key={index} />
+            ))}
+          </div>
+        ) : (
+          <div data-testid="shop-canvas">
+            <ScreenshotCanvas
+              birrPerVbuck={birrPerVbuck}
+              columns={columns}
+              groups={groups}
+              screenshotFields={fields}
+            />
+          </div>
+        )}
       </section>
+      <footer className="generator-footer">
+        <span>Unofficial Fortnite tool. Not affiliated with Epic Games.</span>
+        <span>
+          Shop reset: 00:00 UTC / 03:00 EAT · Artwork: Fortnite-API · Birr
+          prices are estimates.
+        </span>
+      </footer>
     </main>
   );
 }

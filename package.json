@@ -9,10 +9,12 @@
     "build:github": "node scripts/update-shop-data.mjs && next build",
     "start": "next start",
     "lint": "next lint",
-    "test:live": "node scripts/verify-live-overlay.mjs"
+    "test:live": "node scripts/verify-live-overlay.mjs",
+    "test:generator": "node scripts/verify-generator.mjs"
   },
   "dependencies": {
     "html-to-image": "^1.11.13",
+    "lucide-react": "^1.43.0",
     "next": "latest",
     "react": "latest",
     "react-dom": "latest"

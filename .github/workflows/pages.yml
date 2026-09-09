@@ -33,11 +33,30 @@ jobs:
       - name: Install dependencies
         run: npm ci
 
+      - name: Daily shop cache key
+        id: shop-day
+        run: echo "day=$(date -u +%F)" >> "$GITHUB_OUTPUT"
+
+      - name: Restore daily shop and artwork
+        uses: actions/cache@v4
+        with:
+          path: |
+            .shop-cache
+            public/shop-assets
+          key: shop-art-v1-${{ steps.shop-day.outputs.day }}
+          restore-keys: shop-art-v1-
+
       - name: Build static site
         run: npm run build:github
         env:
           GITHUB_PAGES: "true"
           NEXT_PUBLIC_BASE_PATH: "/fortnite-item-shop-shot"
+
+      - name: Install verification browser
+        run: npx playwright install --with-deps chromium
+
+      - name: Verify PNG exports and mobile controls
+        run: npm run test:generator
 
       - name: Upload Pages artifact
         uses: actions/upload-pages-artifact@v3

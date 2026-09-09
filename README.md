@@ -5,7 +5,7 @@ An unofficial Fortnite item shop screenshot generator built with Next.js, React,
 ## Features
 
 - Fetches current shop data from the open Fortnite-API.com shop endpoint.
-- Caches shop data in the Next.js route handler for 15 minutes.
+- Caches the API response once per UTC shop day. GitHub Pages builds after reset at 00:05 UTC; open generators check the published shop at 00:20 UTC. Failed or delayed publication is retried a bounded number of times. Successful shops are not polled.
 - Organizes items into skins, emotes, pickaxes, kicks, bundles, gliders, wraps, back blings, jam tracks/music, and uncategorized groups.
 - Shows item name, type, image, rarity, V-Bucks price, and Birr purchase-cost estimate.
 - Lets you screenshot all categories together or choose multiple categories such as skins plus pickaxes from a top toolbar multi-select.
@@ -26,7 +26,15 @@ npm run dev
 
 Then open `http://localhost:3000`.
 
-The screenshot export uses a local image proxy route so remote shop art can be included in the generated PNG.
+Run `node scripts/update-shop-data.mjs` before the first local preview. The daily build verifies every item image and publishes 256px previews and 768px export artwork as same-origin WebP assets. GitHub Actions caches artwork and the daily API payload. A failed image stops publication, preserving the previous working shop.
+
+The export renderer decodes four images at a time, retries failures, and never downloads a PNG containing placeholder initials. Downloads include persistent save links and one-, two-, or three-file splitting along complete item rows. High and Ultra target 2160px and 3240px widths; very tall PNGs are scaled within a 24-megapixel/16384px canvas budget. Split a long shop to retain larger, clearer items.
+
+Fortnite refreshes around 00:00 UTC (03:00 in Ethiopia and Nairobi), according to [Epic Games](https://www.epicgames.com/help/c-34254770/c-33726977/a21140200). GitHub's scheduled runs can be delayed, so exact publication at a wall-clock minute is not guaranteed. The UI shows the shop date and keeps the last available shop visible during a failed refresh.
+
+## Verification
+
+Build the GitHub Pages export with `GITHUB_PAGES=true` and `NEXT_PUBLIC_BASE_PATH=/fortnite-item-shop-shot`, then run `npm run test:generator` and `npm run test:live`. The generator checks real PNG output, image-failure recovery, daily caching, split downloads, category controls, and mobile columns. Screenshots and PNG samples are written to `.test-output/`.
 
 ## Telegram auto posting
 
