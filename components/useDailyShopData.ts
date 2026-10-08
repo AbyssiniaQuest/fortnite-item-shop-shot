@@ -6,6 +6,7 @@ import { dedupeShopItems, SHOP_CATEGORIES, type ShopPayload } from "@/lib/shop";
 export const DAILY_SHOP_CACHE_KEY = "abyssinia-shop-daily-v2";
 const DAY = 86_400_000;
 const PUBLISH_GRACE = 20 * 60_000;
+const MAX_REFRESH_RETRY = 30 * 60_000;
 let request: Promise<ShopPayload> | undefined;
 let memory: ShopPayload | null = null;
 
@@ -70,6 +71,8 @@ export function useDailyShopData() {
     let active = true;
     let timer: number;
     let attempts = 0;
+    let refreshing = false;
+    let lastAttemptAt = 0;
     let cached = memory;
     if (!cached) {
       try {
@@ -94,7 +97,10 @@ export function useDailyShopData() {
     }
 
     async function refresh() {
-      if (!active) return;
+      if (!active || refreshing) return;
+      refreshing = true;
+      lastAttemptAt = Date.now();
+      window.clearTimeout(timer);
       setIsRefreshing(true);
       try {
         request ??= fetchShop().finally(() => {
@@ -122,11 +128,15 @@ export function useDailyShopData() {
         setError(
           reason instanceof Error ? reason.message : "Unable to load the shop.",
         );
-        // Retry only a failed/delayed daily refresh, never poll a successful shop.
-        if (++attempts < 4)
-          timer = window.setTimeout(refresh, 60_000 * attempts);
-        else scheduleTomorrow();
+        // Publication can arrive hours late. Back off until today's shop exists,
+        // then return to the single daily refresh schedule.
+        const retryDelay = Math.min(
+          60_000 * 2 ** Math.min(attempts++, 5),
+          MAX_REFRESH_RETRY,
+        );
+        timer = window.setTimeout(refresh, retryDelay);
       } finally {
+        refreshing = false;
         if (active) setIsRefreshing(false);
       }
     }
@@ -142,19 +152,20 @@ export function useDailyShopData() {
     function onVisible() {
       if (
         document.visibilityState === "visible" &&
-        cached &&
-        cached.updatedAt.slice(0, 10) < expectedShopDay() &&
-        attempts === 0
+        (!cached || cached.updatedAt.slice(0, 10) < expectedShopDay()) &&
+        Date.now() - lastAttemptAt >= 60_000
       ) {
         window.clearTimeout(timer);
         void refresh();
       }
     }
     document.addEventListener("visibilitychange", onVisible);
+    window.addEventListener("online", onVisible);
     return () => {
       active = false;
       window.clearTimeout(timer);
       document.removeEventListener("visibilitychange", onVisible);
+      window.removeEventListener("online", onVisible);
     };
   }, [retryKey]);
 

@@ -5,7 +5,7 @@ An unofficial Fortnite item shop screenshot generator built with Next.js, React,
 ## Features
 
 - Fetches current shop data from the open Fortnite-API.com shop endpoint.
-- Caches the API response once per UTC shop day. GitHub Pages builds after reset at 00:05 UTC; open generators check the published shop at 00:20 UTC. Failed or delayed publication is retried a bounded number of times. Successful shops are not polled.
+- Caches the API response once per UTC shop day. GitHub Pages builds after reset at 00:05 UTC; open generators check the published shop at 00:20 UTC. Failed or delayed publication is retried with backoff up to 30 minutes until today's shop arrives. Successful shops are not polled.
 - Organizes items into skins, emotes, pickaxes, kicks, bundles, gliders, wraps, back blings, jam tracks/music, and uncategorized groups.
 - Shows item name, type, image, rarity, V-Bucks price, and Birr purchase-cost estimate.
 - Lets you screenshot all categories together or choose multiple categories such as skins plus pickaxes from a top toolbar multi-select.

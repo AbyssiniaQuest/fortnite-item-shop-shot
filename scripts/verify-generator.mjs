@@ -228,6 +228,44 @@ try {
       "Daily rollover: one request after publication time, no repeated successful fetches.",
     );
 
+    const delayed = await browser.newPage();
+    await delayed.clock.install({ time: new Date("2026-10-07T23:50:00Z") });
+    let delayedRequests = 0;
+    let published = false;
+    await delayed.route("**/shop-data.json", (route) => {
+      delayedRequests++;
+      return route.fulfill({
+        json: {
+          ...payload,
+          updatedAt: published ? "2026-10-08T00:00:00Z" : "2026-10-07T00:00:00Z",
+          generatedAt: published ? "published" : "previous-shop",
+        },
+      });
+    });
+    await delayed.goto(url);
+    await delayed.locator(".shop-card").first().waitFor();
+    await delayed.clock.fastForward(31 * 60_000);
+    await delayed.locator(".shop-notice").waitFor();
+    assert.equal(delayedRequests, 2);
+    for (let hourHalf = 0; hourHalf < 12; hourHalf++) {
+      const nextResponse = delayed.waitForResponse("**/shop-data.json");
+      await delayed.clock.fastForward(31 * 60_000);
+      await nextResponse;
+      await delayed.getByRole("button", { name: "Retry", exact: true }).waitFor();
+    }
+    assert.ok(delayedRequests > 4, "Delayed publication retries stopped until tomorrow");
+    published = true;
+    await delayed.clock.fastForward(31 * 60_000);
+    await delayed.getByText("October 8, 2026", { exact: true }).waitFor();
+    const settledRequests = delayedRequests;
+    await delayed.clock.fastForward(6 * 60 * 60_000);
+    assert.equal(delayedRequests, settledRequests, "A successful shop kept being fetched");
+    await delayed.reload();
+    await delayed.locator(".shop-card").first().waitFor();
+    assert.equal(delayedRequests, settledRequests, "The recovered daily cache was not reused");
+    await delayed.close();
+    console.log("Delayed publication: six-hour delay recovered, then daily fetching stopped.");
+
     const first = payload.items.find((item) => item.category === "skins");
     const fixture = {
       ...payload,
