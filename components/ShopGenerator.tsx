@@ -9,6 +9,7 @@ import {
   Grid2X2,
   LoaderCircle,
   Radio,
+  RefreshCw,
   RotateCcw,
   Search,
   Send,
@@ -263,6 +264,22 @@ export function ShopGenerator() {
         </div>
         <div className="header-meta">
           <span className="shop-date">{shopDate}</span>
+          <button
+            type="button"
+            className="secondary-button"
+            aria-label="Sync shop"
+            aria-busy={isRefreshing}
+            title="Check for the latest published shop"
+            disabled={isRefreshing}
+            onClick={retry}
+          >
+            <RefreshCw
+              size={16}
+              className={isRefreshing ? "spin" : undefined}
+              aria-hidden="true"
+            />
+            {isRefreshing ? "Syncing..." : "Sync"}
+          </button>
           <Link href="/live/" prefetch={false} className="secondary-button">
             <Radio size={16} />
             Live Overlay

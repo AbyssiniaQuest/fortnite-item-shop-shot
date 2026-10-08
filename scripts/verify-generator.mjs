@@ -116,6 +116,31 @@ try {
     1,
     "A fresh daily shop was fetched again on reload",
   );
+  const sync = page.getByRole("button", { name: "Sync shop", exact: true });
+  await page.getByLabel("Columns", { exact: true }).fill("8");
+  let releaseSync;
+  const syncResponse = new Promise((resolve) => { releaseSync = resolve; });
+  await page.route("**/shop-data.json", async (route) => {
+    await syncResponse;
+    await route.continue();
+  });
+  await sync.click();
+  await page.waitForFunction(() => {
+    const button = document.querySelector('button[aria-label="Sync shop"]');
+    return button?.disabled && button.textContent.includes("Syncing");
+  });
+  assert.equal(dataRequests, 2, "Manual sync did not bypass the daily cache");
+  releaseSync();
+  await page.waitForFunction(() =>
+    !document.querySelector('button[aria-label="Sync shop"]')?.disabled,
+  );
+  await page.unroute("**/shop-data.json");
+  assert.equal(await page.locator(".shop-card").count(), skins);
+  assert.equal(await page.getByLabel("Columns", { exact: true }).inputValue(), "8");
+  await page.reload();
+  await page.locator(".shop-card").first().waitFor();
+  assert.equal(dataRequests, 2, "Manual sync broke daily caching");
+  console.log("Manual sync refreshes once, prevents duplicate clicks, and preserves settings.");
   await page.getByTestId("category-select").click();
   await page.getByRole("button", { name: "Mark all", exact: true }).click();
   const allItems = await page.locator(".shop-card").count();
@@ -154,6 +179,16 @@ try {
   await page.setViewportSize({ width: 390, height: 844 });
   await page.reload();
   await page.locator(".shop-card").first().waitFor();
+  await page.setViewportSize({ width: 320, height: 740 });
+  assert.ok(await sync.isVisible(), "Manual sync is missing on mobile");
+  const headerFits = await page.locator(".generator-header").evaluate((header) =>
+    [...header.querySelectorAll("button, a")].every((control) => {
+      const rect = control.getBoundingClientRect();
+      return rect.left >= 0 && rect.right <= window.innerWidth;
+    }),
+  );
+  assert.ok(headerFits, "Mobile header actions overflow the screen");
+  await page.setViewportSize({ width: 390, height: 844 });
   await page.getByRole("button", { name: "Options", exact: true }).click();
   const columns = page.getByLabel("Columns", { exact: true });
   await columns.fill("");
