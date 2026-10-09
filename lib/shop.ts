@@ -205,14 +205,14 @@ export function mapShopEntry(entry: ApiEntry): ShopItem | null {
     itemName ?? primaryInstrument?.name ?? primaryTrack?.title ?? primaryLegoKit?.name ?? cleanDevName(entry.devName);
   const image =
     entry.bundle?.image ??
+    firstDisplayImage(entry) ??
+    primaryItem?.images?.featured ??
     primaryItem?.images?.icon ??
     primaryItem?.images?.smallIcon ??
-    primaryItem?.images?.featured ??
     primaryInstrument?.images?.large ??
     primaryInstrument?.images?.small ??
     primaryTrack?.albumArt ??
-    primaryLegoKit?.image ??
-    firstDisplayImage(entry);
+    primaryLegoKit?.image;
   const price =
     entry.finalPrice ??
     entry.price?.finalPrice ??

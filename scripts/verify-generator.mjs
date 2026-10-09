@@ -285,11 +285,13 @@ try {
             type: { value: "outfit", displayValue: "Outfit" },
             rarity: { displayValue: "Epic" }, images: { icon: existingSkin.image },
           }] },
-          { offerId: "new-skin", finalPrice: 800, brItems: [{
+          { offerId: "new-skin", finalPrice: 800,
+            newDisplayAsset: { renderImages: [{ image: "https://fortnite-api.com/images/fallback-test.webp" }] },
+            brItems: [{
             id: "new-skin", name: "Daily Sync Test",
             type: { value: "outfit", displayValue: "Outfit" },
             rarity: { displayValue: "Rare" },
-            images: { icon: "https://fortnite-api.com/images/fallback-test.webp" },
+            images: { icon: "https://fortnite-api.com/images/fallback-icon.webp" },
           }] },
         ],
       } } });
@@ -311,6 +313,9 @@ try {
       JSON.parse(localStorage.getItem("abyssinia-shop-daily-v2")).items[0].exportImage,
     );
     assert.equal(reusedArtwork, existingSkin.exportImage, "Mirrored artwork was not reused");
+    assert.equal(await fallback.evaluate(() =>
+      JSON.parse(localStorage.getItem("abyssinia-shop-daily-v2")).items[1].image,
+    ), "https://fortnite-api.com/images/fallback-test.webp", "Fallback used a close-up icon instead of shop artwork");
     await fallback.getByLabel("Columns", { exact: true }).fill("2");
     await downloadAndCheck("api-fallback.png", fallback.getByTestId("download-pngs"));
     await fallback.clock.fastForward(6 * 60 * 60_000);
