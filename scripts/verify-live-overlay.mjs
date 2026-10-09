@@ -99,7 +99,7 @@ try {
   assert.match(tickerSource, /nextCardExtent > 1/);
   assert.match(shopRouteSource, /revalidate = 86400/);
   assert.match(shopUpdateSource, /cacheSeconds: 86400/);
-  assert.match(pagesWorkflow, /cron: "5 0 \* \* \*"/);
+  assert.match(pagesWorkflow, /cron: "17 0 \* \* \*"/);
   await page.goto(rootUrl, { waitUntil: "domcontentloaded" });
   await assert.doesNotReject(() => page.getByRole("heading", { name: "Fortnite Item Shop Generator" }).waitFor());
   assert.equal(await page.getByTestId("category-select").textContent().then((text) => text?.includes("1 selected")), true);

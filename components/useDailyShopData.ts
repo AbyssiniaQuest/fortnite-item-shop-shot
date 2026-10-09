@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { dedupeShopItems, SHOP_CATEGORIES, type ShopPayload } from "@/lib/shop";
+import {
+  dedupeShopItems,
+  mapShopEntry,
+  SHOP_CATEGORIES,
+  SHOP_URL,
+  type ShopPayload,
+  type ShopResponse,
+} from "@/lib/shop";
 
 export const DAILY_SHOP_CACHE_KEY = "abyssinia-shop-daily-v2";
 const DAY = 86_400_000;
@@ -37,21 +44,7 @@ export function isShopPayload(value: unknown): value is ShopPayload {
   );
 }
 
-async function fetchShop() {
-  const response = await fetch(
-    `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/shop-data.json`,
-    {
-      cache: "no-cache",
-      signal: AbortSignal.timeout(20_000),
-    },
-  );
-  if (!response.ok)
-    throw new Error(
-      "The shop could not be loaded. Check your connection and retry.",
-    );
-  const payload: unknown = await response.json();
-  if (!isShopPayload(payload))
-    throw new Error("Shop data is incomplete. Please retry shortly.");
+function rememberShop(payload: ShopPayload) {
   memory = { ...payload, items: dedupeShopItems(payload.items) };
   try {
     localStorage.setItem(DAILY_SHOP_CACHE_KEY, JSON.stringify(memory));
@@ -59,6 +52,71 @@ async function fetchShop() {
     /* Storage is optional. */
   }
   return memory;
+}
+
+async function fetchShop(cached: ShopPayload | null) {
+  let published: ShopPayload | null = null;
+  try {
+    const response = await fetch(
+      `${process.env.NEXT_PUBLIC_BASE_PATH ?? ""}/shop-data.json`,
+      { cache: "no-cache", signal: AbortSignal.timeout(20_000) },
+    );
+    if (!response.ok) throw new Error(`Shop request failed (${response.status})`);
+    const payload: unknown = await response.json();
+    if (!isShopPayload(payload)) throw new Error("Incomplete published shop");
+    published = payload;
+    if (payload.updatedAt.slice(0, 10) >= expectedShopDay())
+      return rememberShop(payload);
+  } catch {
+    // Pages publication is optional: the public API can recover a delayed build.
+  }
+
+  try {
+    const response = await fetch(SHOP_URL, {
+      cache: "no-cache",
+      signal: AbortSignal.timeout(20_000),
+    });
+    if (!response.ok) throw new Error(`API request failed (${response.status})`);
+    const api: ShopResponse = await response.json();
+    const date = api.data?.date;
+    if (
+      !date ||
+      !Number.isFinite(Date.parse(date)) ||
+      date.slice(0, 10) < expectedShopDay() ||
+      !Array.isArray(api.data?.entries)
+    ) throw new Error("Today's API shop is not available yet");
+
+    const items = dedupeShopItems(api.data.entries.map(mapShopEntry).filter(
+      (item): item is NonNullable<typeof item> => item !== null,
+    ));
+    // Reuse mirrored artwork only when the same official image is still offered.
+    const artwork = new Map(
+      [...(cached?.items ?? []), ...(published?.items ?? [])].map((item) => [item.image, item]),
+    );
+    const payload: ShopPayload = {
+      source: SHOP_URL,
+      updatedAt: date,
+      generatedAt: new Date().toISOString(),
+      cacheSeconds: 86400,
+      items: items.map((item) => {
+        const existing = (item.imageSources ?? [item.image])
+          .map((source) => artwork.get(source))
+          .find((candidate) => candidate?.exportImage);
+        return existing ? {
+          ...item,
+          image: existing.image,
+          exportImage: existing.exportImage,
+          previewImage: existing.previewImage,
+        } : item;
+      }),
+    };
+    if (!isShopPayload(payload)) throw new Error("Incomplete API shop");
+    return rememberShop(payload);
+  } catch {
+    if (published && (!cached || published.updatedAt >= cached.updatedAt))
+      return rememberShop(published);
+    throw new Error("The shop could not be synced. Check your connection and retry.");
+  }
 }
 
 export function useDailyShopData() {
@@ -103,7 +161,7 @@ export function useDailyShopData() {
       window.clearTimeout(timer);
       setIsRefreshing(true);
       try {
-        request ??= fetchShop().finally(() => {
+        request ??= fetchShop(cached).finally(() => {
           request = undefined;
         });
         const payload = await request;
@@ -118,7 +176,7 @@ export function useDailyShopData() {
         setError("");
         if (payload.updatedAt.slice(0, 10) < expectedShopDay()) {
           throw new Error(
-            "The new shop is still being published. Showing the last available shop.",
+            "Today's shop could not be synced yet. Showing the last available shop and retrying automatically.",
           );
         }
         attempts = 0;

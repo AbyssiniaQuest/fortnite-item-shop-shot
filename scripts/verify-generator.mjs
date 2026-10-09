@@ -71,7 +71,7 @@ async function downloadAndCheck(
   name,
   button = page.getByTestId("download-pngs"),
 ) {
-  const promise = page.waitForEvent("download", { timeout: 120_000 });
+  const promise = button.page().waitForEvent("download", { timeout: 120_000 });
   await button.click();
   const download = await promise;
   const file = path.join(output, name);
@@ -263,10 +263,79 @@ try {
       "Daily rollover: one request after publication time, no repeated successful fetches.",
     );
 
+    const fallback = await browser.newPage();
+    fallback.setDefaultTimeout(30_000);
+    await fallback.clock.install({ time: new Date("2026-10-08T12:00:00Z") });
+    const existingSkin = payload.items.find((item) => item.category === "skins");
+    let fallbackRequests = 0;
+    let apiRequests = 0;
+    let apiAvailable = true;
+    await fallback.route("**/shop-data.json", (route) => {
+      fallbackRequests++;
+      return route.fulfill({ json: { ...payload, updatedAt: "2026-10-07T00:00:00Z" } });
+    });
+    await fallback.route("https://fortnite-api.com/v2/shop", (route) => {
+      apiRequests++;
+      if (!apiAvailable) return route.fulfill({ status: 503, body: "Unavailable" });
+      return route.fulfill({ headers: { "access-control-allow-origin": "*" }, json: { data: {
+        date: "2026-10-08T00:00:00Z",
+        entries: [
+          { offerId: "existing-skin", finalPrice: 1337, brItems: [{
+            id: "existing-skin", name: existingSkin.name,
+            type: { value: "outfit", displayValue: "Outfit" },
+            rarity: { displayValue: "Epic" }, images: { icon: existingSkin.image },
+          }] },
+          { offerId: "new-skin", finalPrice: 800, brItems: [{
+            id: "new-skin", name: "Daily Sync Test",
+            type: { value: "outfit", displayValue: "Outfit" },
+            rarity: { displayValue: "Rare" },
+            images: { icon: "https://fortnite-api.com/images/fallback-test.webp" },
+          }] },
+        ],
+      } } });
+    });
+    await fallback.route("https://fortnite-api.com/images/fallback-test.webp", async (route) =>
+      route.fulfill({
+        body: await readFile(path.join(root, existingSkin.exportImage)),
+        contentType: "image/webp",
+        headers: { "access-control-allow-origin": "*" },
+      }),
+    );
+    await fallback.goto(url);
+    await fallback.getByRole("heading", { name: "Daily Sync Test", exact: true }).waitFor();
+    await fallback.getByText("October 8, 2026", { exact: true }).waitFor();
+    assert.equal(await fallback.locator(".shop-card").count(), 2);
+    assert.equal(await fallback.locator(".shop-notice").count(), 0);
+    await fallback.getByText("1,337 V-Bucks", { exact: true }).waitFor();
+    const reusedArtwork = await fallback.evaluate(() =>
+      JSON.parse(localStorage.getItem("abyssinia-shop-daily-v2")).items[0].exportImage,
+    );
+    assert.equal(reusedArtwork, existingSkin.exportImage, "Mirrored artwork was not reused");
+    await fallback.getByLabel("Columns", { exact: true }).fill("2");
+    await downloadAndCheck("api-fallback.png", fallback.getByTestId("download-pngs"));
+    await fallback.clock.fastForward(6 * 60 * 60_000);
+    await fallback.reload();
+    await fallback.getByRole("heading", { name: "Daily Sync Test", exact: true }).waitFor();
+    assert.equal(fallbackRequests, 1, "Successful fallback refetched the static shop");
+    assert.equal(apiRequests, 1, "Successful fallback polled the API again");
+    apiAvailable = false;
+    await fallback.getByRole("button", { name: "Sync shop", exact: true }).click();
+    await fallback.locator(".shop-notice").waitFor();
+    assert.equal(await fallback.locator(".shop-card").count(), 2, "A failed sync replaced today's shop with yesterday's");
+    apiAvailable = true;
+    await fallback.getByRole("button", { name: "Retry", exact: true }).click();
+    await fallback.waitForFunction(() => !document.querySelector(".shop-notice"));
+    assert.equal(apiRequests, 3);
+    await fallback.close();
+    console.log("Delayed Pages: API fallback, current prices, artwork export, daily caching, and failed-sync recovery verified.");
+
     const delayed = await browser.newPage();
     await delayed.clock.install({ time: new Date("2026-10-07T23:50:00Z") });
     let delayedRequests = 0;
     let published = false;
+    await delayed.route("https://fortnite-api.com/v2/shop", (route) =>
+      route.fulfill({ status: 503, body: "Unavailable" }),
+    );
     await delayed.route("**/shop-data.json", (route) => {
       delayedRequests++;
       return route.fulfill({

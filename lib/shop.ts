@@ -235,6 +235,18 @@ export function mapShopEntry(entry: ApiEntry): ShopItem | null {
     name,
     type,
     image,
+    imageSources: [...new Set([
+      image,
+      entry.bundle?.image,
+      primaryItem?.images?.featured,
+      primaryItem?.images?.icon,
+      primaryItem?.images?.smallIcon,
+      primaryInstrument?.images?.large,
+      primaryInstrument?.images?.small,
+      primaryTrack?.albumArt,
+      primaryLegoKit?.image,
+      firstDisplayImage(entry),
+    ].filter((source): source is string => Boolean(source)))],
     rarity:
       primaryItem?.rarity?.displayValue ??
       primaryInstrument?.rarity?.displayValue ??
